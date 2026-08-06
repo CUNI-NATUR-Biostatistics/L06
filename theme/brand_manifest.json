@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "fingerprintAlgorithm": "MD5",
+  "brandFingerprint": "d4c53511038cec9d19daf86a2350fc21",
+  "inputs": {
+    "theme/colors.json": "c900347b9664c2d5258a1c3aa02d2c5e",
+    "theme/fonts.json": "a7fd2ddc5131dbe43f2772c5a48dbefd",
+    "theme/custom_theme.json": "b8a645896eced27629f5ba24d6674fe0",
+    "theme/rn-shorthand.lua": "f1dea5bc84fc28e9bf5abff82acd7191",
+    "theme/semantic-boxes.lua": "e5ce6a73d7234b8142c5140229761b2a",
+    "R/cache/generate_theme_canonical.R": "e9dde714a4ef03067b83664d5a551736",
+    "R/Functions/Theme_generation/generate_colors_scss.R": "69a74c1d2fc21bcde1ede550957797e4",
+    "R/Functions/Theme_generation/generate_fonts_html.R": "3a8ed387e5ef159cf6ffdbe641dc4ee9",
+    "R/Functions/Theme_generation/generate_presentation_theme.R": "0ffe5004b2220a761e1611092f87b560",
+    "R/Functions/Theme_generation/generate_presentation_components.R": "df83d6de362041ccb9ab9b3f9025f443",
+    "R/Functions/Theme_generation/generate_skripta_html_theme.R": "8f70c7b73fe14612965d4bd44b11622c",
+    "R/Functions/Theme_generation/generate_skripta_typst_theme.R": "7aa6fe32539c275f3f5b5c38a44d6036",
+    "R/Functions/Theme_generation/generate_r_theme.R": "f09061f6b65d7bc28a4cf7fea1f11044",
+    "R/Functions/render_glossary_term.R": "ddec1de66d68ff03979aeff7d7cbf03e",
+    "R/render_all.R": "54baae61d150fad891a1063a7eeecd9b",
+    "R/render_presentation.R": "431e1629e094e71aa8516bd804a127cd",
+    "R/render_skripta.R": "45ad2167954afbddb707149c00f59e24"
+  },
+  "generatedOutputs": {
+    "theme/_colors.scss": "c5d3acf4563db0f4a5d6e8272f75b6c7",
+    "theme/fonts-include.html": "0b46aa0d18b11782f5541e6e5076c913",
+    "theme/presentation_theme.scss": "e9e43e6c34c3a7860493013019d64611",
+    "theme/presentation_components.scss": "3a34128a9bfceae9ac44d44f48c98ff2",
+    "theme/skripta_theme.scss": "991c1c5ee320024baf3a1e21986bda2f",
+    "Learning_materials/skripta_theme.typ": "eb7ae65a49d2e29f19bc5afb9ad0abaf",
+    "R/set_r_theme.R": "42082d2fc70a12f97155edd6a151d0a2"
+  }
+}
