@@ -5,7 +5,7 @@
 - Week: L06
 - Date: 2026-08-06
 - Author: Ondřej Mottl (with Codex)
-- Reviewer: Ondřej Mottl (pending review)
+- Reviewer: Ondřej Mottl (approved 2026-08-06)
 
 ## Git checkpoint
 
@@ -14,7 +14,7 @@
 - Base branch and commit: `main` at `ef366a1` (`Initial commit`)
 - `git status --short` reviewed: [x]
 - Previous-stage PR merged: N/A
-- Planned PR: Planning PR for Stages 0-1; not opened
+- Pull request: [#1](https://github.com/CUNI-NATUR-Biostatistics/L06/pull/1), merged into `main` at `4615cbe`
 
 ## Topic sentence
 
@@ -91,6 +91,6 @@ Extend the familiar linear-model workflow by changing only the predictor type: b
 
 ## Decision
 
-- [ ] Scope locked for implementation
-- [ ] Continue Stage 1 on this same planning branch
-- Notes: Phase 0 is in review. Repository initialization and the teaching-arc proposal are complete; human approval is required before the scope is locked and Phase 1 begins.
+- [x] Scope locked for implementation
+- [x] Continue Stage 1 after the Stage 0 pull request
+- Notes: The human author approved continuation to Phase 1 on 2026-08-06. Stage 0 had already been merged separately in PR #1, so Stage 1 continues on `lesson/l06-dataset`, a new planning-continuation branch based on the updated `main`, rather than reopening or reusing the merged `lesson/l06-scope-data` branch.
