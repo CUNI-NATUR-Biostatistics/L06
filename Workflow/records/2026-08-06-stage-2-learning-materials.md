@@ -5,7 +5,7 @@
 - Week: L06
 - Date: 2026-08-06
 - Author: Codex with Ondřej Mottl
-- Reviewer: Pending human review after the complete development pass
+- Reviewer: Independent internal vision and glossary reviews complete; human review by Ondřej Mottl pending
 
 ## Git checkpoint
 
@@ -19,7 +19,7 @@
 
 ## Current stop point
 
-This record captures the Phase 2 technical setup and the proposed story map. It deliberately does not begin the full `Learning_materials/skripta.qmd` draft. The human author should first review the narrative order, callbacks, formula transition, and planned visual evidence.
+The complete Stage 2 development pass is ready for human review. The draft implements the approved story map, has passed independent lesson-vision and glossary reviews, and renders successfully to HTML and a 25-page PDF. Stage 3 remains open until the human author reviews the teaching choices and requests or approves revisions.
 
 ## Author direction incorporated
 
@@ -36,7 +36,8 @@ This record captures the Phase 2 technical setup and the proposed story map. It 
 - Prepared teaching table added at `data/palmer_penguins.csv`: [x]
 - Data provenance and recreation instructions added at `data/README.md`: [x]
 - The prepared table retains all 344 observations and both missing body-mass values so their removal can be shown rather than hidden: [x]
-- No full `skripta.qmd` prose or figures drafted yet: [x]
+- Complete `Learning_materials/skripta.qmd` development pass added: [x]
+- Rendered `Learning_materials/skripta.html` and `Learning_materials/skripta.pdf` regenerated: [x]
 
 ## Inspiration consulted
 
@@ -151,20 +152,29 @@ The formula bridge should occupy a full early concept block rather than appearin
 - First interpretation prompt specified: [x]
 - Misconception checkpoints specified: [x]
 - Bridge to the next concept and next lesson specified: [x]
-- Human approval of story map: [ ]
-- Structural `skripta.qmd` draft begun: [ ]
+- Human approval of story map: [x]
+- Structural `skripta.qmd` draft begun: [x]
 
-## Stage 2B and Stage 3 remain pending
+## Stage 2B complete; Stage 3 human review pending
 
-- Major concept blocks implemented with visual anchors: [ ]
-- Interpretation prompts and explanatory payoffs implemented: [ ]
-- Glossary markup checked: [ ]
-- HTML and PDF rendered and visually checked: [ ]
-- Complete `skripta.qmd` reviewed by a separate read-only vision reviewer subagent: [ ]
-- Glossary-coverage review completed: [ ]
-- Credible internal-review findings resolved: [ ]
+- Major concept blocks implemented with visual anchors: [x]
+- Interpretation prompts and explanatory payoffs implemented: [x]
+- Glossary markup checked: [x]
+- HTML and PDF rendered and visually checked: [x]
+- Complete `skripta.qmd` reviewed by a separate read-only vision reviewer subagent: [x]
+- Glossary-coverage review completed: [x]
+- Credible internal-review findings resolved: [x]
 - Human review completed: [ ]
+
+## Development-pass validation
+
+- `knitr::purl()` extraction and R parsing completed successfully: [x]
+- Project render wrapper completed for HTML and Typst PDF: [x]
+- All 25 PDF pages inspected for clipping, overlap, leaked warnings, and readability: [x]
+- Rendered text checked for deprecated-plot warnings, source-helper leakage, and stale terminology: [x]
+- Independent lesson-vision closure review: no findings [x]
+- Independent glossary-coverage closure review: no findings [x]
 
 ## Decision requested from the human author
 
-Review the proposed formula bridge, callback density, story-block order, and visual/number-tracing plan before the full written-material draft begins. In particular, confirm whether the 0/1 membership-switch explanation is the right level of formal detail and whether the overall ANOVA block should precede all pairwise follow-up questions as proposed.
+Review the complete written materials, especially the amount of detail in the 0/1 membership-switch explanation, the concrete-to-general F-statistic passage, and the balance between the overall analysis-of-variance question and Tukey follow-up comparisons. Stage 3 should record requested revisions or explicit approval before any presentation work begins.
