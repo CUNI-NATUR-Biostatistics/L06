@@ -26,9 +26,9 @@
 - Approved `Learning_materials/skripta.qmd` and its Stage 2-3 record were reviewed before storyboarding: [x]
 - Existing template/gallery content in `Presentation/presentation.qmd` remains unchanged until storyboard approval: [x]
 
-## Storyboard stop point
+## Build status
 
-This record is the Stage 4 storyboard proposal. It compresses the approved 47-page written lesson into a classroom argument rather than mapping every written section to slides. Full slide text, slide-local R chunks, figures, rendered outputs, and the Stage 5 review work remain intentionally deferred until the human author approves this story map.
+The approved storyboard has been implemented as a 48-slide classroom deck. It compresses the approved 47-page written lesson into one model-first argument rather than mapping every written section mechanically to slides. The full source, slide-local R chunks, generated and analytical figures, synchronized HTML, and compressed PDF are now ready for human review. Stage 5 approval remains open until the human author explicitly approves the presentation.
 
 ## Inspiration consulted
 
@@ -293,19 +293,49 @@ Because the Stages 2-3 written-materials pull request is already merged and the 
 
 ## Stage 5 - Human review gate
 
-- Lesson-vision review completed: [ ]
+- Lesson-vision review completed: [x]
 - Human review completed: [ ]
-- Credible findings resolved: [ ]
-- Presentation rendered and checked: [ ]
-- Reviewer decision: Pending full deck
+- Credible findings resolved: [x]
+- Presentation rendered and checked: [x]
+- Reviewer decision: Independent review passed; human review pending
+
+### Implemented deck
+
+- Source: `Presentation/presentation.qmd`
+- Length: 48 slides
+- Explicit interaction/progressive-disclosure moments: 11 interaction prompts plus additional short reveals
+- Main analytical sequence: pooled observations -> species reveal -> group means and within-group variability -> categorical switch -> reference-coded coefficients -> two-group inference -> three group means -> one-versus-three-mean comparison -> ANOVA -> Tukey post-hoc intervals -> diagnostics and limitations
+- Control/reference sequence: slides 19-21 distinguish arbitrary reference coding, purposeful control-as-reference interpretation, and the design caveat that coding cannot create a valid control group or causal claim
+- Variability exercises: fixed mean gap with changing SD, fixed SD with changing mean gap, and equal F-statistics with different effects in grams
+
+### Generated illustration provenance
+
+- Generation mode: built-in image generation, new bitmap assets; the first asset established an original flat editorial/paper-cut visual language and later assets used it only as a style/character reference.
+- `ice_floe_laboratory.png`: two penguin colonies on separate ice floes; one tight and one dispersed around blank flags; generous space for editable Czech overlays; no generated text, formulas, axes, logos, or watermark.
+- `one_vs_three_feeding_flags.png`: the same three groups first orient toward one blank feeding flag and then toward exactly three blank flags; stable positions and a wide comparison layout.
+- `penguin_model_passport.png`: exactly three penguins at a registration checkpoint; one visually neutral reference passport and two dotted comparison paths; blank pages and stamps.
+- `penguin_group_magnifying_glass.png`: exactly three penguins total; one transparent magnifying glass frames two without duplicating them, while the third remains visible.
+- A first magnifying-glass attempt duplicated group positions and was rejected before repository use. Only the corrected asset is retained.
+- Existing `lter_penguins.png` was reused with visible Allison Horst attribution; it remains visually distinct from the generated asset system.
+
+### Render and visual validation
+
+- Canonical render: `Rscript R/render_presentation.R` completed successfully after the final source changes.
+- Render products: 48-slide `Presentation/presentation.html`, synchronized `docs/index.html`, and compressed `Presentation/presentation.pdf`.
+- Full-canvas review: all 48 final slide states captured at the native 1050 x 700 viewport and inspected in four numbered contact sheets.
+- Fragment review: 38 representative initial, intermediate, and final states inspected for the major MCQs, reference decisions, ANOVA transitions, coefficient explanations, and closing synthesis.
+- Visual corrections from the first pass: repaired overlapping SSE category labels, clipped standardized-example facet strips, overlong interval-axis titles, and the crowded diagnostic label.
+- Independent reviewer: canonical `vision-corrector` pass completed read-only. Findings on statistical-power terminology, slide-local model creation, and two Czech headings were resolved; the resolution check returned no remaining findings.
+- Environment: stale dependencies from the deleted template gallery were pruned with `renv::snapshot()`; `renv::status()` reports no issues.
+- Source hygiene: source-specific `git diff --check` passes after replacing a Markdown hard-break trailing-space sequence with explicit `<br>` markup.
 
 ## Decision
 
 - [x] Technical setup for Stages 4-5 complete
 - [x] Storyboard ready for human review
 - [x] Storyboard approved by human author
-- [ ] Full `Presentation/presentation.qmd` drafting authorized
-- [ ] Slides ready for review
-- [ ] Diff contains only Stages 4-5 sources, records, and corresponding outputs
+- [x] Full `Presentation/presentation.qmd` drafting authorized
+- [x] Slides ready for review
+- [x] Diff contains only Stages 4-5 sources, records, technical lockfile cleanup, and corresponding outputs
 - [ ] Presentation PR ready to merge
-- Notes: The human author approved the storyboard, the recurring variability exercises, and the four generated-illustration concepts on 2026-08-10. Full slide drafting and asset generation remain separate next actions.
+- Notes: The human author approved the storyboard, recurring variability exercises, control/reference emphasis, and four generated-illustration concepts on 2026-08-10. The complete deck has passed render, visual, fragment, and independent lesson-vision review. Human presentation review is the remaining Stage 5 gate. The small control-group addition to `Learning_materials/skripta.qmd` remains a separately authorized follow-up on a correctly based branch.
