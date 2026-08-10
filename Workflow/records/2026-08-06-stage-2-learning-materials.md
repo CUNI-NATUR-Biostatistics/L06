@@ -5,7 +5,7 @@
 - Week: L06
 - Date: 2026-08-06
 - Author: Codex with Ondřej Mottl
-- Reviewer: Stage 2 approved by Ondřej Mottl; independent Stage 3 closure reviews complete; further human review pending
+- Reviewer: Stages 2 and 3 approved by Ondřej Mottl; independent Stage 3 lesson-vision and glossary closure reviews complete
 
 ## Git checkpoint
 
@@ -19,7 +19,7 @@
 
 ## Current stop point
 
-Stage 2 was approved by the human author on 2026-08-06. Ten Stage 3 revision passes now incorporate the resulting detailed comments, render successfully to HTML and a 45-page PDF, and have passed the required independent lesson-vision and glossary closure reviews. Stage 3 remains open for further human review and explicit approval.
+Stages 2 and 3 are complete. Stage 2 was approved by the human author on 2026-08-06, and Stage 3 was explicitly approved on 2026-08-10 after ten detailed revision passes and a final composition-and-reproducibility pass. The approved written materials render successfully to HTML and a 47-page PDF and have passed the required independent lesson-vision and glossary closure reviews. The next workflow step is to open and merge the Stages 2-3 written-materials pull request before creating a separate Stages 4-5 presentation branch from the updated default branch.
 
 ## Stage 3 revision pass
 
@@ -105,6 +105,15 @@ Stage 2 was approved by the human author on 2026-08-06. Ten Stage 3 revision pas
 
 - Corrected the horizontal group-mean segments in the right panel of `zobrazit-jeden-proti-trem-prumerum`. Sequential evaluation inside `dplyr::transmute()` had made each segment run only from `x - 0.32` to `x`; separate `x_start` and `x_end` variables now place it symmetrically from `x - 0.32` to `x + 0.32`.
 - Verified numerically that the three segment midpoints are exactly the species positions 1, 2, and 3, then re-rendered the HTML and 45-page PDF and visually inspected the corrected page 33 at full resolution.
+
+## Stage 3 final closure and human approval
+
+- Removed visible raw `ggplot2` warning blocks from the numerical-predictor callback figures and reflowed the affected intercept subsection so the final PDF composition remains balanced.
+- Corrected the remaining terminology and glossary-link findings, removed trailing whitespace, and verified UTF-8 without a byte-order mark or replacement characters.
+- Rebuilt the exact locked `fs` 1.6.7 package under R 4.5.1, after which `renv::status()` reported a clean project state without the earlier package-build warning.
+- Re-rendered the complete artifact to HTML and a 47-page PDF. The rendered outputs contain none of the former plotting-warning text, and every PDF page passed full-document visual inspection.
+- Repeated the independent lesson-vision and glossary closure reviews; both reported no remaining findings.
+- Ondřej Mottl explicitly approved Phase 3 on 2026-08-10.
 
 ## Author direction incorporated
 
@@ -241,7 +250,7 @@ The formula bridge should occupy a full early concept block rather than appearin
 - Human approval of story map: [x]
 - Structural `skripta.qmd` draft begun: [x]
 
-## Stage 2B complete; Stage 3 human review pending
+## Stage 2B and Stage 3 complete
 
 - Major concept blocks implemented with visual anchors: [x]
 - Interpretation prompts and explanatory payoffs implemented: [x]
@@ -250,17 +259,17 @@ The formula bridge should occupy a full early concept block rather than appearin
 - Complete `skripta.qmd` reviewed by a separate read-only vision reviewer subagent: [x]
 - Glossary-coverage review completed: [x]
 - Credible internal-review findings resolved: [x]
-- Human review completed: [ ]
+- Human review completed: [x]
 
 ## Development-pass validation
 
 - `knitr::purl()` extraction and R parsing completed successfully: [x]
 - Project render wrapper completed for HTML and Typst PDF: [x]
-- All 45 PDF pages inspected for clipping, overlap, leaked warnings, and readability: [x]
+- All 47 PDF pages inspected for clipping, overlap, leaked warnings, and readability: [x]
 - Rendered text checked for deprecated-plot warnings, source-helper leakage, and stale terminology: [x]
 - Independent lesson-vision closure review: no findings [x]
 - Independent glossary-coverage closure review: no findings [x]
 
-## Decision requested from the human author
+## Stage 3 approval and next gate
 
-Review the complete written materials, especially the amount of detail in the 0/1 membership-switch explanation, the concrete-to-general F-statistic passage, and the balance between the overall analysis-of-variance question and Tukey follow-up comparisons. Stage 3 should record requested revisions or explicit approval before any presentation work begins.
+Ondřej Mottl explicitly marked Phase 3 complete on 2026-08-10. Presentation work must wait until the Stages 2-3 written-materials pull request is opened and merged; Stage 4 then begins on a new Stages 4-5 branch created from the updated default branch.
