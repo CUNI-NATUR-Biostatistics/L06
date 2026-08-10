@@ -1,6 +1,6 @@
 ---
-title: "TODO: Název přednášky"
-subtitle: "Podkladové čtenářské materiály k přednášce"
+title: "Když prediktor není číslo"
+subtitle: "Od rozdílu průměrů k analýze rozptylu"
 lang: cs
 filters:
   - ../theme/semantic-boxes.lua
@@ -23,7 +23,7 @@ format:
     output-file: "skripta_raw.pdf"
     include-in-header: "skripta_theme.typ"
     date: last-modified
-date: 2026/02/26
+date: 2026/08/06
 date-format: long
 date-modified: last-modified
 ---
@@ -31,52 +31,85 @@ date-modified: last-modified
 ```{r}
 #| label: nastaveni
 #| include: false
-if (!require("here")) install.packages("here")
+if (!requireNamespace("here", quietly = TRUE)) install.packages("here")
+if (!requireNamespace("readr", quietly = TRUE)) install.packages("readr")
+if (!requireNamespace("dplyr", quietly = TRUE)) install.packages("dplyr")
+if (!requireNamespace("tidyr", quietly = TRUE)) install.packages("tidyr")
+if (!requireNamespace("ggplot2", quietly = TRUE)) install.packages("ggplot2")
+if (!requireNamespace("ggbeeswarm", quietly = TRUE)) {
+  install.packages("ggbeeswarm")
+}
+if (!requireNamespace("glossary", quietly = TRUE)) {
+  install.packages("glossary")
+}
 
 here::i_am("Learning_materials/skripta.qmd")
+source(here::here("R", "set_r_theme.R"))
 
-if (!require("tidyverse")) install.packages("tidyverse")
-if (!require("ggbeeswarm")) install.packages("ggbeeswarm")
-if (!require("palmerpenguins")) install.packages("palmerpenguins")
-if (!require("glossary")) install.packages("glossary")
+barvy_druhu <-
+  c(
+    "Adelie" = "darkorange",
+    "Chinstrap" = "mediumpurple",
+    "Gentoo" = "cyan4"
+  )
 
-library(tidyverse)
-library(ggbeeswarm)
-library(palmerpenguins)
-library(glossary)
+popisky_druhu <-
+  c(
+    "Adelie" = "tučňák kroužkový (Adélie)",
+    "Chinstrap" = "tučňák uzdičkový (Chinstrap)",
+    "Gentoo" = "tučňák oslí (Gentoo)"
+  )
 
-# Glossary: point to the canonical slovnik pojmy.yaml hosted on GitHub.
-# Terms are looked up by slug ID (e.g. "histogram", "median", "boxplot").
-# Usage in text: `r render_glossary_term("slug", display = "Czech term")`
-# The glossary_style() call applies brand colours to the hover tooltip (HTML only).
-local_pojmy <- tempfile(fileext = ".yaml")
-tryCatch(
-  {
-    download.file(
-      url = "https://raw.githubusercontent.com/CUNI-NATUR-Biostatistics/slovnik/main/pojmy.yaml",
-      destfile = local_pojmy,
-      quiet = TRUE
-    )
-    glossary::glossary_path(local_pojmy)
-  },
-  error = function(e) {
-    message("Glossary YAML unavailable: ", conditionMessage(e))
-  }
-)
-tryCatch(
-  {
-    source(
-      paste0(
-        "https://raw.githubusercontent.com/",
-        "CUNI-NATUR-Biostatistics/slovnik/main/",
-        "R/Functions/render_glossary_term.R"
+local_pojmy <- here::here("..", "slovnik", "pojmy.yaml")
+
+if (file.exists(local_pojmy)) {
+  glossary::glossary_path(local_pojmy)
+} else {
+  remote_pojmy <- tempfile(fileext = ".yaml")
+  tryCatch(
+    {
+      download.file(
+        url = paste0(
+          "https://raw.githubusercontent.com/",
+          "CUNI-NATUR-Biostatistics/slovnik/main/pojmy.yaml"
+        ),
+        destfile = remote_pojmy,
+        quiet = TRUE
       )
-    )
-  },
-  error = function(e) {
-    source(here::here("R/Functions/render_glossary_term.R"))
-  }
+      glossary::glossary_path(remote_pojmy)
+    },
+    error = function(e) {
+      message("Glossary YAML unavailable: ", conditionMessage(e))
+    }
+  )
+}
+
+local_glossary_helper <- here::here(
+  "..",
+  "slovnik",
+  "R",
+  "Functions",
+  "render_glossary_term.R"
 )
+
+if (file.exists(local_glossary_helper)) {
+  source(local_glossary_helper)
+} else {
+  tryCatch(
+    {
+      source(
+        paste0(
+          "https://raw.githubusercontent.com/",
+          "CUNI-NATUR-Biostatistics/slovnik/main/",
+          "R/Functions/render_glossary_term.R"
+        )
+      )
+    },
+    error = function(e) {
+      source(here::here("R", "Functions", "render_glossary_term.R"))
+    }
+  )
+}
 ```
 
 ```{r}
@@ -86,12 +119,11 @@ tryCatch(
 #| results: asis
 if (knitr::is_html_output()) {
   glossary::glossary_style(
-    color = "#5D2890",
+    color = biostat_cols[["indigo_velvet"]],
     text_decoration = "underline",
     def_bg = "#FFFFFF",
     def_color = "#2E2E2E"
   )
-  # Override: show tooltip on hover (not :active) and suppress the arrow on active.
   cat(
     "<style>",
     "a.glossary:hover .def { display: inline-block; }",
@@ -115,62 +147,3469 @@ if (knitr::is_html_output()) {
 }
 ```
 
-## Úvod
+## Liší se `r render_glossary_term("prumer", display = "průměrná")` hmotnost těla mezi druhy tučňáků?
 
-TODO: Stručný úvod do tématu přednášky. Vysvětlete biologický kontext a motivaci.
+V předchozí lekci jsme se naučili převést biologické tvrzení na `r render_glossary_term("nulova-hypoteza", display = "nulovou hypotézu")` a otestovat ji pomocí koeficientu známého modelu. `r render_glossary_term("prediktor", display = "Prediktorem")` byla `r render_glossary_term("spojita-promenna", display = "spojitá proměnná")` a otázka zněla, zda je `r render_glossary_term("sklon", display = "sklon")` slučitelný s nulou. Dnes použijeme stejný postup, ale prediktorem nebude měření: bude jím `r render_glossary_term("kategoricka-promenna", display = "kategoriální proměnná")` (druh tučňáka).
 
-## TODO: Hlavní část
+Způsob uvažování se nezmění. Nejdříve se podíváme na jednotlivá `r render_glossary_term("pozorovani", display = "pozorování")`, potom vyjádříme rozdíl (v gramech), přidáme `r render_glossary_term("nejistota", display = "nejistotu")` `r render_glossary_term("odhad", display = "odhadu")` a teprve nakonec položíme testovou otázku.
 
-TODO: Obsah hlavní části skripta. Používejte podnadpisy (###) pro strukturování textu.
+## Co se v této lekci naučíme
 
-### TODO: Podkapitola
+Po prostudování této lekce dokážete:
 
-TODO: Text podkapitoly s biologickými příklady a R kódem.
+- fitovat `lm(y ~ skupina)` pro dvě i více skupin;
+- vysvětlit, jak se obecný zápis `r render_glossary_term("linearni-model", display = "lineárního modelu")` změní, když je `r render_glossary_term("prediktor", display = "prediktorem")` druh organismu;
+- interpretovat `r render_glossary_term("intercept", display = "intercept")` jako `r render_glossary_term("prumer", display = "průměr")` referenční skupiny a ostatní koeficienty jako rozdíly vůči této skupině;
+- vysvětlit `r render_glossary_term("t-test", display = "dvouskupinový t-test")` a `r render_glossary_term("anova", display = "analýzu rozptylu")` jako případy lineárního modelu;
+- rozlišit celkový test všech skupin od navazujících porovnání konkrétních dvojic a napsat závěr v biologicky smysluplných jednotkách.
+
+## Data: jeden řádek je jeden změřený tučňák
 
 ```{r}
-#| label: demo
-#| echo: true
-# TODO: ukázka kódu v R
+#| label: nacist-data-tucnaku
+#| echo: false
+#| output: false
+#| message: false
+#| warning: false
+#| error: false
+data_penguins_raw <-
+  readr::read_csv(
+    file = here::here("data", "palmer_penguins.csv"),
+    na = c("", "NA"),
+    show_col_types = FALSE
+  )
+
+count_all <- nrow(data_penguins_raw)
+
+count_missing_mass <-
+  data_penguins_raw |>
+  dplyr::summarise(
+    count = sum(is.na(hmotnost_tela_g))
+  ) |>
+  dplyr::pull(count)
+
+data_penguins <-
+  data_penguins_raw |>
+  dplyr::filter(!is.na(hmotnost_tela_g)) |>
+  dplyr::mutate(
+    druh = factor(
+      druh,
+      levels = c("Adelie", "Chinstrap", "Gentoo")
+    )
+  )
+
+count_complete <- nrow(data_penguins)
+
+data_penguins_two <-
+  data_penguins |>
+  dplyr::filter(druh %in% c("Adelie", "Gentoo")) |>
+  dplyr::mutate(
+    druh = droplevels(druh)
+  )
 ```
 
-## Ukázka sémantických boxů
+Data obsahují tělesná měření dospělých tučňáků tří druhů z Palmerova souostroví v Antarktidě. Jeden řádek představuje jednoho změřeného jedince. Naše `r render_glossary_term("odezva", display = "odezva")` je hmotnost těla v gramech a `r render_glossary_term("kategoricka-promenna", display = "kategoriálním prediktorem")` je druh.
 
-Při přípravě lekce nahraďte následující ukázky konkrétním obsahem, nebo nepoužité typy odstraňte.
+```{r}
+#| label: ilustrace-druhy-tucnaku
+#| echo: false
+#| out.width: "85%"
+#| fig-cap: "Druhy tučňáků v datasetu Palmer Penguins a barvy, které pro ně budeme používat. Ilustrace: Allison Horst."
+knitr::include_graphics(
+  here::here(
+    "Learning_materials",
+    "images",
+    "lter_penguins.png"
+  )
+)
+```
 
-::: {.box-question title="Než zobrazíte výsledek"}
-TODO: Krátká otázka, předpověď nebo interpretační úkol pro studenty.
+Stejně jako v lekci o grafech a typech `r render_glossary_term("promenna", display = "proměnných")` budeme tučňáka kroužkového (Adélie) zobrazovat oranžově, tučňáka uzdičkového (Chinstrap) fialově a tučňáka oslího (Gentoo) modrozeleně.
+
+Tabulku načteme a dvěma známými funkcemi zjistíme, jaké hodnoty a datové typy obsahuje. `summary()` ukáže základní souhrny sloupců a počty chybějících hodnot; `str()` ukáže strukturu tabulky a typ každé proměnné.
+
+```{r}
+#| label: pripravit-data-viditelne
+#| echo: true
+#| eval: true
+# Načteme připravenou tabulku s jedním řádkem na tučňáka
+data_tucnaci <-
+  read.csv(
+    file = here::here("data", "palmer_penguins.csv"),
+    na.strings = "NA"
+  )
+
+# Prohlédneme si souhrny hodnot
+summary(data_tucnaci)
+
+# Zkontrolujeme strukturu a datové typy
+str(data_tucnaci)
+```
+
+```{r}
+#| label: ukazat-prvni-radky
+#| echo: false
+#| output: true
+#| message: false
+#| warning: false
+#| error: false
+data_penguins_raw |>
+  dplyr::select(
+    druh,
+    ostrov,
+    hmotnost_tela_g,
+    pohlavi,
+    rok
+  ) |>
+  dplyr::slice(1:6) |>
+  knitr::kable(
+    col.names = c(
+      "Druh",
+      "Ostrov",
+      "Hmotnost těla (g)",
+      "Pohlaví",
+      "Rok"
+    ),
+    caption = "Prvních šest řádků připravené tabulky."
+  )
+```
+
+
+{{< pagebreak >}}
+
+::: {.box-data title="Doplňující: získání a příprava dat" collapse="true"}
+Pro průchod lekcí stačí připravený soubor `data/palmer_penguins.csv`. Ten záměrně zachovává všech `r count_all` řádků, aby byly chybějící hodnoty při prvním prohlédnutí viditelné. Pokud si ale chcete celý postup zopakovat, následující kód provede celý sled kroků: **získá data → vybere a přejmenuje sloupce → připraví je pro model hmotnosti → uloží vlastní pracovní kopii**.
+
+Původní tabulka má `r count_missing_mass` chybějící hmotnosti. `r render_glossary_term("linearni-model", display = "Lineární model")` hmotnosti z těchto řádků nemůže vypočítat `r render_glossary_term("residuum", display = "residuum")`, protože nezná odezvu. Po načtení proto ponecháme `r count_complete` úplných `r render_glossary_term("pozorovani", display = "pozorování")` s naměřenou hmotností a při přejmenování sloupců vytvoříme z druhu faktor s výslovně zadaným pořadím úrovní. Tento blok můžete přeskočit; další příklady používají připravený soubor načtený výše.
+
+```{r}
+#| label: stahnout-a-pripravit-puvodni-data
+#| echo: true
+#| eval: false
+# Tento příkaz stačí spustit pouze jednou
+# install.packages("palmerpenguins")
+
+# Získáme data a prohlédneme chybějící hmotnosti
+data_puvodni <- palmerpenguins::penguins
+sum(is.na(data_puvodni$body_mass_g))
+data_puvodni <- data_puvodni[!is.na(data_puvodni$body_mass_g), ]
+
+# Vybereme, přejmenujeme a upravíme sloupce pro lekci
+data_tucnaci <-
+  data.frame(
+    druh = factor(data_puvodni$species,
+      levels = c("Adelie", "Chinstrap", "Gentoo")
+    ),
+    ostrov = as.character(data_puvodni$island),
+    delka_zobaku_mm = data_puvodni$bill_length_mm,
+    hloubka_zobaku_mm = data_puvodni$bill_depth_mm,
+    delka_kridla_mm = data_puvodni$flipper_length_mm,
+    hmotnost_tela_g = data_puvodni$body_mass_g,
+    pohlavi = as.character(data_puvodni$sex),
+    rok = data_puvodni$year
+  )
+
+# Uložíme si zpracovanou tabulku pro další práci
+write.csv(
+  x = data_tucnaci,
+  file = here::here("data", "palmer_penguins_vlastni_kopie.csv"),
+  row.names = FALSE,
+  na = ""
+)
+```
 :::
 
-::: {.box-result title="Co ukázala analýza"}
-TODO: Hlavní výsledek nebo závěr v biologicky smysluplných jednotkách.
+R Balíček obsahuje kopii původních tabulek z Environmental Data Initiative. [Dokumentace balíčku palmerpenguins](https://allisonhorst.github.io/palmerpenguins/articles/download.html) uvádí také cestu k neupraveným archivním souborům. Měření pocházejí z výzkumu tučňáků rodu *Pygoscelis* v letech 2007–2009. Data shromáždila Kristen Gorman ve spolupráci s Palmer Station Long Term Ecological Research a byla zveřejněna pod licencí CC0. Připravený soubor a jeho přesná provenance jsou popsány v `data/README.md`; biologickou studii uvádějí Gorman, Williams a Fraser (2014), DOI: [10.1371/journal.pone.0090081](https://doi.org/10.1371/journal.pone.0090081).
+
+```{r}
+#| label: pripravit-data-pro-dalsi-priklady
+#| echo: false
+#| output: false
+#| message: false
+#| warning: false
+#| error: false
+data_tucnaci <-
+  data_tucnaci[
+    !is.na(data_tucnaci$hmotnost_tela_g),
+  ]
+
+data_tucnaci$druh <-
+  factor(
+    x = data_tucnaci$druh,
+    levels = c("Adelie", "Chinstrap", "Gentoo")
+  )
+```
+
+## Dva druhy: začneme jednotlivými `r render_glossary_term("pozorovani", display = "pozorováními")`
+
+Začneme jen tučňákem kroužkovým a tučňákem oslím. V prvním grafu jsou všechny hmotnosti smíchané dohromady. Každý bod stále představuje jednoho jedince.
+
+```{r}
+#| label: pripravit-souhrn-smisene-hmotnosti
+#| echo: false
+#| output: false
+#| message: false
+#| warning: false
+#| error: false
+data_summary_pooled <-
+  data_penguins_two |>
+  dplyr::summarise(
+    n = dplyr::n(),
+    prumer_g = mean(hmotnost_tela_g),
+    median_g = median(hmotnost_tela_g),
+    minimum_g = min(hmotnost_tela_g),
+    maximum_g = max(hmotnost_tela_g),
+    iqr_g = IQR(hmotnost_tela_g)
+  )
+```
+
+```{r}
+#| label: zobrazit-smisene-hmotnosti
+#| echo: false
+#| output: true
+#| message: false
+#| warning: false
+#| error: false
+#| fig-cap: "Hmotnosti tučňáků dvou druhů předtím, než použijeme informaci o druhu. Všechny body jsou záměrně šedé."
+#| fig-width: 8
+#| fig-height: 4.6
+ggplot2::ggplot(
+  data = data_penguins_two,
+  mapping = ggplot2::aes(
+    x = "všichni jedinci",
+    y = hmotnost_tela_g
+  )
+) +
+ ggplot2::geom_violin(
+    fill = biostat_cols[["grey_olive"]],
+    alpha = 0.15,
+    linewidth = 0.8,
+    show.legend = FALSE
+  ) +
+  ggbeeswarm::geom_quasirandom(
+    width = 0.25,
+    alpha = 0.55,
+    size = 1.7,
+    color = biostat_cols[["grey_olive"]]
+  ) +
+  ggplot2::labs(
+    x = NULL,
+    y = "Hmotnost těla (g)"
+  )
+```
+
+Bez další `r render_glossary_term("promenna", display = "proměnné")` umíme popsat jen tento společný soubor. V lekci o popisu jedné proměnné jsme k tomu používali počet pozorování, minimum, maximum, `r render_glossary_term("prumer", display = "průměr")`, `r render_glossary_term("median", display = "medián")` a `r render_glossary_term("iqr", display = "mezikvartilové rozpětí (IQR)")`. Stejné souhrny nyní spočítáme v R:
+
+```{r}
+#| label: souhrn-smisene-hmotnosti-viditelne
+#| echo: true
+#| eval: true
+# Pro první pohled vybereme dva druhy, ale zatím je nesrovnáváme
+data_dva_druhy <-
+  data_tucnaci[
+    data_tucnaci$druh %in% c("Adelie", "Gentoo"),
+  ]
+data_dva_druhy$druh <- droplevels(data_dva_druhy$druh)
+
+# Připomeneme si známé souhrny pro všechny hmotnosti dohromady
+c(
+  pocet = length(data_dva_druhy$hmotnost_tela_g),
+  prumer = mean(data_dva_druhy$hmotnost_tela_g),
+  median = median(data_dva_druhy$hmotnost_tela_g),
+  minimum = min(data_dva_druhy$hmotnost_tela_g),
+  maximum = max(data_dva_druhy$hmotnost_tela_g),
+  IQR = IQR(data_dva_druhy$hmotnost_tela_g)
+)
+```
+
+Společný průměr `r round(data_summary_pooled$prumer_g, 1)` g shrnuje střed šedého oblaku, ale zakrývá možnost, že se v něm mísí odlišné skupiny. Teď proto přidáme novou proměnnou `druh`.
+
+Proměnná `druh` je `r render_glossary_term("kategoricka-promenna", display = "kategoriální")`: její hodnoty nejsou měření na číselné škále, ale názvy kategorií. Funkce `table()` ukáže, kolik řádků (jedinců) patří do každé kategorie:
+
+```{r}
+#| label: zobrazit-pocty-druhu
+#| echo: true
+#| eval: true
+table(data_tucnaci$druh)
+```
+
+V celé tabulce jsou tři druhy. Pro první model zatím ponecháváme pouze Adélie a Gentoo, které jsme vybrali do objektu `data_dva_druhy`.
+
+::: {.box-question title="Než druhy barevně oddělíme"}
+V předchozí lekci o testování hypotéz jsme se naučili testovat `r render_glossary_term("nulova-hypoteza", display = "nulovou hypotézu")` o koeficientu modelu. Zkuste nyní vyslovit nulovou hypotézu pro průměrnou hmotnost Adélie a Gentoo. Až potom předpovězte: budou s ní podle barevného grafu data slučitelná?
 :::
 
-::: {.box-data title="Doplňující: původ dat" collapse="true"}
-TODO: Původ dat, způsob měření nebo volitelný technický detail.
+```{r}
+#| label: zobrazit-jednotlive-hmotnosti-podle-druhu
+#| echo: false
+#| output: true
+#| message: false
+#| warning: false
+#| error: false
+#| fig-cap: "Stejná měření po přidání kategoriální proměnné druh. Barva i vodorovná poloha nyní ukazují příslušnost ke skupině."
+#| fig-width: 8
+#| fig-height: 5
+ggplot2::ggplot(
+  data = data_penguins_two,
+  mapping = ggplot2::aes(
+    x = druh,
+    y = hmotnost_tela_g,
+    color = druh
+  )
+) +
+   ggplot2::geom_violin(
+    mapping = ggplot2::aes(
+      fill = druh
+    ),
+    alpha = 0.15,
+    linewidth = 0.8,
+    show.legend = FALSE
+  ) +
+  ggbeeswarm::geom_quasirandom(
+    width = 0.22,
+    alpha = 0.65,
+    size = 1.8,
+    show.legend = FALSE
+  ) +
+  ggplot2::scale_color_manual(values = barvy_druhu) +
+  ggplot2::scale_x_discrete(labels = popisky_druhu) +
+  ggplot2::labs(
+    x = NULL,
+    y = "Hmotnost těla (g)"
+  )
+```
+
+Po rozdělení vidíme silný posun: body tučňáků oslích leží převážně výše. Zároveň se hodnoty uvnitř každého druhu liší a oba soubory se částečně překrývají. Druh nám tedy pomohl odhalit strukturu, kterou šedý graf skrýval.
+
+### Přidáme průměry
+
+```{r}
+#| label: spocitat-souhrny-dvou-druhu
+#| echo: false
+#| output: false
+#| message: false
+#| warning: false
+#| error: false
+data_summary_two <-
+  data_penguins_two |>
+  dplyr::group_by(druh) |>
+  dplyr::summarise(
+    n = dplyr::n(),
+    prumer_g = mean(hmotnost_tela_g),
+    sd_g = sd(hmotnost_tela_g),
+    .groups = "drop"
+  ) |>
+  dplyr::mutate(
+    x = c(1, 2)
+  )
+
+mean_adelie <-
+  data_summary_two |>
+  dplyr::filter(druh == "Adelie") |>
+  dplyr::pull(prumer_g)
+
+mean_gentoo <-
+  data_summary_two |>
+  dplyr::filter(druh == "Gentoo") |>
+  dplyr::pull(prumer_g)
+
+difference_gentoo_adelie <- mean_gentoo - mean_adelie
+```
+
+```{r}
+#| label: ukazat-souhrny-dvou-druhu
+#| echo: false
+#| output: true
+#| message: false
+#| warning: false
+#| error: false
+data_summary_two |>
+  dplyr::transmute(
+    Druh = popisky_druhu[as.character(druh)],
+    `Počet jedinců` = n,
+    `Průměr (g)` = round(prumer_g, digits = 1),
+    `SD (g)` = round(sd_g, digits = 1)
+  ) |>
+  knitr::kable(
+    caption = paste0(
+      "Počet pozorování, průměr a směrodatná odchylka ",
+      "hmotnosti ve dvou skupinách."
+    )
+  )
+```
+
+Průměr shrnuje polohu jedné skupiny, ale neříká, jak se liší jednotlivci uvnitř ní. Proto vedle něj zobrazíme `r render_glossary_term("smerodatna-odchylka", display = "směrodatnou odchylku")` (SD) i všechny body. Svislá úsečka kolem průměru sahá od průměru minus jedna SD po průměr plus jedna SD.
+
+```{r}
+#| label: zobrazit-prumery-dvou-druhu
+#| echo: false
+#| output: true
+#| message: false
+#| warning: false
+#| error: false
+#| fig-cap: "Body jsou jednotliví tučňáci, silné vodorovné úsečky jsou průměry a tenké svislé úsečky ukazují průměr ± 1 SD."
+#| fig-width: 8
+#| fig-height: 5
+ggplot2::ggplot(
+  data = data_penguins_two,
+  mapping = ggplot2::aes(
+    x = druh,
+    y = hmotnost_tela_g,
+    color = druh
+  )
+) +
+  ggplot2::geom_violin(
+    mapping = ggplot2::aes(
+      fill = druh
+    ),
+    alpha = 0.15,
+    linewidth = 0.8,
+    show.legend = FALSE
+  ) +
+  ggbeeswarm::geom_quasirandom(
+    width = 0.22,
+    alpha = 0.45,
+    size = 1.7,
+    show.legend = FALSE
+  ) +
+  ggplot2::geom_errorbar(
+    data = data_summary_two,
+    mapping = ggplot2::aes(
+      x = druh,
+      ymin = prumer_g - sd_g,
+      ymax = prumer_g + sd_g,
+      color = druh
+    ),
+    width = 0.16,
+    linewidth = 0.9,
+    inherit.aes = FALSE,
+    show.legend = FALSE
+  ) +
+  ggplot2::geom_segment(
+    data = data_summary_two,
+    mapping = ggplot2::aes(
+      x = x - 0.28,
+      xend = x + 0.28,
+      y = prumer_g,
+      yend = prumer_g,
+      color = druh
+    ),
+    linewidth = 2.2,
+    inherit.aes = FALSE,
+    show.legend = FALSE
+  ) +
+  ggplot2::scale_color_manual(values = barvy_druhu) +
+  ggplot2::scale_x_discrete(labels = popisky_druhu) +
+  ggplot2::labs(
+    x = NULL,
+    y = "Hmotnost těla (g)"
+  )
+```
+
+Průměr tučňáků oslích je o `r round(difference_gentoo_adelie, 1)` g vyšší než průměr tučňáků kroužkových. To je hlavní věcný rozdíl, který bude náš model popisovat.
+
+## Rozdíl `r render_glossary_term("prumer", display = "průměrů")`
+
+Dva průměry se mohou lišit o stejnou hodnotu, ale síla informace závisí také na `r render_glossary_term("variabilita", display = "variabilitě")` uvnitř skupin. Proto nyní na okamžik skryjeme jednotlivé body a ponecháme pouze tři součásti: dva průměry, jejich rozdíl a `r render_glossary_term("smerodatna-odchylka", display = "SD")` každé skupiny.
+
+```{r}
+#| label: zobrazit-rozdil-prumeru-a-sd
+#| echo: false
+#| output: true
+#| message: false
+#| warning: false
+#| error: false
+#| fig-cap: "Silné vodorovné úsečky jsou průměry, svislé úsečky ukazují ± 1 SD a závorka vpravo měří rozdíl mezi průměry. Celkový rozsah dat zde záměrně nezobrazujeme."
+#| fig-width: 8
+#| fig-height: 5
+ggplot2::ggplot(
+  data = data_summary_two,
+  mapping = ggplot2::aes(
+    x = x,
+    y = prumer_g,
+    color = druh
+  )
+) +
+  ggplot2::geom_errorbar(
+    mapping = ggplot2::aes(
+      ymin = prumer_g - sd_g,
+      ymax = prumer_g + sd_g
+    ),
+    width = 0.14,
+    linewidth = 1
+  ) +
+  ggplot2::geom_segment(
+    mapping = ggplot2::aes(
+      x = x - 0.26,
+      xend = x + 0.26,
+      y = prumer_g,
+      yend = prumer_g
+    ),
+    linewidth = 2.3
+  ) +
+  ggplot2::annotate(
+    geom = "segment",
+    x = 2.52,
+    xend = 2.52,
+    y = mean_adelie,
+    yend = mean_gentoo,
+    color = biostat_cols[["graphite"]],
+    linewidth = 1,
+    arrow = grid::arrow(ends = "both", length = grid::unit(0.12, "cm"))
+  ) +
+  ggplot2::annotate(
+    geom = "label",
+    x = 2.57,
+    y = mean(c(mean_adelie, mean_gentoo)),
+    label = paste0(round(difference_gentoo_adelie), " g"),
+    hjust = 0,
+    color = biostat_cols[["graphite"]],
+    fill = "white",
+    linewidth = 0.2,
+    size = 4.2
+  ) +
+  ggplot2::scale_color_manual(values = barvy_druhu) +
+  ggplot2::scale_x_continuous(
+    breaks = c(1, 2),
+    labels = popisky_druhu[c("Adelie", "Gentoo")],
+    limits = c(0.65, 2.95)
+  ) +
+  ggplot2::labs(
+    x = NULL,
+    y = "Hmotnost těla (g)",
+    color = "Druh"
+  ) +
+  ggplot2::theme(legend.position = "none")
+```
+
+Svislá závorka měří systematický rozdíl, který chceme vysvětlit druhem. Úsečky SD připomínají, že každý průměr zastupuje celý oblak různých jedinců. Rozdíl průměrů proto nikdy nebudeme číst bez informace o variabilitě kolem nich.
+
+### Stejný rozdíl, jiná variabilita
+
+Následující obrázek není další `r render_glossary_term("vyber", display = "výběr")` tučňáků. Je to záměrně zjednodušený myšlenkový pokus: všechny tři panely mají stejné dva průměry, ale liší se rozptýlením bodů kolem nich.
+
+```{r}
+#| label: pripravit-myslenkovy-pokus-variabilita
+#| echo: false
+#| output: false
+#| message: false
+#| warning: false
+#| error: false
+vec_pattern <-
+  c(-1.6, -1.25, -0.9, -0.55, -0.2, 0.2, 0.55, 0.9, 1.25, 1.6)
+
+data_variability_demo <-
+  tidyr::expand_grid(
+    scenar = c(
+      "menší variabilita uvnitř skupin",
+      "střední variabilita uvnitř skupin",
+      "větší variabilita uvnitř skupin"
+    ),
+    druh = factor(
+      c("Adelie", "Gentoo"),
+      levels = c("Adelie", "Gentoo")
+    ),
+    index = seq_along(vec_pattern)
+  ) |>
+  dplyr::mutate(
+    prumer_g = ifelse(druh == "Adelie", mean_adelie, mean_gentoo),
+    scale_g = dplyr::case_when(
+      scenar == "menší variabilita uvnitř skupin" ~ 150,
+      scenar == "střední variabilita uvnitř skupin" ~ 350,
+      TRUE ~ 700
+    ),
+    hmotnost_tela_g = prumer_g + vec_pattern[index] * scale_g
+  ) |>
+  dplyr::mutate(
+    scenar = factor(
+      scenar,
+      levels = c(
+        "menší variabilita uvnitř skupin",
+        "střední variabilita uvnitř skupin",
+        "větší variabilita uvnitř skupin"
+      )
+    )
+  )
+
+data_variability_summary <-
+  data_variability_demo |>
+  dplyr::group_by(scenar, druh) |>
+  dplyr::summarise(
+    prumer_g = mean(hmotnost_tela_g),
+    sd_g = sd(hmotnost_tela_g),
+    .groups = "drop"
+  )
+```
+
+```{r}
+#| label: zobrazit-myslenkovy-pokus-variabilita
+#| echo: false
+#| output: true
+#| message: false
+#| warning: false
+#| error: false
+#| fig-cap: "Myšlenkový pokus: rozdíl mezi průměry je ve všech třech panelech stejný. Body a úsečky průměr ± 1 SD ukazují rostoucí variabilitu uvnitř skupin."
+#| fig-width: 10.5
+#| fig-height: 5
+ggplot2::ggplot(
+  data = data_variability_demo,
+  mapping = ggplot2::aes(
+    x = druh,
+    y = hmotnost_tela_g,
+    color = druh
+  )
+) +
+  ggbeeswarm::geom_quasirandom(
+    width = 0.16,
+    size = 2,
+    show.legend = FALSE
+  ) +
+  ggplot2::geom_errorbar(
+    data = data_variability_summary,
+    mapping = ggplot2::aes(
+      x = druh,
+      ymin = prumer_g - sd_g,
+      ymax = prumer_g + sd_g,
+      color = druh
+    ),
+    width = 0.14,
+    linewidth = 0.9,
+    inherit.aes = FALSE,
+    show.legend = FALSE
+  ) +
+  ggplot2::geom_point(
+    data = data_variability_summary,
+    mapping = ggplot2::aes(
+      x = druh,
+      y = prumer_g,
+      color = druh
+    ),
+    shape = 95,
+    size = 9,
+    inherit.aes = FALSE,
+    show.legend = FALSE
+  ) +
+  ggplot2::facet_wrap(
+    facets = ggplot2::vars(scenar),
+    nrow = 1
+  ) +
+  ggplot2::scale_color_manual(values = barvy_druhu) +
+  ggplot2::scale_x_discrete(labels = c("Adélie", "Gentoo")) +
+  ggplot2::labs(
+    x = NULL,
+    y = "Ilustrační hmotnost (g)"
+  )
+```
+
+::: {.box-question title="Co by se změnilo v našem závěru?"}
+Když je rozdíl mezi průměry ve všech panelech stejný, ve kterém panelu bude nejobtížnější odlišit systematický rozdíl od běžných rozdílů mezi jedinci (druh vysvětluje největší část celkové variability)?
 :::
 
-::: {.box-rule title="Pravidlo pro interpretaci"}
-TODO: Definice, rozhodovací pravidlo nebo dlouhodobě použitelná pomůcka.
+**Rozdíl průměrů tedy nečteme izolovaně. Posuzujeme jej vzhledem k variabilitě, která zůstává kolem skupinových průměrů.** Právě z tohoto porovnání později vznikne název `r render_glossary_term("anova", display = "analýza rozptylu")`: metoda porovnává variabilitu zachycenou rozdílnými skupinovými průměry s reziduální variabilitou uvnitř skupin.
+
+Dosud jsme rozdíl hmotností pouze popsali. Teď chceme udělat další krok: **fitovat `r render_glossary_term("linearni-model", display = "lineární model")` a pomocí něj otestovat, zda jsou pozorované rozdíly mezi skupinovými průměry slučitelné s nulovým rozdílem.** `r render_glossary_term("odezva", display = "Odezvou")` bude hmotnost těla a `r render_glossary_term("prediktor", display = "prediktorem")` druh. Než ale do známé formule vložíme `r render_glossary_term("kategoricka-promenna", display = "kategoriální proměnnou")`, připomeneme si přesně, jak model pracoval s `r render_glossary_term("numericka-promenna", display = "číselným prediktorem")`.
+
+## Stejný `r render_glossary_term("linearni-model", display = "lineární model")`, jiný `r render_glossary_term("prediktor", display = "prediktor")`
+
+### Opakování
+
+Než do modelu vložíme druh, vraťme se podrobně k modelu s `r render_glossary_term("numericka-promenna", display = "číselným prediktorem")`. V lekci o vztahu dvou číselných proměnných jsme zobrazovali vztah dvou tělesných měření bodem pro každého tučňáka; později jsme tento vztah popsali přímkou. Zde použijeme délku zobáku jako prediktor hloubky zobáku.
+
+```{r}
+#| label: ilustrace-mereni-zobaku
+#| echo: false
+#| out.width: "78%"
+#| fig-cap: "Schéma měření délky a hloubky zobáku v datech Palmer Penguins. Ilustrace: Allison Horst."
+knitr::include_graphics(
+  here::here(
+    "Learning_materials",
+    "images",
+    "culmen_depth.png"
+  )
+)
+```
+
+```{r}
+#| label: pripravit-pripomenuti-ciselneho-modelu
+#| echo: false
+#| output: false
+#| message: false
+#| warning: false
+#| error: false
+data_bill_model <-
+  data_penguins |>
+  dplyr::filter(
+    !is.na(delka_zobaku_mm),
+    !is.na(hloubka_zobaku_mm)
+  ) |>
+  dplyr::mutate(
+    druh = factor(
+      druh,
+      levels = c("Adelie", "Chinstrap", "Gentoo")
+    )
+  )
+
+mod_bill <-
+  lm(
+    formula = hloubka_zobaku_mm ~ delka_zobaku_mm,
+    data = data_bill_model
+  )
+
+coef_bill <- coef(mod_bill)
+intercept_bill <- unname(coef_bill[["(Intercept)"]])
+slope_bill <- unname(coef_bill[["delka_zobaku_mm"]])
+
+data_bill_model <-
+  data_bill_model |>
+  dplyr::mutate(
+    fitted_bill = fitted(mod_bill),
+    residual_bill = resid(mod_bill)
+  )
+
+data_bill_residual <-
+  data_bill_model |>
+  dplyr::filter(dplyr::between(delka_zobaku_mm, 47, 51)) |>
+  dplyr::slice_max(abs(residual_bill), n = 1, with_ties = FALSE)
+
+x_slope_start <- 38
+x_slope_end <- 48
+y_slope_start <- intercept_bill + slope_bill * x_slope_start
+y_slope_end <- intercept_bill + slope_bill * x_slope_end
+x_bill_min <- min(data_bill_model$delka_zobaku_mm)
+x_bill_max <- max(data_bill_model$delka_zobaku_mm)
+```
+
+### Začneme daty a přímkou
+
+Každý bod je jeden tučňák. Délka zobáku určuje jeho vodorovnou polohu a přímka ukazuje, jakou hloubku zobáku model pro tuto délku `r render_glossary_term("odhadnuta-hodnota", display = "odhaduje")`.
+
+```{r}
+#| label: zobrazit-ciselny-model-primka
+#| echo: false
+#| output: true
+#| message: false
+#| warning: false
+#| error: false
+#| fig-cap: "Pozorované délky a hloubky zobáku s odhadnutou přímkou. Každá hodnota číselného prediktoru vybírá jedno místo na přímce."
+#| fig-width: 9
+#| fig-height: 3.0
+ggplot2::ggplot(
+  data = data_bill_model,
+  mapping = ggplot2::aes(
+    x = delka_zobaku_mm,
+    y = hloubka_zobaku_mm
+  )
+) +
+  ggplot2::annotate(
+    geom = "segment",
+    x = x_bill_min,
+    xend = x_bill_max,
+    y = intercept_bill + slope_bill * x_bill_min,
+    yend = intercept_bill + slope_bill * x_bill_max,
+    color = biostat_cols[["graphite"]],
+    linewidth = 1.2
+  ) +
+  ggplot2::geom_point(
+    alpha = 0.55,
+    size = 1.7,
+    col = biostat_cols[["grey_olive"]]) +
+  ggplot2::labs(
+    x = "Délka zobáku (mm)",
+    y = "Hloubka zobáku (mm)"
+  )
+```
+
+{{< pagebreak >}}
+
+### Kde je `r render_glossary_term("intercept", display = "intercept")`?
+
+Intercept $a$ je odhadnutá hloubka zobáku při délce zobáku 0 mm. Nula leží daleko mimo rozsah pozorovaných délek, proto plnou přímku prodloužíme čárkovaně až k hodnotě $a=`r round(intercept_bill, 2)`$ mm. Intercept umíme v rovnici vypočítat, ale pro tyto tučňáky je extrapolací.
+
+```{r}
+#| label: zobrazit-ciselny-model-intercept
+#| echo: false
+#| output: true
+#| message: false
+#| warning: false
+#| error: false
+#| fig-cap: "Intercept je výška přímky při hodnotě prediktoru 0. Čárkovaná část upozorňuje, že mezi nulou a nejkratším pozorovaným zobákem nemáme žádná data."
+#| fig-width: 9
+#| fig-height: 4.0
+ggplot2::ggplot(
+  data = data_bill_model,
+  mapping = ggplot2::aes(
+    x = delka_zobaku_mm,
+    y = hloubka_zobaku_mm
+  )
+) +
+  ggplot2::annotate(
+    geom = "segment",
+    x = 0,
+    xend = x_bill_min,
+    y = intercept_bill,
+    yend = intercept_bill + slope_bill * x_bill_min,
+    color = biostat_cols[["graphite"]],
+    linetype = 2,
+    linewidth = 0.9
+  ) +
+  ggplot2::annotate(
+    geom = "segment",
+    x = x_bill_min,
+    xend = x_bill_max,
+    y = intercept_bill + slope_bill * x_bill_min,
+    yend = intercept_bill + slope_bill * x_bill_max,
+    color = biostat_cols[["graphite"]],
+    linewidth = 1.2
+  ) +
+  ggplot2::geom_point(
+    alpha = 0.45,
+    size = 1.6,
+    col = biostat_cols[["grey_olive"]]) +
+  ggplot2::annotate(
+    geom = "point",
+    x = 0,
+    y = intercept_bill,
+    color = biostat_cols[["orange"]],
+    size = 3.4
+  ) +
+  ggplot2::annotate(
+    geom = "label",
+    x = 2,
+    y = intercept_bill + 0.55,
+    label = paste0("a = ", round(intercept_bill, 2), " mm"),
+    hjust = 0,
+    color = biostat_cols[["graphite"]],
+    fill = "white",
+    linewidth = 0.2,
+    size = 3.6
+  ) +
+  ggplot2::scale_x_continuous(
+    breaks = c(0, 20, 40, 60),
+    limits = c(0, 64)
+  ) +
+  ggplot2::labs(
+    x = "Délka zobáku (mm)",
+    y = "Hloubka zobáku (mm)"
+  )
+```
+
+{{< pagebreak >}}
+
+### Kde je `r render_glossary_term("sklon", display = "sklon")`?
+
+Sklon $b$ je změna odhadnuté hloubky při prodloužení zobáku o 1 mm. Jedna jednotka by byla v grafu téměř neviditelná, proto zvýrazníme změnu délky o 10 mm. Odpovídající změna výšky přímky je $10b=`r round(10 * slope_bill, 2)`$ mm.
+
+```{r}
+#| label: zobrazit-ciselny-model-sklon
+#| echo: false
+#| output: true
+#| message: false
+#| warning: false
+#| error: false
+#| fig-cap: "Sklon převádí změnu prediktoru na změnu odhadnuté hodnoty. Zde je kvůli čitelnosti zobrazena změna při prodloužení zobáku o 10 mm."
+#| fig-width: 9
+#| fig-height: 4.8
+ggplot2::ggplot(
+  data = data_bill_model,
+  mapping = ggplot2::aes(
+    x = delka_zobaku_mm,
+    y = hloubka_zobaku_mm,
+  )
+) +
+  ggplot2::annotate(
+    geom = "segment",
+    x = x_bill_min,
+    xend = x_bill_max,
+    y = intercept_bill + slope_bill * x_bill_min,
+    yend = intercept_bill + slope_bill * x_bill_max,
+    color = biostat_cols[["graphite"]],
+    linewidth = 1.2
+  ) +
+  ggplot2::geom_point(
+    alpha = 0.35,
+    size = 1.6,
+    col = biostat_cols[["grey_olive"]]
+  ) +
+  ggplot2::annotate(
+    geom = "segment",
+    x = x_slope_start,
+    xend = x_slope_end,
+    y = y_slope_start,
+    yend = y_slope_start,
+    color = biostat_cols[["grey_olive"]],
+    linewidth = 1,
+    arrow = grid::arrow(ends = "both", length = grid::unit(0.10, "cm"))
+  ) +
+  ggplot2::annotate(
+    geom = "segment",
+    x = x_slope_end,
+    xend = x_slope_end,
+    y = y_slope_start,
+    yend = y_slope_end,
+    color = biostat_cols[["orange"]],
+    linewidth = 1.1,
+    arrow = grid::arrow(ends = "both", length = grid::unit(0.10, "cm"))
+  ) +
+  ggplot2::annotate(
+    geom = "label",
+    x = mean(c(x_slope_start, x_slope_end)),
+    y = y_slope_start + 0.45,
+    label = "změna x = 10 mm",
+    color = biostat_cols[["graphite"]],
+    fill = "white",
+    linewidth = 0.2,
+    size = 3.5
+  ) +
+  ggplot2::annotate(
+    geom = "label",
+    x = x_slope_end + 0.8,
+    y = mean(c(y_slope_start, y_slope_end)),
+    label = paste0("10b = ", round(10 * slope_bill, 2), " mm"),
+    hjust = 0,
+    color = biostat_cols[["graphite"]],
+    fill = "white",
+    linewidth = 0.2,
+    size = 3.5
+  ) +
+  ggplot2::labs(
+    x = "Délka zobáku (mm)",
+    y = "Hloubka zobáku (mm)"
+  )
+```
+
+{{< pagebreak >}}
+
+### Kde je `r render_glossary_term("residuum", display = "residuum")`?
+
+Residuum je svislá vzdálenost naměřené hodnoty od hodnoty na přímce. U zvýrazněného tučňáka tedy porovnáme naměřenou hloubku `r round(data_bill_residual$hloubka_zobaku_mm, 2)` mm s odhadem modelu `r round(data_bill_residual$fitted_bill, 2)` mm.
+
+```{r}
+#| label: zobrazit-ciselny-model-residuum
+#| echo: false
+#| output: true
+#| message: false
+#| warning: false
+#| error: false
+#| fig-cap: "Residuum jednoho pozorování je svislá vzdálenost mezi naměřenou hodnotou a odhadnutou hodnotou na přímce."
+#| fig-width: 9
+#| fig-height: 4.8
+ggplot2::ggplot(
+  data = data_bill_model,
+  mapping = ggplot2::aes(
+    x = delka_zobaku_mm,
+    y = hloubka_zobaku_mm
+  )
+) +
+  ggplot2::annotate(
+    geom = "segment",
+    x = x_bill_min,
+    xend = x_bill_max,
+    y = intercept_bill + slope_bill * x_bill_min,
+    yend = intercept_bill + slope_bill * x_bill_max,
+    color = biostat_cols[["graphite"]],
+    linewidth = 1.2
+  ) +
+  ggplot2::geom_point(
+    alpha = 0.28,
+    size = 1.5,
+    col = biostat_cols[["grey_olive"]]
+  ) +
+  ggplot2::geom_segment(
+    data = data_bill_residual,
+    mapping = ggplot2::aes(
+      x = delka_zobaku_mm,
+      y = hloubka_zobaku_mm,
+      xend = delka_zobaku_mm,
+      yend = fitted_bill
+    ),
+    color = biostat_cols[["amethyst"]],
+    linetype = 3,
+    linewidth = 1.3,
+    inherit.aes = FALSE
+  ) +
+  ggplot2::geom_point(
+    data = data_bill_residual,
+    mapping = ggplot2::aes(
+      x = delka_zobaku_mm,
+      y = hloubka_zobaku_mm
+    ),
+    color = biostat_cols[["amethyst"]],
+    size = 3.2,
+    inherit.aes = FALSE
+  ) +
+  ggplot2::geom_point(
+    data = data_bill_residual,
+    mapping = ggplot2::aes(
+      x = delka_zobaku_mm,
+      y = fitted_bill
+    ),
+    shape = 21,
+    fill = "white",
+    color = biostat_cols[["amethyst"]],
+    stroke = 1.1,
+    size = 3.2,
+    inherit.aes = FALSE
+  ) +
+  ggplot2::annotate(
+    geom = "label",
+    x = data_bill_residual$delka_zobaku_mm + 0.8,
+    y = mean(c(
+      data_bill_residual$hloubka_zobaku_mm,
+      data_bill_residual$fitted_bill
+    )),
+    label = paste0(
+      "e = ",
+      round(data_bill_residual$residual_bill, 2),
+      " mm"
+    ),
+    hjust = 0,
+    color = biostat_cols[["amethyst"]],
+    fill = "white",
+    linewidth = 0.2,
+    size = 3.5
+  ) +
+  ggplot2::labs(
+    x = "Délka zobáku (mm)",
+    y = "Hloubka zobáku (mm)"
+  )
+```
+
+{{< pagebreak >}}
+
+### Fitujeme připomenutý model v R
+
+Teď můžeme přímku z grafů skutečně fitovat. Funkce `lm()` vrátí stejné dva koeficienty, které jsme ve figurech hledali odděleně.
+
+```{r}
+#| label: fitovat-model-zobaku-viditelne
+#| echo: true
+#| eval: true
+mod_zobak <-
+  lm(
+    formula = hloubka_zobaku_mm ~ delka_zobaku_mm,
+    data = data_tucnaci
+  )
+
+coef(mod_zobak)
+```
+
+Řádek `(Intercept)` je koeficient $a=`r round(intercept_bill, 3)`$: **intercept**, tedy výška přímky při délce zobáku 0 mm. Řádek `delka_zobaku_mm` je koeficient $b=`r round(slope_bill, 3)`$: **sklon**, tedy změna odhadnuté hloubky při prodloužení zobáku o 1 mm.
+
+$$
+\hat{y}_i
+=
+\underbrace{a}_{\text{intercept}}
++
+\underbrace{b}_{\text{sklon}}
+x_i
+=
+`r round(intercept_bill, 3)`
++
+(`r round(slope_bill, 3)`)x_i.
+$$
+
+Výstup `coef()` se tak přímo vrací ke dvěma předchozím obrázkům: první číslo určuje bod přímky při $x=0$ a druhé určuje její sklon. Residuum pak stále měří svislou vzdálenost konkrétního `r render_glossary_term("pozorovani", display = "pozorování")` od této přímky.
+
+U číselného prediktoru jsme tedy naměřenou hodnotu rozdělili na hodnotu odhadnutou modelem a residuum:
+
+$$
+\begin{aligned}
+\text{naměřená hodnota}
+&=
+\text{odhadnutá hodnota}
++
+\text{residuum}.
+\end{aligned}
+$$
+
+Pro konkrétní přímku je odhadnutá hodnota $a+b x_i$; obecný zápis zůstává:
+
+$$
+y_i = \hat{y}_i + e_i = a + b x_i + e_i.
+$$
+
+Číslo $x_i$ určovalo polohu pozorování na vodorovné ose. Výraz $a+b x_i$ potom vybral odpovídající výšku na přímce. Intercept, sklon a residuum jsme proto nehledali najednou: každý má v modelu jinou roli a v grafu jiné místo. Nyní ale prediktor obsahuje názvy druhů. Aby mohl vstoupit do stejného výpočtu, model si z něj vytvoří číselnou proměnnou.
+
+## `r render_glossary_term("linearni-model", display = "Lineární model")` s `r render_glossary_term("kategoricka-promenna", display = "kategoriální proměnnou")`
+
+Teď opustíme zobáky a vrátíme se k hlavní biologické otázce: **liší se `r render_glossary_term("prumer", display = "průměrná hmotnost")` Adélie a Gentoo?** `r render_glossary_term("odezva", display = "Odezvou")` je znovu hmotnost těla v gramech. Místo číselné délky zobáku ale modelu předáváme název druhu.
+
+Lineární model potřebuje způsob, jak dvě kategorie vložit do rovnice. Pro dva druhy stačí `r render_glossary_term("binarni-promenna", display = "binární proměnná")` **„je Gentoo?“**: hodnota 0 znamená „ne“, tedy Adélie, a hodnota 1 znamená „ano“, tedy Gentoo. Nejde o nové biologické měření ani pořadí druhů. Je to pouze číselný zápis příslušnosti ke skupině. Nejdříve jej ukážeme jako nový sloupec vedle dvou skutečných `r render_glossary_term("pozorovani", display = "pozorování")`.
+
+```{r}
+#| label: pripravit-prepinac-druhu
+#| echo: false
+#| output: false
+#| message: false
+#| warning: false
+#| error: false
+data_switch_examples <-
+  data_penguins_two |>
+  dplyr::group_by(druh) |>
+  dplyr::slice(1) |>
+  dplyr::ungroup() |>
+  dplyr::mutate(
+    je_gentoo = ifelse(druh == "Gentoo", 1L, 0L)
+  )
+
+mod_two_species <-
+  lm(
+    formula = hmotnost_tela_g ~ druh,
+    data = data_penguins_two
+  )
+
+coef_two <- coef(mod_two_species)
+summary_two <- coef(summary(mod_two_species))
+confint_two <- confint(mod_two_species)
+
+intercept_two <- unname(coef_two[["(Intercept)"]])
+difference_two <- unname(coef_two[["druhGentoo"]])
+se_difference_two <- summary_two["druhGentoo", "Std. Error"]
+t_difference_two <- summary_two["druhGentoo", "t value"]
+p_difference_two <- summary_two["druhGentoo", "Pr(>|t|)"]
+df_two <- df.residual(mod_two_species)
+
+data_binary_plot <-
+  data_penguins_two |>
+  dplyr::mutate(
+    je_gentoo = ifelse(druh == "Gentoo", 1L, 0L),
+    fitted_g = fitted(mod_two_species)
+  ) |>
+  dplyr::group_by(druh) |>
+  dplyr::arrange(hmotnost_tela_g, .by_group = TRUE) |>
+  dplyr::mutate(
+    x_plot = je_gentoo +
+      (
+        (
+          sin(seq_len(dplyr::n()) * 12.9898) * 43758.5453
+        ) %% 1 - 0.5
+      ) * 0.24
+  ) |>
+  dplyr::ungroup()
+```
+
+```{r}
+#| label: ukazat-prepinac-druhu
+#| echo: false
+#| output: true
+#| message: false
+#| warning: false
+#| error: false
+data_switch_examples |>
+  dplyr::transmute(
+    Druh = popisky_druhu[as.character(druh)],
+    `Naměřená hmotnost (g)` = hmotnost_tela_g,
+    `je Gentoo?` = je_gentoo
+  ) |>
+  knitr::kable(
+    caption = paste0(
+      "Dvě skutečná pozorování a číselný přepínač ",
+      "pro jejich skupinu."
+    )
+  )
+```
+
+{{< pagebreak >}}
+
+Nyní stejnou proměnnou použijeme jako vodorovnou osu. Model stále dostává přesně hodnotu 0 nebo 1. Jednotlivé body v každé skupině pouze nepatrně posuneme doleva a doprava, aby se navzájem nepřekrývaly; tento zobrazovací posun nevytváří nové hodnoty `r render_glossary_term("prediktor", display = "prediktoru")`. Vodorovné úsečky jsou dvě `r render_glossary_term("odhadnuta-hodnota", display = "odhadnuté hodnoty")` a tečkované svislice jsou vzdálenosti jednotlivých měření od těchto odhadů.
+
+```{r}
+#| label: zobrazit-binarni-prediktor
+#| echo: false
+#| output: true
+#| message: false
+#| warning: false
+#| error: false
+#| fig-cap: "Kategorie druhu zapsaná binární proměnnou 0/1. Model přiřadí všem jedincům s hodnotou 0 průměr Adélie a všem jedincům s hodnotou 1 průměr Gentoo. Body jsou jen kvůli překryvu mírně posunuty do stran; tečkované úsečky jsou residua."
+#| fig-width: 9
+#| fig-height: 5.8
+ggplot2::ggplot(
+  data = data_binary_plot,
+  mapping = ggplot2::aes(
+    x = x_plot,
+    y = hmotnost_tela_g,
+    color = druh
+  )
+) +
+  ggplot2::geom_segment(
+    mapping = ggplot2::aes(
+      xend = x_plot,
+      yend = fitted_g
+    ),
+    color = biostat_cols[["grey_olive"]],
+    linetype = 3,
+    alpha = 0.45,
+    linewidth = 0.45
+  ) +
+  ggplot2::geom_point(alpha = 0.55, size = 1.6) +
+  ggplot2::annotate(
+    geom = "segment",
+    x = -0.18,
+    xend = 0.18,
+    y = intercept_two,
+    yend = intercept_two,
+    color = barvy_druhu[["Adelie"]],
+    linewidth = 2.1
+  ) +
+  ggplot2::annotate(
+    geom = "segment",
+    x = 0.82,
+    xend = 1.18,
+    y = intercept_two + difference_two,
+    yend = intercept_two + difference_two,
+    color = barvy_druhu[["Gentoo"]],
+    linewidth = 2.1
+  ) +
+  ggplot2::annotate(
+    geom = "segment",
+    x = 1.27,
+    xend = 1.27,
+    y = intercept_two,
+    yend = intercept_two + difference_two,
+    color = biostat_cols[["graphite"]],
+    linewidth = 1,
+    arrow = grid::arrow(ends = "both", length = grid::unit(0.11, "cm"))
+  ) +
+  ggplot2::annotate(
+    geom = "label",
+    x = 1.30,
+    y = intercept_two + difference_two / 2,
+    label = paste0("b = ", round(difference_two), " g"),
+    hjust = 0,
+    color = biostat_cols[["graphite"]],
+    fill = "white",
+    linewidth = 0.2,
+    size = 4
+  ) +
+  ggplot2::scale_color_manual(values = barvy_druhu) +
+  ggplot2::scale_x_continuous(
+    breaks = c(0, 1),
+    labels = c("0\nAdélie: ne", "1\nGentoo: ano"),
+    limits = c(-0.25, 1.62)
+  ) +
+  ggplot2::labs(
+    x = "Binární proměnná „je Gentoo?“",
+    y = "Hmotnost těla (g)",
+    color = "Druh"
+  ) +
+  ggplot2::theme(legend.position = "none")
+```
+
+Nula a jednička nejsou další biologická měření a neříkají, že jeden druh je „vyšší“ nebo „lepší“. Jsou jen jazykem, kterým modelu sdělíme příslušnost ke skupině. Stejně jako u číselného prediktoru zůstává odhadnutá hodnota ve tvaru `r render_glossary_term("intercept", display = "intercept")` plus koeficient krát hodnota prediktoru.
+
+### Odvození rovnice
+
+Rovnici odvodíme ze dvou hodnot přepínače. **Intercept $a$** bude průměrnou hmotností referenčního druhu Adélie. **Koeficient $b$** bude rozdíl mezi průměrem Gentoo a průměrem Adélie. U číselného prediktoru byl $b$ `r render_glossary_term("sklon", display = "sklon")`; zde má nový význam skupinového rozdílu.
+
+$$
+\begin{aligned}
+\text{odhadnutá hmotnost těla}
+&=
+\underbrace{\text{průměrná hmotnost druhu Adélie}}_{\text{intercept }a} \\
+&\quad +
+\underbrace{\text{rozdíl Gentoo vůči Adélie}}_{\text{koeficient }b}
+\cdot
+\text{„je Gentoo?“}.
+\end{aligned}
+$$
+
+Pro Adélie má přepínač hodnotu 0:
+
+$$
+\begin{aligned}
+\text{odhadnutá hmotnost Adélie}
+&=
+`r round(intercept_two, 1)`
++
+`r round(difference_two, 1)`
+\cdot 0 \\
+&=
+`r round(intercept_two, 1)`\ \text{g}.
+\end{aligned}
+$$
+
+Pro Gentoo má přepínač hodnotu 1:
+
+$$
+\begin{aligned}
+\text{odhadnutá hmotnost Gentoo}
+&=
+`r round(intercept_two, 1)`
++
+`r round(difference_two, 1)`
+\cdot 1 \\
+&=
+`r round(intercept_two + difference_two, 1)`\ \text{g}.
+\end{aligned}
+$$
+
+Až teď použijeme obecné symboly. $z_i$ je přepínač příslušnosti ke skupině:
+
+$$
+\hat{y}_i = a + b z_i,
+$$
+
+$$
+y_i = a + b z_i + e_i.
+$$
+
+Zápis se od číselného prediktoru téměř nezměnil. Změnil se význam proměnné na pravé straně a tím i význam koeficientu $b$: už nepopisuje změnu při zvýšení prediktoru o jednu měrnou jednotku, ale rozdíl jedné skupiny vůči referenční skupině.
+
+::: {.box-warning title="Nula a jednička nejsou pořadí druhů"}
+Kdybychom vyměnili referenční druh, změnil by se přepínač, intercept i znaménko koeficientu. Skupinové průměry a biologický obsah dat by však zůstaly stejné. Kódování je jazyk modelu, ne vlastnost tučňáků.
 :::
 
-::: {.box-warning title="Pozor na častou chybu"}
-TODO: Mylná interpretace nebo metodologické varování.
+## Fitujeme dvouskupinový model v R
+
+V R zůstává funkce `lm()` stejná. Do pravé strany formule jednoduše vložíme `druh`. R ale musí rozhodnout, vůči kterému druhu bude zapisovat rozdíl. Proto zvolí jednu úroveň faktoru jako **referenční skupinu**.
+
+Ve výchozím kódování používá R jako referenci první úroveň faktoru. V doplňujícím bloku při přípravě dat jsme pořadí nastavili na `Adelie`, `Chinstrap`, `Gentoo`; po ponechání dvou druhů proto zůstane první Adélie. Volba reference je nutná, protože informace „je Adélie?“ a „je Gentoo?“ jsou u dvou druhů navzájem dokonale propojené: známe-li jednu odpověď, druhou už dopočítáme. Model proto použije jeden společný základ - `r render_glossary_term("intercept", display = "intercept")` reference - a jeden rozdíl druhé skupiny vůči němu.
+
+```{r}
+#| label: fitovat-model-dvou-druhu-viditelne
+#| echo: true
+#| eval: true
+# Ponecháme dva druhy a odstraníme nevyužitou třetí úroveň
+data_dva_druhy <-
+  data_tucnaci[
+    data_tucnaci$druh %in% c("Adelie", "Gentoo"),
+  ]
+data_dva_druhy$druh <- droplevels(data_dva_druhy$druh)
+
+# Zkontrolujeme pořadí úrovní; první je reference
+levels(data_dva_druhy$druh)
+
+# Fitujeme známý lineární model s kategoriálním prediktorem
+mod_dva_druhy <-
+  lm(
+    formula = hmotnost_tela_g ~ druh,
+    data = data_dva_druhy
+  )
+
+# Nejdříve si prohlédneme celý známý výstup modelu
+summary(mod_dva_druhy)
+```
+
+{{< pagebreak >}}
+
+```{r}
+#| label: vysvetlit-koeficienty-dvou-druhu
+#| echo: false
+#| output: true
+#| message: false
+#| warning: false
+#| error: false
+tibble::tibble(
+  `Řádek výstupu` = c("(Intercept)", "druhGentoo"),
+  `Odhad (g)` = round(
+    c(intercept_two, difference_two),
+    digits = 1
+  ),
+  `Biologický význam` = c(
+    "průměrná hmotnost Adélie",
+    "průměr Gentoo minus průměr Adélie"
+  ),
+  `Kde číslo vidíme v grafu` = c(
+    "vzdálenost průměrové úsečky Adélie od nuly",
+    "svislá vzdálenost mezi dvěma průměry"
+  )
+) |>
+  knitr::kable(
+    caption = "Dvouskupinové koeficienty a jejich význam."
+  )
+```
+
+Tabulka nám přeložila řádky výstupu do slov. Teď stejná dvě čísla znovu umístíme do grafu: intercept je výška `r render_glossary_term("prumer", display = "průměru")` Adélie od nuly a koeficient `druhGentoo` je vzdálenost od průměru Adélie k průměru Gentoo.
+
+```{r}
+#| label: zobrazit-koeficienty-dvou-druhu-v-grafu
+#| echo: false
+#| output: true
+#| message: false
+#| warning: false
+#| error: false
+#| fig-cap: "Dva koeficienty dvouskupinového modelu přímo v datech. Intercept a je vzdálenost průměrové úsečky Adélie od nuly; koeficient b je rozdíl Gentoo minus Adélie."
+#| fig-width: 9
+#| fig-height: 5.6
+ggplot2::ggplot(
+  data = data_binary_plot,
+  mapping = ggplot2::aes(
+    x = x_plot,
+    y = hmotnost_tela_g,
+    color = druh
+  )
+) +
+  ggplot2::geom_point(alpha = 0.28, size = 1.5) +
+  ggplot2::annotate(
+    geom = "segment",
+    x = -0.12,
+    xend = 0.12,
+    y = intercept_two,
+    yend = intercept_two,
+    color = barvy_druhu[["Adelie"]],
+    linewidth = 1.8
+  ) +
+  ggplot2::annotate(
+    geom = "segment",
+    x = 0.88,
+    xend = 1.12,
+    y = intercept_two + difference_two,
+    yend = intercept_two + difference_two,
+    color = barvy_druhu[["Gentoo"]],
+    linewidth = 1.8
+  ) +
+  ggplot2::annotate(
+    geom = "segment",
+    x = -0.23,
+    xend = -0.23,
+    y = 0,
+    yend = intercept_two,
+    color = biostat_cols[["graphite"]],
+    linewidth = 1,
+    arrow = grid::arrow(ends = "both", length = grid::unit(0.10, "cm"))
+  ) +
+  ggplot2::annotate(
+    geom = "label",
+    x = -0.20,
+    y = intercept_two / 2,
+    label = paste0(
+      "a = ",
+      format(
+        round(intercept_two, 1),
+        big.mark = " ",
+        decimal.mark = ",",
+        nsmall = 1
+      ),
+      " g"
+    ),
+    hjust = 0,
+    color = biostat_cols[["graphite"]],
+    fill = "white",
+    linewidth = 0.2,
+    size = 3.6
+  ) +
+  ggplot2::annotate(
+    geom = "segment",
+    x = 0.52,
+    xend = 0.52,
+    y = intercept_two,
+    yend = intercept_two + difference_two,
+    color = biostat_cols[["amethyst"]],
+    linewidth = 1.1,
+    arrow = grid::arrow(ends = "both", length = grid::unit(0.10, "cm"))
+  ) +
+  ggplot2::annotate(
+    geom = "label",
+    x = 0.55,
+    y = intercept_two + difference_two / 2,
+    label = paste0(
+      "b = ",
+      format(
+        round(difference_two, 1),
+        big.mark = " ",
+        decimal.mark = ",",
+        nsmall = 1
+      ),
+      " g"
+    ),
+    hjust = 0,
+    color = biostat_cols[["amethyst"]],
+    fill = "white",
+    linewidth = 0.2,
+    size = 3.6
+  ) +
+  ggplot2::annotate(
+    geom = "label",
+    x = 1,
+    y = max(
+      data_binary_plot$hmotnost_tela_g[data_binary_plot$je_gentoo == 1]
+    ) + 180,
+    label = paste0(
+      "a + b = ",
+      format(
+        round(intercept_two + difference_two, 1),
+        big.mark = " ",
+        decimal.mark = ",",
+        nsmall = 1
+      ),
+      " g"
+    ),
+    color = biostat_cols[["graphite"]],
+    fill = "white",
+    linewidth = 0.2,
+    size = 3.6
+  ) +
+  ggplot2::scale_color_manual(values = barvy_druhu) +
+  ggplot2::scale_x_continuous(
+    breaks = c(0, 1),
+    labels = c("Adélie\n0", "Gentoo\n1"),
+    limits = c(-0.34, 1.28)
+  ) +
+  ggplot2::scale_y_continuous(
+    limits = c(0, max(data_binary_plot$hmotnost_tela_g) + 400),
+    expand = ggplot2::expansion(mult = c(0, 0.02))
+  ) +
+  ggplot2::labs(
+    x = "Binární proměnná „je Gentoo?“",
+    y = "Hmotnost těla (g)",
+    color = "Druh"
+  ) +
+  ggplot2::theme(legend.position = "none")
+```
+
+Intercept `r round(intercept_two, 1)` g je průměr referenční skupiny Adélie. Koeficient `druhGentoo` `r round(difference_two, 1)` g je rozdíl **Gentoo minus Adélie**. Součet obou koeficientů dává `r round(intercept_two + difference_two, 1)` g, tedy průměr Gentoo.
+
+::: {.box-data title="Doplňující: co se změní, když zvolíme jinou referenci?" collapse="true"}
+Referenci můžeme změnit funkcí `relevel()`. Když jako základ zvolíme Gentoo, intercept se stane průměrem Gentoo a rozdílový koeficient bude Adélie minus Gentoo. `r render_glossary_term("odhadnuta-hodnota", display = "Odhadnuté skupinové průměry")`, `r render_glossary_term("residuum", display = "residua")` i biologický obsah modelu zůstanou stejné; změní se pouze způsob jejich zápisu.
+
+```{r}
+#| label: zmenit-referencni-druh
+#| echo: true
+#| eval: true
+data_reference_gentoo <- data_dva_druhy
+data_reference_gentoo$druh <-
+  relevel(
+    x = data_reference_gentoo$druh,
+    ref = "Gentoo"
+  )
+
+levels(data_reference_gentoo$druh)
+
+mod_reference_gentoo <-
+  lm(
+    formula = hmotnost_tela_g ~ druh,
+    data = data_reference_gentoo
+  )
+
+coef(mod_reference_gentoo)
+```
+
+Při referenci Gentoo je intercept `r round(intercept_two + difference_two, 1)` g a koeficient `druhAdelie` je `r round(-difference_two, 1)` g. Součet opět vrátí průměr Adélie `r round(intercept_two, 1)` g.
 :::
 
-## Shrnutí
+::: {.box-warning title="Co netestuje řádek interceptu"}
+`r render_glossary_term("p-hodnota", display = "P-hodnota")` v řádku interceptu porovnává průměr Adélie s nulovou hmotností. Nulová hmotnost není naše biologická otázka. Otázku rozdílu druhů ve dvouskupinovém modelu najdeme v řádku `druhGentoo`.
+:::
 
-TODO: Klíčové body k zapamatování.
+## `r render_glossary_term("odhadnuta-hodnota", display = "Odhadnuté hodnoty")` a `r render_glossary_term("residuum", display = "residua")` nezmizely
 
-- TODO: bod 1
-- TODO: bod 2
-- TODO: bod 3
+V modelu s číselným `r render_glossary_term("prediktor", display = "prediktorem")` měla každá délka zobáku vlastní hodnotu na přímce. V modelu se dvěma skupinami existují jen dvě odhadnuté hodnoty: `r render_glossary_term("prumer", display = "průměr")` Adélie a průměr Gentoo. Každý jedinec stejného druhu dostane stejnou odhadnutou hmotnost, ale vlastní residuum.
+
+```{r}
+#| label: spocitat-odhadnute-hodnoty-residua
+#| echo: false
+#| output: false
+#| message: false
+#| warning: false
+#| error: false
+data_two_model <-
+  data_binary_plot |>
+  dplyr::transmute(
+    druh,
+    hmotnost_tela_g,
+    odhadnuta_hmotnost_g = fitted_g,
+    residuum_g = hmotnost_tela_g - fitted_g,
+    x_plot = x_plot + 1
+  )
+
+data_one_penguin <-
+  data_two_model |>
+  dplyr::filter(druh == "Adelie") |>
+  dplyr::slice_max(abs(residuum_g), n = 1, with_ties = FALSE)
+
+one_measured <-
+  data_one_penguin |>
+  dplyr::pull(hmotnost_tela_g)
+
+one_fitted <-
+  data_one_penguin |>
+  dplyr::pull(odhadnuta_hmotnost_g)
+
+one_residual <-
+  data_one_penguin |>
+  dplyr::pull(residuum_g)
+```
+
+```{r}
+#| label: zobrazit-odhadnute-hodnoty-residua
+#| echo: false
+#| output: true
+#| message: false
+#| warning: false
+#| error: false
+#| fig-cap: "Každý jedinec sdílí odhadnutou hodnotu svého druhu. Body jsou kvůli překryvu mírně posunuty do stran. Tenké svislé úsečky spojují skutečné body s odhadem a jsou tedy residui; jedno residuum je zvýrazněno."
+#| fig-width: 8
+#| fig-height: 5.5
+ggplot2::ggplot(
+  data = data_two_model,
+  mapping = ggplot2::aes(
+    x = x_plot,
+    y = hmotnost_tela_g,
+    color = druh
+  )
+) +
+  ggplot2::geom_segment(
+    mapping = ggplot2::aes(
+      xend = x_plot,
+      yend = odhadnuta_hmotnost_g
+    ),
+    color = biostat_cols[["grey_olive"]],
+    alpha = 0.42,
+    linewidth = 0.45,
+    linetype = 3
+  ) +
+  ggplot2::geom_point(
+    alpha = 0.45,
+    size = 1.4
+  ) +
+  ggplot2::geom_segment(
+    data = data_one_penguin,
+    mapping = ggplot2::aes(
+      x = x_plot,
+      xend = x_plot,
+      y = hmotnost_tela_g,
+      yend = odhadnuta_hmotnost_g
+    ),
+    color = biostat_cols[["amethyst"]],
+    linewidth = 1.2,
+    inherit.aes = FALSE
+  ) +
+  ggplot2::geom_point(
+    data = data_one_penguin,
+    mapping = ggplot2::aes(
+      x = x_plot,
+      y = hmotnost_tela_g
+    ),
+    color = biostat_cols[["amethyst"]],
+    size = 3,
+    inherit.aes = FALSE
+  ) +
+  ggplot2::geom_segment(
+    data = data_summary_two,
+    mapping = ggplot2::aes(
+      x = x - 0.28,
+      xend = x + 0.28,
+      y = prumer_g,
+      yend = prumer_g,
+      color = druh
+    ),
+    linewidth = 2.2,
+    inherit.aes = FALSE
+  ) +
+  ggplot2::scale_color_manual(values = barvy_druhu) +
+  ggplot2::scale_x_continuous(
+    breaks = c(1, 2),
+    labels = popisky_druhu[c("Adelie", "Gentoo")]
+  ) +
+  ggplot2::labs(
+    x = NULL,
+    y = "Hmotnost těla (g)",
+    color = "Druh"
+  ) +
+  ggplot2::theme(legend.position = "none")
+```
+
+Pro prvního zobrazeného jedince platí nejprve vztah slovy:
+
+$$
+\text{residuum}
+=
+\text{naměřená hmotnost}
+-
+\text{odhadnutá hmotnost}.
+$$
+
+Dosadíme čísla ze stejného řádku dat a z výšky průměrové úsečky:
+
+$$
+\begin{aligned}
+\text{residuum}
+&=
+`r round(one_measured, 1)`
+-
+`r round(one_fitted, 1)` \\
+&=
+`r round(one_residual, 1)`\ \text{g}.
+\end{aligned}
+$$
+
+Teprve potom se vrátíme k obecnému zápisu:
+
+$$
+e_i = y_i - \hat{y}_i.
+$$
+
+{{< pagebreak >}}
+
+```{r}
+#| label: ziskat-odhadnute-hodnoty-residua-viditelne
+#| echo: true
+#| eval: true
+# Z modelu získáme odhadnutou hmotnost každého jedince
+data_dva_druhy$odhadnuta_hmotnost_g <-
+  fitted(mod_dva_druhy)
+
+# Residuum je měření minus odhadnutá hodnota
+data_dva_druhy$residuum_g <-
+  resid(mod_dva_druhy)
+
+# Zkontrolujeme první řádky obou nových sloupců
+head(
+  data_dva_druhy[
+    , c(
+      "druh",
+      "hmotnost_tela_g",
+      "odhadnuta_hmotnost_g",
+      "residuum_g"
+    )
+  ]
+)
+```
+
+::: {.box-result title="Co zůstalo stejné"}
+`r render_glossary_term("linearni-model", display = "Lineární model")` stále rozděluje každou naměřenou hodnotu na systematickou část a residuum. U číselného prediktoru byla systematickou částí přímka; u `r render_glossary_term("kategoricka-promenna", display = "kategoriálního prediktoru")` jsou jí skupinové průměry.
+:::
+
+{{< pagebreak >}}
+
+## Jak velký a přesný je rozdíl dvou druhů?
+
+Z dlouhého výstupu `summary()` nyní vytáhneme jen dva `r render_glossary_term("odhad", display = "odhadnuté koeficienty")`. Funkce `coef()` je užitečná právě ve chvíli, kdy víme, na které hodnoty se chceme zaměřit:
+
+```{r}
+#| label: pripomenout-koeficienty-dvou-druhu
+#| echo: true
+#| eval: true
+coef(mod_dva_druhy)
+```
+
+Koeficient `druhGentoo` odhaduje rozdíl `r round(difference_two, 1)` g. Nyní navážeme na předchozí dvě lekce: odhad doplníme `r render_glossary_term("standardni-chyba", display = "standardní chybou")` a `r render_glossary_term("interval-spolehlivosti", display = "95% intervalem spolehlivosti")`.
+
+Interval nevzniká jako další nezávislé číslo. Vypočítáme jej ze stejného odhadu a standardní chyby:
+
+$$
+95\%\ \text{interval}
+=
+\widehat{b}
+\pm
+\underbrace{t_{0{,}975,\,df}}_{\text{kritická hodnota}}
+\cdot
+\operatorname{SE}(\widehat{b}).
+$$
+
+Pro 95% interval necháváme 2,5 % `r render_glossary_term("rozdeleni", display = "t-rozdělení")` v každém krajním chvostu. `r render_glossary_term("kriticka-hodnota", display = "Kritická hodnota")` proto závisí na zvolené `r render_glossary_term("hladina-spolehlivosti", display = "hladině 95 %")` a na `r df_two` residuálních `r render_glossary_term("stupne-volnosti", display = "stupních volnosti")`; zde je `r round(qt(0.975, df = df_two), 3)`.
+
+{{< pagebreak >}}
+
+```{r}
+#| label: vypocitat-interval-dvou-druhu-viditelne
+#| echo: true
+#| eval: true
+# Vezmeme odhad a standardní chybu z řádku druhGentoo
+tabulka_koeficientu <- coef(summary(mod_dva_druhy))
+odhad_rozdilu <- tabulka_koeficientu["druhGentoo", "Estimate"]
+standardni_chyba <- tabulka_koeficientu["druhGentoo", "Std. Error"]
+
+# Kritická hodnota pro 95% interval a residuální stupně volnosti
+kriticka_hodnota <-
+  qt(
+    p = 0.975,
+    df = df.residual(mod_dva_druhy)
+  )
+
+dolni_mez <- odhad_rozdilu - kriticka_hodnota * standardni_chyba
+horni_mez <- odhad_rozdilu + kriticka_hodnota * standardni_chyba
+
+c(dolni_mez = dolni_mez, horni_mez = horni_mez)
+
+# Stejný výpočet pohodlně provede confint()
+confint(mod_dva_druhy)["druhGentoo", ]
+```
+
+```{r}
+#| label: pripravit-interval-dvou-druhu
+#| echo: false
+#| output: false
+#| message: false
+#| warning: false
+#| error: false
+data_difference_interval <-
+  tibble::tibble(
+    porovnani = "Gentoo minus Adélie",
+    odhad = difference_two,
+    dolni = confint_two["druhGentoo", 1],
+    horni = confint_two["druhGentoo", 2]
+  )
+```
+
+```{r}
+#| label: zobrazit-interval-dvou-druhu
+#| echo: false
+#| output: true
+#| message: false
+#| warning: false
+#| error: false
+#| fig-cap: "Odhad rozdílu průměrné hmotnosti Gentoo minus Adélie a jeho 95% interval spolehlivosti. Nula znamená stejné průměry."
+#| fig-width: 8
+#| fig-height: 3.2
+ggplot2::ggplot(
+  data = data_difference_interval,
+  mapping = ggplot2::aes(
+    x = odhad,
+    y = porovnani
+  )
+) +
+  ggplot2::geom_vline(
+    xintercept = 0,
+    linetype = 2,
+    color = biostat_cols[["grey_olive"]]
+  ) +
+  ggplot2::geom_errorbar(
+    mapping = ggplot2::aes(
+      xmin = dolni,
+      xmax = horni
+    ),
+    orientation = "y",
+    width = 0.15,
+    linewidth = 1.1,
+    color = biostat_cols[["indigo_velvet"]]
+  ) +
+  ggplot2::geom_point(
+    size = 3.5,
+    color = biostat_cols[["orange"]]
+  ) +
+  ggplot2::labs(
+    x = "Rozdíl průměrné hmotnosti (g)",
+    y = NULL
+  )
+```
+
+Interval sahá od `r round(confint_two["druhGentoo", 1], 1)` do `r round(confint_two["druhGentoo", 2], 1)` g. Celý leží nad nulou, ale jeho hlavním sdělením není pouze „nula uvnitř / nula vně“. Ukazuje také, jak velký rozdíl je s daty a modelem slučitelný.
+
+### Testujeme nulový rozdíl
+
+`r render_glossary_term("nulova-hypoteza", display = "Nulová hypotéza")` a alternativa nyní mluví o rozdílu `r render_glossary_term("prumer", display = "průměrných")` hmotností:
+
+$$
+H_0:
+\text{průměr Gentoo}
+-
+\text{průměr Adélie}
+= 0,
+$$
+
+$$
+H_A:
+\text{průměr Gentoo}
+-
+\text{průměr Adélie}
+\neq 0.
+$$
+
+Než dosadíme čísla, znovu si zobrazíme celý výstup modelu. V řádku `druhGentoo` stojí vedle sebe všechny tři hodnoty, které potřebujeme: odhad rozdílu, jeho standardní chyba a vypočtená t-statistika.
+
+{{< pagebreak >}}
+
+```{r}
+#| label: pripomenout-summary-pro-t-test
+#| echo: true
+#| eval: true
+summary(mod_dva_druhy)
+```
+
+V řádku `druhGentoo` tedy čteme `Estimate` = `r round(difference_two, 2)`, `Std. Error` = `r round(se_difference_two, 2)` a `t value` = `r round(t_difference_two, 2)`. Následující rovnice pouze ukazuje, jak R ze dvou prvních sloupců získalo třetí.
+
+Z předchozí lekce známe vztah mezi odhadem, nulovou hodnotou a jeho `r render_glossary_term("nejistota", display = "nejistotou")`. Nejdříve jej zapíšeme slovy:
+
+$$
+\text{t-statistika}
+=
+\frac{
+\text{odhadnutý rozdíl}-\text{nulový rozdíl}
+}{
+\text{standardní chyba rozdílu}
+}.
+$$
+
+Potom dosadíme čísla z řádku `druhGentoo`:
+
+$$
+\begin{aligned}
+t
+&=
+\frac{
+`r round(difference_two, 1)`-0
+}{
+`r round(se_difference_two, 1)`
+} \\
+&=
+`r round(t_difference_two, 2)`.
+\end{aligned}
+$$
+
+Až nakonec použijeme obecný zápis:
+
+$$
+t = \frac{\hat{b}-0}{\operatorname{SE}(\hat{b})}.
+$$
+
+Stejně jako v předchozí lekci můžeme výsledek umístit do t-rozdělení očekávaného při nulové hypotéze. Musíme ale rozlišit dvě různá čísla:
+
+- **kritické hranice** jsou zde $-`r round(qt(0.975, df = df_two), 3)`$ a $+`r round(qt(0.975, df = df_two), 3)`$. Oddělují prostředních 95 % nulového t-rozdělení od krajních 5 %: v každém chvostu zůstává 2,5 %. Stejnou kladnou kritickou hodnotu jsme použili už při výpočtu 95% intervalu spolehlivosti;
+- **pozorovaná t-statistika** je $+`r round(t_difference_two, 2)`$. Tu jsme právě vypočítali z řádku `druhGentoo` v `summary()`.
+
+Kritické hranice tedy **nejsou** výsledkem našeho testu. Vymezují předem zvolené rozhodovací oblasti pro $\alpha=0{,}05$. Náš výsledek $t=+`r round(t_difference_two, 2)`$ leží mnohem dále od nuly. Protože testujeme oboustrannou otázku, sledujeme také stejně vzdálenou zrcadlovou hranici $-`r round(abs(t_difference_two), 2)`$. `r render_glossary_term("p-hodnota", display = "P-hodnota")` je součet ploch nulového t-rozdělení za těmito dvěma hranicemi, nikoli plocha za kritickými hodnotami.
+
+Následující graf proto používá dva panely: první zvětší kritické hranice a oblasti o celkové ploše $\alpha=0{,}05$; druhý ukáže skutečně pozorované $t$ a jeho zrcadlovou hranici na celé ose.
+
+```{r}
+#| label: pripravit-t-rozdeleni-dvou-druhu
+#| echo: false
+#| output: false
+#| message: false
+#| warning: false
+#| error: false
+t_critical <- qt(0.975, df = df_two)
+
+data_t_distribution <-
+  dplyr::bind_rows(
+    tibble::tibble(
+      panel = "kritické hranice a alfa",
+      t = seq(-6, 6, length.out = 1601)
+    ),
+    tibble::tibble(
+      panel = "pozorované t a zrcadlová hranice",
+      t = seq(-25, 25, length.out = 2401)
+    )
+  ) |>
+  dplyr::mutate(
+    density = dt(t, df = df_two),
+    tail = dplyr::case_when(
+      t <= -t_critical ~ "levý chvost",
+      t >= t_critical ~ "pravý chvost",
+      TRUE ~ NA_character_
+    ),
+    panel = factor(
+      panel,
+      levels = c(
+        "kritické hranice a alfa",
+        "pozorované t a zrcadlová hranice"
+      )
+    )
+  )
+
+data_t_critical <-
+  tidyr::expand_grid(
+    panel = levels(data_t_distribution$panel),
+    t = c(-t_critical, t_critical)
+  ) |>
+  dplyr::mutate(
+    panel = factor(panel, levels = levels(data_t_distribution$panel))
+  )
+
+data_t_observed <-
+  tibble::tibble(
+    panel = factor(
+      "pozorované t a zrcadlová hranice",
+      levels = levels(data_t_distribution$panel)
+    ),
+    t = t_difference_two
+  )
+
+data_t_mirror <-
+  tibble::tibble(
+    panel = factor(
+      "pozorované t a zrcadlová hranice",
+      levels = levels(data_t_distribution$panel)
+    ),
+    t = -abs(t_difference_two)
+  )
+
+data_t_p_regions <-
+  tibble::tibble(
+    panel = factor(
+      rep("pozorované t a zrcadlová hranice", 2),
+      levels = levels(data_t_distribution$panel)
+    ),
+    xmin = c(-25, abs(t_difference_two)),
+    xmax = c(-abs(t_difference_two), 25)
+  )
+```
+
+```{r}
+#| label: zobrazit-t-rozdeleni-dvou-druhu
+#| echo: false
+#| output: true
+#| message: false
+#| warning: false
+#| error: false
+#| fig-cap: "T-rozdělení při nulové hypotéze. Levý panel ukazuje kritické hranice a fialové chvosty o celkové ploše alfa = 0,05. V pravém panelu fialové čáry tyto hranice připomínají, zatímco oranžové pásy označují oblasti za pozorovaným t = 23,61 a zrcadlovou hranicí -23,61. P-hodnota je plocha pod t-křivkou uvnitř těchto oranžových oblastí."
+#| fig-width: 10
+#| fig-height: 4.6
+ggplot2::ggplot(
+  data = data_t_distribution,
+  mapping = ggplot2::aes(x = t, y = density)
+) +
+  ggplot2::geom_area(
+    data = data_t_distribution |>
+      dplyr::filter(
+        panel == "kritické hranice a alfa",
+        !is.na(tail)
+      ),
+    mapping = ggplot2::aes(group = tail),
+    fill = biostat_cols[["amethyst"]],
+    alpha = 0.42
+  ) +
+  ggplot2::geom_rect(
+    data = data_t_p_regions,
+    mapping = ggplot2::aes(
+      xmin = xmin,
+      xmax = xmax,
+      ymin = -Inf,
+      ymax = Inf
+    ),
+    fill = biostat_cols[["orange"]],
+    alpha = 0.12,
+    inherit.aes = FALSE
+  ) +
+  ggplot2::geom_line(
+    color = biostat_cols[["graphite"]],
+    linewidth = 1
+  ) +
+  ggplot2::geom_vline(
+    data = data_t_critical,
+    mapping = ggplot2::aes(xintercept = t),
+    color = biostat_cols[["amethyst"]],
+    linetype = 2,
+    linewidth = 0.9,
+    inherit.aes = FALSE
+  ) +
+  ggplot2::geom_vline(
+    data = data_t_observed,
+    mapping = ggplot2::aes(xintercept = t),
+    color = biostat_cols[["orange"]],
+    linewidth = 1.1,
+    inherit.aes = FALSE
+  ) +
+  ggplot2::geom_vline(
+    data = data_t_mirror,
+    mapping = ggplot2::aes(xintercept = t),
+    color = biostat_cols[["orange"]],
+    linetype = 2,
+    linewidth = 1.1,
+    inherit.aes = FALSE
+  ) +
+  ggplot2::geom_label(
+    data = tibble::tibble(
+      panel = factor(
+        "kritické hranice a alfa",
+        levels = levels(data_t_distribution$panel)
+      ),
+      t = t_critical,
+      density = 0.31,
+      label = paste0("kritické hranice = ±", round(t_critical, 3))
+    ),
+    mapping = ggplot2::aes(x = t, y = density, label = label),
+    hjust = -0.05,
+    color = biostat_cols[["amethyst"]],
+    fill = "white",
+    linewidth = 0.2,
+    size = 3.2,
+    inherit.aes = FALSE
+  ) +
+  ggplot2::geom_label(
+    data = tibble::tibble(
+      panel = factor(
+        "pozorované t a zrcadlová hranice",
+        levels = levels(data_t_distribution$panel)
+      ),
+      t = t_difference_two,
+      density = 0.12,
+      label = paste0("pozorované t = +", round(t_difference_two, 2))
+    ),
+    mapping = ggplot2::aes(x = t, y = density, label = label),
+    hjust = 1.05,
+    color = biostat_cols[["orange"]],
+    fill = "white",
+    linewidth = 0.2,
+    size = 3.2,
+    inherit.aes = FALSE
+  ) +
+  ggplot2::geom_label(
+    data = tibble::tibble(
+      panel = factor(
+        "pozorované t a zrcadlová hranice",
+        levels = levels(data_t_distribution$panel)
+      ),
+      t = -abs(t_difference_two),
+      density = 0.12,
+      label = paste0(
+        "zrcadlová hranice = -",
+        round(abs(t_difference_two), 2)
+      )
+    ),
+    mapping = ggplot2::aes(x = t, y = density, label = label),
+    hjust = -0.05,
+    color = biostat_cols[["orange"]],
+    fill = "white",
+    linewidth = 0.2,
+    size = 3.2,
+    inherit.aes = FALSE
+  ) +
+  ggplot2::facet_wrap(
+    facets = ggplot2::vars(panel),
+    nrow = 1,
+    scales = "free_x"
+  ) +
+  ggplot2::labs(
+    x = "t-statistika očekávaná při nulové hypotéze",
+    y = "Hustota"
+  ) +
+  ggplot2::theme(
+    legend.position = "none",
+    strip.text = ggplot2::element_text(face = "bold")
+  )
+```
+
+Pozorovaný rozdíl leží `r round(t_difference_two, 2)` standardních chyb nad nulou, takže skutečně pozorovaná t-statistika je $+`r round(t_difference_two, 2)`$. Záporná hodnota $-`r round(abs(t_difference_two), 2)`$ nebyla pozorována; je to zrcadlová hranice potřebná pro oboustrannou otázku. Při `r df_two` residuálních stupních volnosti je součet ploch za oběma hranicemi, tedy p-hodnota, `r gsub("\\.", ",", format.pval(p_difference_two, digits = 3, eps = 0.001))`. Za předpokladů modelu jsou data velmi obtížně slučitelná s přesně nulovým rozdílem mezi těmito dvěma druhy.
+
+### Historická poznámka: `r render_glossary_term("t-test", display = "dvouvýběrový t-test")` v literatuře
+
+Statistické metody se historicky vyučovaly jako soubor samostatně pojmenovaných testů pro různé situace: jeden test pro dva průměry, jiný pro více průměrů, další pro vztah dvou číselných proměnných. Takové názvy byly praktické v době ručních výpočtů a tabulek, a proto zůstávají v učebnicích, článcích i nabídkách statistických programů dodnes.
+
+Mnoho těchto klasických postupů ale můžeme zapsat jako speciální případy jednoho regresního modelu. Dvouskupinový t-test se společným `r render_glossary_term("rozptyl", display = "rozptylem")` používá za stejných předpokladů tentýž odhad rozdílu, standardní chybu, t-statistiku a p-hodnotu jako koeficient `druhGentoo` v našem dvouskupinovém `r render_glossary_term("linearni-model", display = "lineárním modelu")`. Nemusíme se tedy učit nový způsob uvažování: biologickou otázku, odhad, nejistotu i test stále čteme z jednoho modelového rámce.
+
+Název **dvouvýběrový t-test** však budeme potkávat v další literatuře. Následující příklad proto ukazuje, jak známý modelový výsledek přeložit do historického názvu testu a zpět. Nejde o další nesouvisející analýzu. Aby znaménko odpovídalo našemu koeficientu, odečteme Adélie od Gentoo.
+
+::: {.box-result title="Proč tento historický název uvádíme"}
+Když v knize uvidíte dvouvýběrový t-test se společným rozptylem, můžete si jej představit jako lineární model `y ~ skupina` se dvěma úrovněmi. Při čtení výsledku se znovu ptejte na rozdíl průměrů, jeho standardní chybu, t-statistiku a p-hodnotu.
+:::
+
+{{< pagebreak >}}
+
+```{r}
+#| label: porovnat-model-a-t-test
+#| echo: true
+#| eval: true
+# Připravíme hmotnosti obou skupin ve směru Gentoo minus Adélie
+vec_gentoo <-
+  data_dva_druhy$hmotnost_tela_g[
+    data_dva_druhy$druh == "Gentoo"
+  ]
+vec_adelie <-
+  data_dva_druhy$hmotnost_tela_g[
+    data_dva_druhy$druh == "Adelie"
+  ]
+
+# Test se společným rozptylem odpovídá dvouskupinovému lm()
+t.test(
+  x = vec_gentoo,
+  y = vec_adelie,
+  var.equal = TRUE
+)
+```
+
+```{r}
+#| label: ukazat-shodu-modelu-t-testu
+#| echo: false
+#| output: true
+#| message: false
+#| warning: false
+#| error: false
+res_t_equal <-
+  t.test(
+    x = data_penguins_two |>
+      dplyr::filter(druh == "Gentoo") |>
+      dplyr::pull(hmotnost_tela_g),
+    y = data_penguins_two |>
+      dplyr::filter(druh == "Adelie") |>
+      dplyr::pull(hmotnost_tela_g),
+    var.equal = TRUE
+  )
+
+tibble::tibble(
+  Postup = c(
+    "koeficient v lm()",
+    "t-test se společným rozptylem"
+  ),
+  `Rozdíl Gentoo − Adélie (g)` = round(
+    c(
+      difference_two,
+      unname(res_t_equal$estimate[[1]] - res_t_equal$estimate[[2]])
+    ),
+    digits = 1
+  ),
+  `t-statistika` = round(
+    c(t_difference_two, unname(res_t_equal$statistic)),
+    digits = 2
+  ),
+  df = round(
+    c(df_two, unname(res_t_equal$parameter)),
+    digits = 0
+  )
+) |>
+  knitr::kable(
+    caption = paste0(
+      "Stejná dvouskupinová otázka zapsaná jako koeficient ",
+      "lineárního modelu a jako t-test."
+    )
+  )
+```
+
+::: {.box-warning title="Výchozí t.test() v R je Welchův test"}
+Bez argumentu `var.equal = TRUE` používá R Welchův t-test, který nevyžaduje společný rozptyl skupin a může mít jiné stupně volnosti i mírně jiný interval. Není proto pravda, že každý výstup `t.test()` musí být číselně totožný s obyčejným `lm()`. Totožnost v tabulce platí pro stejnou otázku a stejné předpoklady.
+:::
+
+## Přidáme třetí druh, ale formule v R zůstane stejná
+
+Nyní vrátíme do dat tučňáka uzdičkového. Do `lm()` nemusíme přidávat nový druh ručně: faktor `druh` už obsahuje všechny tři úrovně.
+
+```{r}
+#| label: fitovat-model-tri-druhy-skryte
+#| echo: false
+#| output: false
+#| message: false
+#| warning: false
+#| error: false
+mod_three_species <-
+  lm(
+    formula = hmotnost_tela_g ~ druh,
+    data = data_penguins
+  )
+
+coef_three <- coef(mod_three_species)
+summary_three <- coef(summary(mod_three_species))
+confint_three <- confint(mod_three_species)
+
+data_summary_three <-
+  data_penguins |>
+  dplyr::group_by(druh) |>
+  dplyr::summarise(
+    n = dplyr::n(),
+    prumer_g = mean(hmotnost_tela_g),
+    sd_g = sd(hmotnost_tela_g),
+    .groups = "drop"
+  ) |>
+  dplyr::mutate(
+    x = c(1, 2, 3)
+  )
+
+mean_chinstrap <-
+  data_summary_three |>
+  dplyr::filter(druh == "Chinstrap") |>
+  dplyr::pull(prumer_g)
+
+difference_chinstrap_adelie <- mean_chinstrap - mean_adelie
+```
+
+```{r}
+#| label: zobrazit-tri-druhy-prumery
+#| echo: false
+#| output: true
+#| message: false
+#| warning: false
+#| error: false
+#| fig-cap: "Tři druhy s průměrem ± 1 SD. Svislé závorky ukazují oba rozdíly, které model přímo vyjadřuje vůči referenčnímu druhu Adélie."
+#| fig-width: 9
+#| fig-height: 5.5
+ggplot2::ggplot(
+  data = data_penguins,
+  mapping = ggplot2::aes(
+    x = druh,
+    y = hmotnost_tela_g,
+    color = druh
+  )
+) +
+  ggbeeswarm::geom_quasirandom(
+    width = 0.22,
+    alpha = 0.42,
+    size = 1.55,
+    show.legend = FALSE
+  ) +
+  ggplot2::geom_errorbar(
+    data = data_summary_three,
+    mapping = ggplot2::aes(
+      x = druh,
+      ymin = prumer_g - sd_g,
+      ymax = prumer_g + sd_g,
+      color = druh
+    ),
+    width = 0.14,
+    linewidth = 0.9,
+    inherit.aes = FALSE,
+    show.legend = FALSE
+  ) +
+  ggplot2::geom_segment(
+    data = data_summary_three,
+    mapping = ggplot2::aes(
+      x = x - 0.28,
+      xend = x + 0.28,
+      y = prumer_g,
+      yend = prumer_g,
+      color = druh
+    ),
+    linewidth = 2.2,
+    inherit.aes = FALSE
+  ) +
+  ggplot2::annotate(
+    geom = "segment",
+    x = 1.55,
+    xend = 1.55,
+    y = mean_adelie,
+    yend = mean_chinstrap,
+    color = biostat_cols[["graphite"]],
+    linewidth = 1.1,
+    arrow = grid::arrow(ends = "both", length = grid::unit(0.07, "cm"))
+  ) +
+  ggplot2::annotate(
+    geom = "label",
+    x = 1.58,
+    y = mean(c(mean_adelie, mean_chinstrap)) + 115,
+    label = paste0(
+      "Chinstrap − Adélie\n",
+      round(difference_chinstrap_adelie),
+      " g"
+    ),
+    hjust = 0,
+    color = biostat_cols[["graphite"]],
+    fill = "white",
+    linewidth = 0.2,
+    size = 3.5
+  ) +
+  ggplot2::annotate(
+    geom = "segment",
+    x = 2.62,
+    xend = 2.62,
+    y = mean_adelie,
+    yend = mean_gentoo,
+    color = biostat_cols[["graphite"]],
+    linewidth = 1.1,
+    arrow = grid::arrow(ends = "both", length = grid::unit(0.10, "cm"))
+  ) +
+  ggplot2::annotate(
+    geom = "label",
+    x = 2.66,
+    y = mean(c(mean_adelie, mean_gentoo)),
+    label = paste0(
+      "Gentoo − Adélie\n",
+      round(difference_gentoo_adelie),
+      " g"
+    ),
+    hjust = 0,
+    color = biostat_cols[["graphite"]],
+    fill = "white",
+    linewidth = 0.2,
+    size = 3.5
+  ) +
+  ggplot2::scale_color_manual(values = barvy_druhu) +
+  ggplot2::scale_x_discrete(labels = popisky_druhu) +
+  ggplot2::labs(
+    x = NULL,
+    y = "Hmotnost těla (g)"
+  ) +
+  ggplot2::theme(legend.position = "none")
+```
+
+`r render_glossary_term("prumer", display = "Průměry")` Adélie a Chinstrap leží blízko sebe, zatímco průměr Gentoo je mnohem výše. To je přesně situace, ve které potřebujeme odlišit tři otázky: jak se jednotlivé skupiny liší od reference, zda jsou všechny tři průměry celkově stejné a které konkrétní dvojice chceme porovnat.
+
+{{< pagebreak >}}
+
+```{r}
+#| label: fitovat-model-tri-druhy-viditelne
+#| echo: true
+#| eval: true
+# Fitujeme stejnou formuli na všech třech druzích
+mod_tri_druhy <-
+  lm(
+    formula = hmotnost_tela_g ~ druh,
+    data = data_tucnaci
+  )
+
+# Koeficienty stále čteme vzhledem k referenčnímu druhu Adélie
+coef(mod_tri_druhy)
+confint(mod_tri_druhy)
+```
+
+### Tři skupiny potřebují dva přepínače
+
+Adélie zůstává referencí. Model proto vytvoří přepínač pro Chinstrap a druhý pro Gentoo.
+
+```{r}
+#| label: ukazat-dva-prepinace
+#| echo: false
+#| output: true
+#| message: false
+#| warning: false
+#| error: false
+tibble::tibble(
+  Druh = popisky_druhu[c("Adelie", "Chinstrap", "Gentoo")],
+  `je Chinstrap?` = c(0L, 1L, 0L),
+  `je Gentoo?` = c(0L, 0L, 1L),
+  `Odhadnutá hmotnost` = c(
+    "a",
+    "a + b₁",
+    "a + b₂"
+  )
+) |>
+  knitr::kable(
+    caption = paste0(
+      "Kódování tří skupin při referenčním druhu Adélie. ",
+      "Přepínače nejsou biologické veličiny."
+    )
+  )
+```
+
+Nejdříve slovy:
+
+$$
+\begin{aligned}
+\text{odhadnutá hmotnost těla}
+&=
+\text{průměr Adélie} \\
+&\quad +
+\text{rozdíl Chinstrap vůči Adélie}
+\cdot
+\text{„je Chinstrap?“} \\
+&\quad +
+\text{rozdíl Gentoo vůči Adélie}
+\cdot
+\text{„je Gentoo?“}.
+\end{aligned}
+$$
+
+Teď dosadíme skutečné koeficienty a oba přepínače z tabulky. Každý řádek skončí právě na průměru daného druhu:
+
+$$
+\begin{aligned}
+\widehat{\text{hmotnost}}_{\text{Adélie}}
+&=
+`r round(coef_three[["(Intercept)"]], 1)`
++
+`r round(coef_three[["druhChinstrap"]], 1)`\cdot 0
++
+`r round(coef_three[["druhGentoo"]], 1)`\cdot 0
+=
+`r round(coef_three[["(Intercept)"]], 1)`\ \text{g}, \\
+\widehat{\text{hmotnost}}_{\text{Chinstrap}}
+&=
+`r round(coef_three[["(Intercept)"]], 1)`
++
+`r round(coef_three[["druhChinstrap"]], 1)`\cdot 1
++
+`r round(coef_three[["druhGentoo"]], 1)`\cdot 0
+=
+`r round(coef_three[["(Intercept)"]] + coef_three[["druhChinstrap"]], 1)`\ \text{g}, \\
+\widehat{\text{hmotnost}}_{\text{Gentoo}}
+&=
+`r round(coef_three[["(Intercept)"]], 1)`
++
+`r round(coef_three[["druhChinstrap"]], 1)`\cdot 0
++
+`r round(coef_three[["druhGentoo"]], 1)`\cdot 1
+=
+`r round(coef_three[["(Intercept)"]] + coef_three[["druhGentoo"]], 1)`\ \text{g}.
+\end{aligned}
+$$
+
+Až potom vztah zapíšeme obecně. Symbol $z_{\text{Chinstrap},i}$ je číselná odpověď na otázku „je `r render_glossary_term("pozorovani", display = "pozorování")` $i$ Chinstrap?“ a $z_{\text{Gentoo},i}$ na otázku „je pozorování $i$ Gentoo?“. Oba nabývají hodnoty 0 nebo 1. Koeficient $a$ je průměr Adélie a $b_1$, $b_2$ jsou rozdíly dalších druhů vůči Adélie:
+
+$$
+\hat{y}_i
+=
+a
++
+b_1 z_{\text{Chinstrap},i}
++
+b_2 z_{\text{Gentoo},i}.
+$$
+
+```{r}
+#| label: vysvetlit-koeficienty-tri-druhy
+#| echo: false
+#| output: true
+#| message: false
+#| warning: false
+#| error: false
+data_coef_three <-
+  tibble::tibble(
+    radek = c("(Intercept)", "druhChinstrap", "druhGentoo"),
+    odhad_g = unname(coef_three),
+    vyznam = c(
+      "průměr Adélie",
+      "Chinstrap minus Adélie",
+      "Gentoo minus Adélie"
+    )
+  )
+
+data_coef_three |>
+  dplyr::transmute(
+    `Řádek výstupu` = radek,
+    `Odhad (g)` = round(odhad_g, digits = 1),
+    `Význam při referenci Adélie` = vyznam
+  ) |>
+  knitr::kable(
+    caption = "Koeficienty třískupinového modelu."
+  )
+```
+
+::: {.box-warning title="Koeficienty neobsahují všechny dvojice"}
+Tabulka s referencí Adélie přímo odpovídá na otázky Chinstrap minus Adélie a Gentoo minus Adélie. Rozdíl Gentoo minus Chinstrap v ní není samostatný řádek, i když jej lze ze stejného modelu odvodit.
+:::
+
+## Jedna celková otázka: `r render_glossary_term("anova", display = "analýza rozptylu")`
+
+U dvou skupin stačil jediný koeficient: Gentoo minus Adélie. U tří skupin už model obsahuje dva rozdílové koeficienty a jejich samostatné řádky neodpovídají přímo na jednu společnou otázku. Nejdříve se proto ptáme, zda přidání `r render_glossary_term("promenna", display = "proměnné")` `druh` zlepší popis dat jako celek:
+
+$$
+H_0:
+\text{všechny tři průměrné hmotnosti jsou stejné}.
+$$
+
+Alternativa neříká, která dvojice se liší. Říká pouze, že alespoň jeden `r render_glossary_term("prumer", display = "průměr")` není stejný jako ostatní.
+
+### Jeden společný průměr proti třem skupinovým průměrům
+
+`r render_glossary_term("nulova-hypoteza", display = "Nulová hypotéza")` odpovídá jednoduššímu modelu bez `r render_glossary_term("prediktor", display = "prediktoru")`: všem tučňákům přiřadí jeden společný průměr. Model s druhem je složitější a přiřadí každému jedinci průměr jeho druhu. Otázku analýzy rozptylu proto můžeme přeformulovat: **zkrátí tři skupinové průměry `r render_glossary_term("residuum", display = "residua")` natolik, aby přidaná složitost modelu stála za to?**
+
+```{r}
+#| label: pripravit-porovnani-jednoho-a-tri-prumeru
+#| echo: false
+#| output: false
+#| message: false
+#| warning: false
+#| error: false
+mod_one_mean <-
+  lm(
+    formula = hmotnost_tela_g ~ 1,
+    data = data_penguins
+  )
+
+common_mean_g <- unname(coef(mod_one_mean)[["(Intercept)"]])
+
+data_plot_positions <-
+  data_penguins |>
+  dplyr::group_by(druh) |>
+  dplyr::arrange(hmotnost_tela_g, .by_group = TRUE) |>
+  dplyr::mutate(
+    x_plot = as.numeric(druh) +
+      (
+        (
+          sin(seq_len(dplyr::n()) * 12.9898) * 43758.5453
+        ) %% 1 - 0.5
+      ) * 0.26
+  ) |>
+  dplyr::ungroup()
+
+data_model_comparison <-
+  dplyr::bind_rows(
+    data_plot_positions |>
+      dplyr::mutate(
+        model = "jeden společný průměr",
+        fitted_g = common_mean_g
+      ),
+    data_plot_positions |>
+      dplyr::mutate(
+        model = "tři skupinové průměry",
+        fitted_g = predict(
+          mod_three_species,
+          newdata = data_plot_positions
+        )
+      )
+  ) |>
+  dplyr::mutate(
+    residual_g = hmotnost_tela_g - fitted_g,
+    model = factor(
+      model,
+      levels = c(
+        "jeden společný průměr",
+        "tři skupinové průměry"
+      )
+    )
+  )
+
+data_common_line <-
+  tibble::tibble(
+    model = factor(
+      "jeden společný průměr",
+      levels = levels(data_model_comparison$model)
+    ),
+    x = 0.68,
+    xend = 3.32,
+    fitted_g = common_mean_g
+  )
+
+data_group_lines <-
+  data_summary_three |>
+  dplyr::transmute(
+    model = factor(
+      "tři skupinové průměry",
+      levels = levels(data_model_comparison$model)
+    ),
+    druh,
+    x_start = x - 0.32,
+    x_end = x + 0.32,
+    fitted_g = prumer_g
+  )
+
+sse_one_mean <- sum(resid(mod_one_mean)^2)
+sse_three_means <- sum(resid(mod_three_species)^2)
+sse_reduction <- sse_one_mean - sse_three_means
+
+data_group_shifts <-
+  data_summary_three |>
+  dplyr::transmute(
+    druh,
+    x = x + 0.30,
+    common_mean_g = common_mean_g,
+    group_mean_g = prumer_g,
+    model = factor(
+      "jeden společný průměr",
+      levels = levels(data_model_comparison$model)
+    )
+  )
+
+data_sse_labels <-
+  tibble::tibble(
+    model = factor(
+      c("jeden společný průměr", "tři skupinové průměry"),
+      levels = levels(data_model_comparison$model)
+    ),
+    x = 1.05,
+    y = max(data_penguins$hmotnost_tela_g) + 160,
+    label = paste0(
+      "součet čtverců residuí = ",
+      format(
+        round(c(sse_one_mean, sse_three_means)),
+        big.mark = " ",
+        scientific = FALSE
+      ),
+      " g²"
+    )
+  )
+
+data_ss_parts <-
+  tibble::tibble(
+    cast = factor(
+      c("zachyceno rozdíly druhů", "zůstává uvnitř druhů"),
+      levels = c("zůstává uvnitř druhů", "zachyceno rozdíly druhů")
+    ),
+    ss = c(sse_reduction, sse_three_means),
+    label = paste0(
+      c("druh: ", "residua: "),
+      format(
+        round(c(sse_reduction, sse_three_means)),
+        big.mark = " ",
+        scientific = FALSE
+      ),
+      " g²"
+    )
+  )
+```
+
+```{r}
+#| label: zobrazit-jeden-proti-trem-prumerum
+#| echo: false
+#| output: true
+#| message: false
+#| warning: false
+#| error: false
+#| fig-cap: "Stejná pozorování popsaná jedním společným průměrem a třemi skupinovými průměry. Body jsou kvůli překryvu mírně posunuty do stran. Tečkované svislice jsou všechna residua; šipky v levém panelu ukazují posun od společného průměru k průměrům druhů."
+#| fig-width: 10
+#| fig-height: 5.8
+ggplot2::ggplot(
+  data = data_model_comparison,
+  mapping = ggplot2::aes(
+    x = x_plot,
+    y = hmotnost_tela_g,
+    color = druh
+  )
+) +
+  ggplot2::geom_segment(
+    mapping = ggplot2::aes(
+      xend = x_plot,
+      yend = fitted_g
+    ),
+    color = biostat_cols[["grey_olive"]],
+    linetype = 3,
+    alpha = 0.38,
+    linewidth = 0.38
+  ) +
+  ggplot2::geom_point(
+    alpha = 0.38,
+    size = 1.25
+  ) +
+  ggplot2::geom_segment(
+    data = data_common_line,
+    mapping = ggplot2::aes(
+      x = x,
+      xend = xend,
+      y = fitted_g,
+      yend = fitted_g
+    ),
+    color = biostat_cols[["graphite"]],
+    linewidth = 1.8,
+    inherit.aes = FALSE,
+    show.legend = FALSE
+  ) +
+  ggplot2::geom_segment(
+    data = data_group_lines,
+    mapping = ggplot2::aes(
+      x = x_start,
+      xend = x_end,
+      y = fitted_g,
+      yend = fitted_g,
+      color = druh
+    ),
+    linewidth = 1.8,
+    inherit.aes = FALSE,
+    show.legend = FALSE
+  ) +
+  ggplot2::geom_segment(
+    data = data_group_shifts,
+    mapping = ggplot2::aes(
+      x = x,
+      xend = x,
+      y = common_mean_g,
+      yend = group_mean_g,
+      color = druh
+    ),
+    linewidth = 1.1,
+    arrow = grid::arrow(ends = "both", length = grid::unit(0.09, "cm")),
+    inherit.aes = FALSE,
+    show.legend = FALSE
+  ) +
+  ggplot2::geom_label(
+    data = data_sse_labels,
+    mapping = ggplot2::aes(
+      x = x,
+      y = y,
+      label = label
+    ),
+    hjust = 0,
+    size = 3.3,
+    color = biostat_cols[["graphite"]],
+    fill = "white",
+    linewidth = 0.2,
+    inherit.aes = FALSE
+  ) +
+  ggplot2::facet_wrap(
+    facets = ggplot2::vars(model),
+    nrow = 1
+  ) +
+  ggplot2::scale_color_manual(values = barvy_druhu) +
+  ggplot2::scale_x_continuous(
+    breaks = c(1, 2, 3),
+    labels = c("Adélie", "Chinstrap", "Gentoo")
+  ) +
+  ggplot2::labs(
+    x = NULL,
+    y = "Hmotnost těla (g)",
+    color = "Druh"
+  ) +
+  ggplot2::theme(legend.position = "none")
+```
+
+V levém panelu jsou residua vzdálenosti od jednoho společného průměru. V pravém panelu jsou vzdálenosti od průměru vlastního druhu. `r render_glossary_term("soucet-ctvercu-residui", display = "Součet čtverců residuí")` klesne z `r format(round(sse_one_mean), big.mark = " ", scientific = FALSE)` na `r format(round(sse_three_means), big.mark = " ", scientific = FALSE)` g². Rozdílné skupinové průměry tedy vysvětlí část `r render_glossary_term("variabilita", display = "variability")`, která v jednodušším modelu zůstávala v residuích.
+
+Proč residua umocňujeme? Kdybychom pouze sečetli kladné a záporné vzdálenosti od průměru, navzájem by se vyrušily. Čtverce jsou vždy nezáporné a velkým odchylkám dávají větší váhu. Stejnou myšlenku součtu čtverců residuí už známe z fitování přímky.
+
+Pokles součtu čtverců můžeme zobrazit jako rozdělení původní chyby jednoduššího modelu na dvě části:
+
+$$
+\underbrace{\text{SSE jednoho průměru}}_{`r format(round(sse_one_mean), big.mark = " ", scientific = FALSE)`}
+=
+\underbrace{\text{SS zachycený druhem}}_{`r format(round(sse_reduction), big.mark = " ", scientific = FALSE)`}
++
+\underbrace{\text{SSE tří průměrů}}_{`r format(round(sse_three_means), big.mark = " ", scientific = FALSE)`}.
+$$
+
+```{r}
+#| label: zobrazit-rozklad-souctu-ctvercu
+#| echo: false
+#| output: true
+#| message: false
+#| warning: false
+#| error: false
+#| fig-cap: "Původní součet čtverců residuí se po přidání druhu rozdělí na část zachycenou rozdíly skupinových průměrů a část, která stále zůstává uvnitř druhů."
+#| fig-width: 9
+#| fig-height: 3.2
+ggplot2::ggplot(
+  data = data_ss_parts,
+  mapping = ggplot2::aes(
+    x = "jeden společný průměr",
+    y = ss,
+    fill = cast
+  )
+) +
+  ggplot2::geom_col(width = 0.55) +
+  ggplot2::geom_label(
+    mapping = ggplot2::aes(label = label),
+    position = ggplot2::position_stack(vjust = 0.5),
+    color = biostat_cols[["graphite"]],
+    fill = "white",
+    linewidth = 0.2,
+    label.padding = grid::unit(0.15, "lines"),
+    size = 3.5
+  ) +
+  ggplot2::coord_flip() +
+  ggplot2::scale_fill_manual(
+    values = c(
+      "zůstává uvnitř druhů" = biostat_cols[["grey_olive"]],
+      "zachyceno rozdíly druhů" = biostat_cols[["amethyst"]]
+    )
+  ) +
+  ggplot2::labs(
+    x = NULL,
+    y = "Součet čtverců (g²)",
+    fill = NULL
+  ) +
+  ggplot2::theme(legend.position = "bottom")
+```
+
+### Co porovnává `r render_glossary_term("f-statistika", display = "F-statistika")`
+
+Samotný pokles součtu čtverců nestačí. Složitější model téměř vždy residua alespoň trochu zkrátí, protože dostal více koeficientů. Potřebujeme proto porovnat dvě veličiny na férovém měřítku:
+
+1. kolik variability zachytil každý přidaný rozdíl mezi skupinami;
+2. jak velký čtverec residua typicky zůstává uvnitř skupin.
+
+F-statistika je poměr právě těchto dvou množství. Proto je zde a proto se metoda jmenuje **analýza rozptylu**, i když biologická otázka mluví o průměrech.
+
+Nejdříve stejný vztah zapíšeme pouze slovy:
+
+$$
+\text{F-statistika}
+=
+\frac{
+\text{variabilita připadající na rozdíly mezi skupinami}
+}{
+\text{reziduální variabilita uvnitř skupin}
+}.
+$$
+
+```{r}
+#| label: pripravit-anova-vysledek
+#| echo: false
+#| output: false
+#| message: false
+#| warning: false
+#| error: false
+table_anova <- anova(mod_three_species)
+f_anova <- table_anova["druh", "F value"]
+p_anova <- table_anova["druh", "Pr(>F)"]
+df_group <- table_anova["druh", "Df"]
+df_residual <- table_anova["Residuals", "Df"]
+ms_group <- table_anova["druh", "Mean Sq"]
+ms_residual <- table_anova["Residuals", "Mean Sq"]
+
+data_f_distribution <-
+  dplyr::bind_rows(
+    tibble::tibble(
+      panel = "nulové F-rozdělení pod lupou",
+      f = seq(0, 8, length.out = 1601)
+    ),
+    tibble::tibble(
+      panel = "pozorované F na celé ose",
+      f = seq(0, ceiling(f_anova * 1.03), length.out = 2401)
+    )
+  ) |>
+  dplyr::mutate(
+    density = df(f, df1 = df_group, df2 = df_residual),
+    panel = factor(
+      panel,
+      levels = c(
+        "nulové F-rozdělení pod lupou",
+        "pozorované F na celé ose"
+      )
+    )
+  )
+
+data_f_observed <-
+  tibble::tibble(
+    panel = factor(
+      "pozorované F na celé ose",
+      levels = levels(data_f_distribution$panel)
+    ),
+    f = f_anova
+  )
+```
+
+Čísla už jsme viděli ve dvou konkrétních grafech. V grafu **jeden společný průměr proti třem skupinovým průměrům** byl součet čtverců residuí jednoho průměru `r format(round(sse_one_mean), big.mark = " ", scientific = FALSE)` g² a součet čtverců residuí tří průměrů `r format(round(sse_three_means), big.mark = " ", scientific = FALSE)` g². Jejich rozdíl `r format(round(sse_reduction), big.mark = " ", scientific = FALSE)` g² tvoří fialovou část grafu rozkladu součtu čtverců - část zachycenou druhem.
+
+Součty čtverců nyní převedeme na srovnatelné **průměrné čtverce** dělením příslušnými `r render_glossary_term("stupne-volnosti", display = "stupni volnosti")`. Model přidal `r df_group` rozdílové koeficienty; uvnitř skupin zbývá `r df_residual` residuálních stupňů volnosti:
+
+$$
+\begin{aligned}
+\text{průměrný čtverec mezi skupinami}
+&=
+\frac{
+\text{`r format(round(sse_one_mean), big.mark = " ", scientific = FALSE)`}
+-
+\text{`r format(round(sse_three_means), big.mark = " ", scientific = FALSE)`}
+}{
+\text{`r df_group`}
+}
+=
+\frac{
+\text{`r format(round(sse_reduction), big.mark = " ", scientific = FALSE)`}
+}{
+\text{`r df_group`}
+}
+=
+\text{`r format(round(ms_group), big.mark = " ", scientific = FALSE)`}, \\
+\text{průměrný čtverec uvnitř skupin}
+&=
+\frac{
+\text{`r format(round(sse_three_means), big.mark = " ", scientific = FALSE)`}
+}{
+\text{`r df_residual`}
+}
+=
+\text{`r format(round(ms_residual), big.mark = " ", scientific = FALSE)`}.
+\end{aligned}
+$$
+
+{{< pagebreak >}}
+
+Kdyby druh nepomáhal, zlepšení připadající na jeden nový koeficient by bylo podobně velké jako běžný čtverec residua a $F$ by bývalo kolem 1. Čím je čitatel větší vůči jmenovateli, tím více skupinové rozdíly vyčnívají nad variabilitu jedinců uvnitř skupin. V našich datech jejich poměr dává:
+
+$$
+F
+=
+\frac{
+\text{`r format(round(ms_group), big.mark = " ", scientific = FALSE)`}
+}{
+\text{`r format(round(ms_residual), big.mark = " ", scientific = FALSE)`}
+}
+=
+`r round(f_anova, 2)`.
+$$
+
+Až teď zapíšeme stejnou myšlenku obecně:
+
+$$
+F
+=
+\frac{MS_{\text{mezi skupinami}}}{MS_{\text{uvnitř skupin}}}.
+$$
+
+Symbol $MS$ označuje průměrný čtverec (*mean square*): součet čtverců dělený příslušnými stupni volnosti. F-statistika tak spojuje všechny předchozí kroky: rozdíly průměrů mění `r render_glossary_term("odhadnuta-hodnota", display = "odhadnuté hodnoty")`, tím zkracují residua, z residuí počítáme součty čtverců a jejich férově přepočtený poměr testuje společnou nulovou hypotézu.
+
+```{r}
+#| label: zobrazit-anova-vysledek
+#| echo: true
+#| eval: true
+# Položíme celkovou otázku stejnému třískupinovému modelu
+anova(mod_tri_druhy)
+```
+
+{{< pagebreak >}}
+
+### Jak číst tabulku `anova()` řádek po řádku
+
+Tabulka je kompaktní, ale každý údaj odpovídá kroku, který jsme už viděli v rovnici nebo grafu:
+
+1. **Řádek `druh`** popisuje část variability zachycenou přidáním tří skupinových průměrů místo jednoho společného průměru. **Řádek `Residuals`** popisuje variabilitu, která zůstává kolem skupinových průměrů.
+2. **`Df` pro `druh` je `r df_group`.** Tři skupinové průměry vyjádříme jedním referenčním průměrem a dvěma rozdíly, takže druh přidává $3-1=2$ stupně volnosti. **`Df` pro residua je `r df_residual`.** Máme `r nobs(mod_three_species)` `r render_glossary_term("pozorovani", display = "pozorování")` a odhadujeme tři skupinové průměry, proto zbývá $`r nobs(mod_three_species)`-3=`r df_residual`$ residuálních stupňů volnosti.
+3. **`Sum Sq` pro `druh` je `r format(round(sse_reduction), big.mark = " ", scientific = FALSE)` g².** Je to přesně rozdíl mezi SSE jednoho a tří průměrů a fialová část předchozího rozkladového grafu. **`Sum Sq` pro `Residuals` je `r format(round(sse_three_means), big.mark = " ", scientific = FALSE)` g²**, tedy šedá část, která zůstává uvnitř druhů.
+4. **`Mean Sq`** vznikne vydělením každého `Sum Sq` jeho `Df`: `r format(round(ms_group), big.mark = " ", scientific = FALSE)` g² mezi skupinami a `r format(round(ms_residual), big.mark = " ", scientific = FALSE)` g² uvnitř skupin.
+5. **`F value` je `r round(f_anova, 2)`.** Je to poměr těchto dvou průměrných čtverců. Hodnota mnohem větší než 1 znamená, že rozdíly skupinových průměrů jsou velké vůči běžné variabilitě jedinců kolem těchto průměrů.
+6. **`Pr(>F)` je `r render_glossary_term("p-hodnota", display = "p-hodnota")`.** Nejde o další nezávislý výpočet z dat; vzniká umístěním pozorovaného $F$ do nulového `r render_glossary_term("rozdeleni", display = "F-rozdělení")` se dvěma stupni volnosti pro čitatel a `r df_residual` pro jmenovatel.
+
+### Jak se z F-statistiky stane p-hodnota
+
+Pokud by všechny tři populační průměry byly stejné a platily předpoklady modelu, opakované `r render_glossary_term("vyber", display = "výběry")` by vytvářely hodnoty z F-rozdělení $F(`r df_group`, `r df_residual`)$. P-hodnota je plocha napravo od naší pozorované hodnoty `r round(f_anova, 2)`:
+
+$$
+p
+=
+P\!\left(
+F_{`r df_group`,`r df_residual`}
+\ge
+`r round(f_anova, 2)`
+\mid H_0
+\right).
+$$
+
+```{r}
+#| label: vypocitat-p-hodnotu-z-f
+#| echo: true
+#| eval: true
+pf(
+  q = f_anova,
+  df1 = df_group,
+  df2 = df_residual,
+  lower.tail = FALSE
+)
+```
+
+Argument `lower.tail = FALSE` říká R, že chceme pravý chvost: pravděpodobnost hodnot stejně velkých nebo větších než pozorované $F$. U našeho modelu je tato plocha tak malá, že ji v grafu prakticky neuvidíme.
+
+```{r}
+#| label: zobrazit-f-rozdeleni
+#| echo: false
+#| output: true
+#| message: false
+#| warning: false
+#| error: false
+#| fig-cap: "F-rozdělení očekávané při nulové hypotéze. Levý panel ukazuje běžné hodnoty blízko jedné; pravý panel umisťuje pozorovanou F-statistiku na skutečnou osu. P-hodnota je plocha napravo od oranžové čáry a je zde příliš malá, aby byla viditelná."
+#| fig-width: 10
+#| fig-height: 4.4
+ggplot2::ggplot(
+  data = data_f_distribution,
+  mapping = ggplot2::aes(x = f, y = density)
+) +
+  ggplot2::geom_line(
+    color = biostat_cols[["graphite"]],
+    linewidth = 1
+  ) +
+  ggplot2::geom_vline(
+    data = data_f_observed,
+    mapping = ggplot2::aes(xintercept = f),
+    color = biostat_cols[["orange"]],
+    linewidth = 1.1,
+    inherit.aes = FALSE
+  ) +
+  ggplot2::geom_label(
+    data = tibble::tibble(
+      panel = factor(
+        "pozorované F na celé ose",
+        levels = levels(data_f_distribution$panel)
+      ),
+      f = f_anova,
+      density = 0.20,
+      label = paste0("pozorované F = ", round(f_anova, 2))
+    ),
+    mapping = ggplot2::aes(x = f, y = density, label = label),
+    hjust = 1.05,
+    color = biostat_cols[["orange"]],
+    fill = "white",
+    linewidth = 0.2,
+    size = 3.2,
+    inherit.aes = FALSE
+  ) +
+  ggplot2::facet_wrap(
+    facets = ggplot2::vars(panel),
+    nrow = 1,
+    scales = "free_x"
+  ) +
+  ggplot2::labs(
+    x = "F-statistika očekávaná při nulové hypotéze",
+    y = "Hustota"
+  ) +
+  ggplot2::theme(
+    strip.text = ggplot2::element_text(face = "bold")
+  )
+```
+
+Pro tučňáky tedy vychází $F(`r df_group`, `r df_residual`)=`r round(f_anova, 2)`$ a p-hodnota má hodnotu `r gsub("\\.", ",", format.pval(p_anova, digits = 3, eps = 0.001))`. Za předpokladů modelu jsou data velmi obtížně slučitelná s hypotézou, že všechny tři druhy mají stejnou průměrnou hmotnost.
+
+::: {.box-warning title="Celkový výsledek neříká, že se liší každá dvojice"}
+Malá p-hodnota analýzy rozptylu podporuje tvrzení, že alespoň jeden průměr se liší. Neurčuje však, které dvojice se liší, ani zda jsou všechny rozdíly biologicky důležité.
+:::
+
+## `r render_glossary_term("post-hoc-test", display = "Post-hoc")`: které dvojice se liší?
+
+Celkovou otázku jsme už vyhodnotili pomocí F-testu: data jsou obtížně slučitelná s hypotézou tří stejných `r render_glossary_term("prumer", display = "průměrů")`. **Teprve teď** přecházíme od této jediné celkové otázky k navazujícím otázkám o konkrétních dvojicích. U tří druhů existují tři páry: Chinstrap minus Adélie, Gentoo minus Adélie a Gentoo minus Chinstrap.
+
+::: {.box-warning title="Nejdříve celkový test, teprve potom post-hoc porovnání"}
+1. Funkcí `anova()` nejprve testujeme společnou `r render_glossary_term("nulova-hypoteza", display = "nulovou hypotézu")`, že jsou **všechny skupinové průměry stejné**.
+2. Až po vyhodnocení tohoto celkového testu získáme ze stejného modelu `r render_glossary_term("odhad", display = "odhadnuté skupinové průměry")` a položíme post-hoc otázku, **které konkrétní dvojice** se liší.
+
+Tukeyho metoda tedy není náhradou za celkový F-test. Je to post-hoc porovnání: navazující krok, který podrobněji rozebírá rozdíl zachycený celkovým testem.
+:::
+
+Kdybychom každý pár testovali jako izolovanou novou studii, s rostoucím počtem testů by rostla šance na alespoň jeden náhodně extrémní výsledek. Tukeyho post-hoc metoda proto vyhodnotí rodinu navazujících otázek společně. Získáme `r render_glossary_term("interval-spolehlivosti", display = "simultánní intervaly")` a `r render_glossary_term("p-hodnota", display = "p-hodnoty")` upravené pro všechna tři porovnání.
+
+Funkce `emmeans()` pracuje přímo s již fitovaným objektem `mod_tri_druhy`. **Nefitujeme nový model.** Pouze z téhož `r render_glossary_term("linearni-model", display = "lineárního modelu")` získáme průměrnou hmotnost odhadnutou pro každý druh. V tomto jednoduchém modelu s jediným `r render_glossary_term("kategoricka-promenna", display = "kategoriálním prediktorem")` jsou tyto hodnoty stejné jako skupinové průměry, které už známe z grafu.
+
+```{r}
+#| label: odhadnout-prumery-emmeans-viditelne
+#| echo: true
+#| eval: true
+# Ze stejného modelu získáme odhadnutý průměr každého druhu
+prumery_druhu <-
+  emmeans::emmeans(
+    object = mod_tri_druhy,
+    specs = ~ druh
+  )
+
+prumery_druhu
+```
+
+Výstup objektu `prumery_druhu` ukazuje všechny tři průměry odhadnuté modelem. Sloupec `emmean` obsahuje průměrnou hmotnost: `r round(as.data.frame(prumery_druhu)$emmean[1], 1)` g pro Adélie, `r round(as.data.frame(prumery_druhu)$emmean[2], 1)` g pro Chinstrap a `r round(as.data.frame(prumery_druhu)$emmean[3], 1)` g pro Gentoo. Sloupec `SE` je `r render_glossary_term("standardni-chyba", display = "standardní chyba")` každého průměru, `df` udává residuální `r render_glossary_term("stupne-volnosti", display = "stupně volnosti")` a `lower.CL` s `upper.CL` vymezují 95% interval pro každý skupinový průměr zvlášť.
+
+Tyto intervaly popisují `r render_glossary_term("nejistota", display = "nejistotu")` jednotlivých průměrů; samy ještě nejsou intervaly jejich vzájemných rozdílů. Teprve mezi odhadnutými průměry nyní vytvoříme všechny tři post-hoc rozdíly. Metoda `revpairwise` zachová směr, který jsme používali v grafech: Chinstrap minus Adélie, Gentoo minus Adélie a Gentoo minus Chinstrap. Argument `adjust = "tukey"` říká, že intervaly a p-hodnoty mají zohlednit celou rodinu tří porovnání.
+
+{{< pagebreak >}}
+
+```{r}
+#| label: post-hoc-emmeans-viditelne
+#| echo: true
+#| eval: true
+# Až po celkovém F-testu provedeme post-hoc párová porovnání
+post_hoc_druhy <-
+  emmeans::contrast(
+    object = prumery_druhu,
+    method = "revpairwise",
+    adjust = "tukey"
+  )
+
+summary(
+  object = post_hoc_druhy,
+  # První TRUE zobrazí intervaly, druhé t-testy a p-hodnoty
+  infer = c(TRUE, TRUE)
+)
+```
+
+Ve výstupu sledujeme řádky jednotlivých dvojic. Sloupec `estimate` je odhadnutý rozdíl průměrů, `lower.CL` a `upper.CL` jsou meze simultánního intervalu a `p.value` je p-hodnota upravená pro společnou rodinu porovnání. Poznámky pod výstupem potvrzují, že Tukeyho korekce byla použita pro intervaly i p-hodnoty. Přehledněji si stejné hodnoty uspořádáme do tabulky.
+
+```{r}
+#| label: spocitat-post-hoc-porovnani
+#| echo: false
+#| output: false
+#| message: false
+#| warning: false
+#| error: false
+
+data_tukey <-
+  summary(
+    object = post_hoc_druhy,
+    infer = c(TRUE, TRUE)
+  ) |>
+  as.data.frame() |>
+  dplyr::transmute(
+    porovnani = factor(
+      contrast,
+      levels = c(
+        "Chinstrap - Adelie",
+        "Gentoo - Adelie",
+        "Gentoo - Chinstrap"
+      ),
+      labels = c(
+        "Chinstrap minus Adélie",
+        "Gentoo minus Adélie",
+        "Gentoo minus Chinstrap"
+      )
+    ),
+    odhad = estimate,
+    dolni = lower.CL,
+    horni = upper.CL,
+    p_adjusted = p.value
+  )
+```
+
+```{r}
+#| label: zobrazit-post-hoc-tabulku
+#| echo: false
+#| output: true
+#| message: false
+#| warning: false
+#| error: false
+data_tukey |>
+  dplyr::transmute(
+    Porovnání = porovnani,
+    `Rozdíl (g)` = round(odhad, digits = 1),
+    `Dolní mez (g)` = round(dolni, digits = 1),
+    `Horní mez (g)` = round(horni, digits = 1),
+    `Upravená p-hodnota` = format.pval(
+      p_adjusted,
+      digits = 3,
+      eps = 0.001
+    )
+  ) |>
+  knitr::kable(
+    caption = paste0(
+      "Tukeyho post-hoc rozdíly, simultánní intervaly a p-hodnoty ",
+      "upravené pro tři porovnání."
+    )
+  )
+```
+
+Tabulka zachovává hlavní čísla z výstupu `summary(post_hoc_druhy)`. Teď je převedeme do grafu: bod ukáže odhad rozdílu, vodorovná úsečka jeho simultánní interval a svislá čára nulu.
+
+```{r}
+#| label: zobrazit-post-hoc-intervaly
+#| echo: false
+#| output: true
+#| message: false
+#| warning: false
+#| error: false
+#| fig-cap: "Tři Tukeyho post-hoc rozdíly a simultánní 95% intervaly. Nula znamená stejné průměry dané dvojice."
+#| fig-width: 9
+#| fig-height: 4.5
+ggplot2::ggplot(
+  data = data_tukey,
+  mapping = ggplot2::aes(
+    x = odhad,
+    y = porovnani
+  )
+) +
+  ggplot2::geom_vline(
+    xintercept = 0,
+    linetype = 2,
+    color = biostat_cols[["grey_olive"]]
+  ) +
+  ggplot2::geom_errorbar(
+    mapping = ggplot2::aes(
+      xmin = dolni,
+      xmax = horni
+    ),
+    orientation = "y",
+    width = 0.14,
+    linewidth = 1,
+    color = biostat_cols[["indigo_velvet"]]
+  ) +
+  ggplot2::geom_point(
+    size = 3.2,
+    color = biostat_cols[["orange"]]
+  ) +
+  ggplot2::labs(
+    x = "Rozdíl průměrné hmotnosti (g)",
+    y = NULL
+  )
+```
+
+Rozdíl Chinstrap minus Adélie je `r round(data_tukey$odhad[1], 1)` g a simultánní interval od `r round(data_tukey$dolni[1], 1)` do `r round(data_tukey$horni[1], 1)` g protíná nulu. Data tedy tento malý rozdíl neodlišují od nuly. Oba rozdíly zahrnující Gentoo jsou přibližně `r round(data_tukey$odhad[2], 0)` až `r round(data_tukey$odhad[3], 0)` g a jejich intervaly leží celé nad nulou.
+
+::: {.box-result title="Celková a párová otázka dávají různé informace"}
+`r render_glossary_term("anova", display = "Analýza rozptylu")` ukázala, že všechny tři průměry nejsou stejné. Párová porovnání upřesnila proč: Gentoo se zřetelně liší od obou dalších druhů, zatímco Adélie a Chinstrap mají v tomto `r render_glossary_term("vyber", display = "výběru")` velmi podobné průměrné hmotnosti.
+:::
+
+## Popisuje model data rozumně?
+
+Výsledek testu není konec analýzy. Stejně jako u přímky zkontrolujeme `r render_glossary_term("diagnostika-modelu", display = "diagnostiku modelu")`. U `r render_glossary_term("kategoricka-promenna", display = "kategoriálního prediktoru")` má graf `r render_glossary_term("residuum", display = "residuí")` proti `r render_glossary_term("odhadnuta-hodnota", display = "odhadnutým hodnotám")` zvláštní, ale očekávaný tvar: protože model odhaduje tři skupinové `r render_glossary_term("prumer", display = "průměry")`, body tvoří tři svislé pásy.
+
+::: {.box-warning title="Co od diagnostiky potřebujeme"}
+Test předpokládá nezávislá `r render_glossary_term("pozorovani", display = "pozorování")`, přibližně srovnatelnou `r render_glossary_term("variabilita", display = "variabilitu")` residuí ve skupinách a přibližně normální tvar residuí. Graf residuí proti odhadnutým hodnotám pomáhá posoudit srovnatelnost `r render_glossary_term("rozptyl", display = "rozptylu")`; Q–Q graf pomáhá posoudit tvar `r render_glossary_term("rozdeleni", display = "rozdělení")`. Nezávislost však z těchto grafů nepoznáme — musíme ji zdůvodnit způsobem, jakým byla pozorování získána.
+:::
+
+```{r}
+#| label: pripravit-diagnostiku-tri-druhy
+#| echo: false
+#| output: false
+#| message: false
+#| warning: false
+#| error: false
+data_diagnostics <-
+  data_penguins |>
+  dplyr::mutate(
+    odhadnuta_hmotnost_g = fitted(mod_three_species),
+    residuum_g = resid(mod_three_species)
+  )
+```
+
+```{r}
+#| label: zobrazit-residua-proti-odhadum
+#| echo: false
+#| output: true
+#| message: false
+#| warning: false
+#| error: false
+#| fig-cap: "Residua proti odhadnutým hodnotám. Tři svislé pásy odpovídají třem skupinovým průměrům a jsou vlastností tohoto modelu, ne samy o sobě závadou."
+#| fig-width: 8
+#| fig-height: 5
+ggplot2::ggplot(
+  data = data_diagnostics,
+  mapping = ggplot2::aes(
+    x = odhadnuta_hmotnost_g,
+    y = residuum_g,
+    color = druh
+  )
+) +
+  ggplot2::geom_hline(
+    yintercept = 0,
+    linetype = 2,
+    color = biostat_cols[["grey_olive"]]
+  ) +
+  ggplot2::geom_point(
+    alpha = 0.58,
+    size = 1.7,
+    position = ggplot2::position_jitter(width = 22, height = 0)
+  ) +
+  ggplot2::scale_color_manual(
+    values = barvy_druhu,
+    labels = popisky_druhu
+  ) +
+  ggplot2::labs(
+    x = "Odhadnutá hmotnost (g)",
+    y = "Residuum (g)",
+    color = "Druh"
+  )
+```
+
+Ve všech třech pásech jsou residua rozptýlena kolem nuly. Rozsah není dokonale totožný, ale žádná skupina nevytváří dramaticky odlišný vějíř a žádný jednotlivý bod zjevně neurčuje celý výsledek.
+
+```{r}
+#| label: zobrazit-qq-graf-residui
+#| echo: false
+#| output: true
+#| message: false
+#| warning: false
+#| error: false
+#| fig-cap: "Q–Q graf residuí. Body převážně sledují referenční přímku; menší odchylky na koncích jsou u reálných dat běžné."
+#| fig-width: 7
+#| fig-height: 5
+ggplot2::ggplot(
+  data = data_diagnostics,
+  mapping = ggplot2::aes(
+    sample = residuum_g
+  )
+) +
+  ggplot2::stat_qq(
+    color = biostat_cols[["indigo_velvet"]],
+    alpha = 0.55,
+    size = 1.6
+  ) +
+  ggplot2::stat_qq_line(
+    color = biostat_cols[["orange"]],
+    linewidth = 0.9
+  ) +
+  ggplot2::labs(
+    x = "Teoretické kvantily normálního rozdělení",
+    y = "Kvantily residuí"
+  )
+```
+
+Q–Q graf porovnává seřazená residua s hodnotami očekávanými při přibližně normálním tvaru. Body většinou sledují přímku. Model proto pro úvodní srovnání skupin nevykazuje problém, který by převzal hlavní biologický příběh. To neznamená, že jsou předpoklady „dokázané“; znamená to, že grafy neukazují zásadní rozpor.
+
+## Co jednoduchý model neoddělil
+
+Rozdíly mezi druhy jsou v těchto datech **asociace**. Jedinci nebyli náhodně přiřazeni ke druhům a druhy nebyly na ostrovech zastoupeny stejně.
+
+```{r}
+#| label: ukazat-druhy-a-ostrovy
+#| echo: false
+#| output: true
+#| message: false
+#| warning: false
+#| error: false
+data_penguins |>
+  dplyr::count(druh, ostrov) |>
+  tidyr::pivot_wider(
+    names_from = ostrov,
+    values_from = n,
+    values_fill = 0
+  ) |>
+  dplyr::mutate(
+    Druh = popisky_druhu[as.character(druh)]
+  ) |>
+  dplyr::select(Druh, Biscoe, Dream, Torgersen) |>
+  knitr::kable(
+    caption = "Počet jedinců jednotlivých druhů na třech ostrovech."
+  )
+```
+
+Všichni tučňáci uzdičkoví v tomto `r render_glossary_term("vyber", display = "výběru")` pocházejí z ostrova Dream a všichni tučňáci oslí z ostrova Biscoe. Adélie byli měřeni na všech třech ostrovech. Jednoduchý model proto neumí oddělit druh od prostředí ostrova.
+
+Pohlaví také souvisí s hmotností. Následující graf tuto strukturu pouze zviditelňuje; stále nefitujeme model s více `r render_glossary_term("prediktor", display = "prediktory")`.
+
+```{r}
+#| label: zobrazit-pohlavi-uvnitr-druhu
+#| echo: false
+#| output: true
+#| message: false
+#| warning: false
+#| error: false
+#| fig-cap: "Hmotnosti tří druhů rozlišené podle zaznamenaného pohlaví. Šedé body mají pohlaví nezaznamenané."
+#| fig-width: 9
+#| fig-height: 5.5
+data_sex_plot <-
+  data_penguins |>
+  dplyr::mutate(
+    pohlavi_plot = dplyr::case_when(
+      pohlavi == "female" ~ "samice",
+      pohlavi == "male" ~ "samec",
+      TRUE ~ "nezaznamenáno"
+    )
+  )
+
+ggplot2::ggplot(
+  data = data_sex_plot,
+  mapping = ggplot2::aes(
+    x = druh,
+    y = hmotnost_tela_g,
+    shape = pohlavi_plot,
+    color = pohlavi_plot
+  )
+) +
+  ggbeeswarm::geom_quasirandom(
+    width = 0.24,
+    alpha = 0.58,
+    size = 1.6
+  ) +
+  ggplot2::scale_color_manual(
+    values = c(
+      "samice" = biostat_cols[["amethyst"]],
+      "samec" = biostat_cols[["orange"]],
+      "nezaznamenáno" = biostat_cols[["grey_olive"]]
+    )
+  ) +
+  ggplot2::scale_x_discrete(labels = popisky_druhu) +
+  ggplot2::labs(
+    x = NULL,
+    y = "Hmotnost těla (g)",
+    shape = "Pohlaví",
+    color = "Pohlaví"
+  )
+```
+
+::: {.box-question title="Otázka pro následující lekci"}
+Změnil by se `r render_glossary_term("odhad", display = "odhad")` rozdílu mezi druhy, kdybychom porovnávali jedince stejného pohlaví nebo současně zohlednili ostrov? Odpověď vyžaduje model s více prediktory, který budeme stavět příště.
+:::
+
+## Co tedy můžeme říct o tučňácích?
+
+Správný závěr nezačíná `r render_glossary_term("p-hodnota", display = "p-hodnotou")`. Nejprve uvedeme velikost rozdílů, potom jejich `r render_glossary_term("nejistota", display = "nejistotu")` a teprve pak testovou informaci a omezení studie.
+
+::: {.box-question title="Sestavte závěr z pěti částí"}
+Napište krátký odstavec v pořadí: biologická otázka → rozdíly v gramech → `r render_glossary_term("interval-spolehlivosti", display = "intervaly")` → celkový a párový test → omezení zobecnění a kauzality.
+:::
+
+::: {.box-result title="Příklad opatrného závěru"}
+V souboru `r count_complete` dospělých tučňáků byla celková `r render_glossary_term("anova", display = "analýza rozptylu")` obtížně slučitelná s hypotézou tří stejných průměrů ($F(`r df_group`, `r df_residual`)=`r round(f_anova, 2)`$; p-hodnota `r gsub("\\.", ",", format.pval(p_anova, digits = 3, eps = 0.001))`). V navazujících Tukeyho `r render_glossary_term("post-hoc-test", display = "post-hoc porovnáních")` byla `r render_glossary_term("prumer", display = "průměrná hmotnost")` Gentoo přibližně o `r round(data_tukey$odhad[2], 0)` g vyšší než u Adélie a o `r round(data_tukey$odhad[3], 0)` g vyšší než u Chinstrap; simultánní 95% intervaly pro oba rozdíly ležely celé nad nulou. Průměry Adélie a Chinstrap se lišily pouze o `r round(data_tukey$odhad[1], 0)` g a jejich interval od `r round(data_tukey$dolni[1], 0)` do `r round(data_tukey$horni[1], 0)` g zahrnoval nulu.
+:::
+
+## Propojení s celým dosavadním kurzem
+
+| Dřívější myšlenka | Jak se objevila v této lekci |
+|---|---|
+| Typ proměnné určuje vhodný popis | Numerickou hmotnost jsme vysvětlovali kategoriálním druhem. |
+| Graf předchází modelu | Nejdříve jsme viděli jednotlivce, překryv a variabilitu, až potom průměry a koeficienty. |
+| $y_i=\hat{y}_i+e_i$ | Odhadnuté hodnoty se změnily z bodů na přímce na skupinové průměry; residua zůstala vzdálenostmi od odhadu. |
+| Efekt a jeho nejistota jsou dvě informace | Rozdíly v gramech jsme doplnili intervaly spolehlivosti. |
+| Test je otázka o parametru | Dvouskupinový t-test se stal testem koeficientu a analýza rozptylu celkovou otázkou o všech skupinových průměrech. |
+| Závěr není jen p-hodnota | Výsledek spojil velikost rozdílů, intervaly, testy, diagnostiku a omezení studie. |
+
+{{< pagebreak >}}
+
+## Co si odnést
+
+- `r render_glossary_term("kategoricka-promenna", display = "Kategoriální prediktor")` nemění `r render_glossary_term("linearni-model", display = "lineární model")` v úplně jinou metodu; mění způsob, jakým model vytváří `r render_glossary_term("odhadnuta-hodnota", display = "odhadnuté hodnoty")`.
+- Ve dvouskupinovém modelu je `r render_glossary_term("intercept", display = "intercept")` `r render_glossary_term("prumer", display = "průměr")` referenční skupiny a druhý koeficient rozdíl druhé skupiny vůči referenci.
+- Odhadnuté hodnoty jsou skupinové průměry a `r render_glossary_term("residuum", display = "residua")` jsou vzdálenosti jednotlivých `r render_glossary_term("pozorovani", display = "pozorování")` od jejich skupinového průměru.
+- Rozdíl mezi průměry posuzujeme vzhledem k `r render_glossary_term("variabilita", display = "variabilitě")` uvnitř skupin. Odtud pochází logika `r render_glossary_term("anova", display = "analýzy rozptylu")`.
+- `r render_glossary_term("t-test", display = "T-test")` se společným `r render_glossary_term("rozptyl", display = "rozptylem")` je dvouskupinový lineární model zapsaný jiným způsobem.
+- Celkový výsledek analýzy rozptylu říká, zda jsou všechny průměry slučitelné se stejnou hodnotou; neříká automaticky, která dvojice se liší.
+- `r render_glossary_term("post-hoc-test", display = "Post-hoc porovnání")` následují až po celkovém testu a musí zohlednit, že zkoumáme více dvojic současně.
+- Biologický závěr začíná rozdíly v gramech a jejich `r render_glossary_term("nejistota", display = "nejistotou")` a končí předpoklady a omezeními studie.
 
 ## Slovníček pojmů {.unnumbered}
 
-Pojmy použité v těchto materiálech a jejich definice:
+Pojmy použité v těchto materiálech a jejich definice. Úplný průběžně aktualizovaný slovníček je dostupný také [online](https://cuni-natur-biostatistics.github.io/slovnik/).
 
 ```{r}
 #| label: slovnicek
 #| echo: false
-glossary::glossary_table()
+#| results: asis
+if (knitr::is_html_output()) {
+  glossary::glossary_table()
+} else {
+  cat(
+    paste0(
+      "Interaktivní slovníček je dostupný online: ",
+      "https://cuni-natur-biostatistics.github.io/slovnik/"
+    )
+  )
+}
 ```
