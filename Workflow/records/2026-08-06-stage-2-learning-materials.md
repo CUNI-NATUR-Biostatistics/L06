@@ -5,7 +5,7 @@
 - Week: L06
 - Date: 2026-08-06
 - Author: Codex with Ondřej Mottl
-- Reviewer: Independent internal vision and glossary reviews complete; human review by Ondřej Mottl pending
+- Reviewer: Stage 2 approved by Ondřej Mottl; independent Stage 3 closure reviews complete; further human review pending
 
 ## Git checkpoint
 
@@ -19,7 +19,92 @@
 
 ## Current stop point
 
-The complete Stage 2 development pass is ready for human review. The draft implements the approved story map, has passed independent lesson-vision and glossary reviews, and renders successfully to HTML and a 25-page PDF. Stage 3 remains open until the human author reviews the teaching choices and requests or approves revisions.
+Stage 2 was approved by the human author on 2026-08-06. Ten Stage 3 revision passes now incorporate the resulting detailed comments, render successfully to HTML and a 45-page PDF, and have passed the required independent lesson-vision and glossary closure reviews. Stage 3 remains open for further human review and explicit approval.
+
+## Stage 3 revision pass
+
+- Reused the exact species colours from L02 and added the credited three-species Palmer penguin illustration.
+- Moved the prediction prompt until after the observations and species variable have been introduced.
+- Added an optional, directly reproducible data-acquisition and preparation box based on the `palmerpenguins` package.
+- Rebuilt the opening exploration from pooled grey body masses and familiar numerical summaries to a species table and a species-coloured split display.
+- Added mean plus/minus one SD to the relevant group displays and expanded the fixed-mean-gap thought experiment to three levels of within-group variability.
+- Expanded the numerical-predictor callback using bill depth versus bill length, with the intercept, slope, fitted line, fitted value, and a residual located directly in the figure.
+- Introduced the categorical predictor as an explicit binary 0/1 variable, displayed its values in the data and graph, and drew the observation-level residuals to the two fitted means.
+- Used `summary()` for the first model reading and retained `coef()` for the later effect-size callback.
+- Added a t-distribution display and reframed the two-sample t-test as historical terminology students may encounter elsewhere.
+- Expanded the three-species display with SD and both reference-level differences from Adelie.
+- Rebuilt the F-statistic sequence around the one-mean and species-means models, residuals, SSE reduction, explained versus residual sums of squares, mean squares, and the purpose of the global question.
+- Re-rendered and visually inspected all 33 PDF pages; independent vision and glossary reviewers reported no remaining findings.
+
+## Stage 3 second revision pass
+
+- Replaced the single overloaded numerical-predictor diagram with four sequential figures, each highlighting one idea: fitted line, intercept, slope, or residuum.
+- Added a dedicated post-table figure that maps the two-group intercept, Gentoo coefficient, and reconstructed Gentoo mean back to visible quantities and numerical labels in the data.
+- Corrected the three-species panel by predicting fitted values from each reordered row's species rather than attaching a fitted-value vector from the original row order; a focused numerical check confirmed fitted means of 3700.7 g for Adelie, 3733.1 g for Chinstrap, and 5076.0 g for Gentoo.
+- Replaced three disconnected common-mean segments with one continuous common-mean line in the simpler-model panel.
+- Reordered the follow-up sequence to show the student-visible `TukeyHSD()` call and output first, the reformatted numerical table second, and the interval figure third.
+- Re-rendered the complete artifact to HTML and a 37-page PDF. All pages passed visual QA, and independent lesson-vision and glossary closure reviews reported no findings.
+
+## Stage 3 third revision pass
+
+- Reduced the first visible data workflow to loading the prepared table, `summary()`, and `str()`; moved the missing-body-mass filter and factor preparation into a dedicated optional box.
+- Added an explicit bridge from the biological question to fitting a linear model for group differences, then restored the L02 penguin-bill measurement illustration before the numerical-predictor callback.
+- Extended that callback through separate fitted-line, intercept, slope, and residuum figures, followed by a visible `lm()` fit whose `coef()` values are substituted into the equation; named `a` as the intercept and `b` as the slope throughout.
+- Reframed the categorical transition around penguin body mass, renamed the derivation block, removed bracket notation from the visible `je Gentoo?` switch, and expanded the explanation of why R needs and selects a reference factor level.
+- Added an optional `relevel()` example showing that a Gentoo reference changes the intercept and coefficient sign without changing fitted group means or residuals.
+- Derived the 95% confidence interval directly from the coefficient estimate, standard error, critical t value, and residual degrees of freedom before verifying it with `confint()`.
+- Repeated `summary()` immediately before deriving the observed t-statistic and rebuilt the t-distribution display to distinguish the observed value 23.61 from the critical values +/-1.969 on separate scales.
+- Expanded the historical two-sample t-test note to explain why named classical tests remain common in older literature while their questions can be represented in a unified regression framework.
+- Reworded the three-group membership variables as `je Chinstrap?` and `je Gentoo?` and deferred pairwise inferential interpretation until the follow-up-comparison section.
+- Rebuilt the analysis-of-variance explanation with full decimal numbers, direct links to the preceding residual and sums-of-squares figures, a row-by-row explanation of `anova()` including both degrees of freedom, and an explicit right-tail conversion of F = 343.63 to its p-value.
+- Re-rendered the complete artifact to HTML and a 44-page PDF and visually inspected the full document at contact-sheet and full-page scale. The independent lesson-vision and glossary closure reviews reported no remaining findings.
+
+## Stage 3 fourth revision pass
+
+- Merged the separate data-acquisition and missing-mass preparation boxes into one reproducible workflow that obtains the source data, removes missing body masses, prepares the named variables and factor levels, and saves a local working copy.
+- Retained the compact main data path of loading the prepared course table, `summary()`, and `str()` while keeping the optional source-to-file workflow directly reproducible.
+- Standardized explanatory annotations inside analytical figures as boxed labels; no plain `geom_text()` or `annotate(geom = "text")` annotations remain.
+- Repositioned the reconstructed Gentoo-mean label above the observed point cloud after independent visual review, then re-rendered the complete artifact to HTML and a 43-page PDF. All pages and the revised page 21 passed visual QA; independent lesson-vision and glossary closure reviews reported no remaining findings.
+
+## Stage 3 fifth revision pass
+
+- Rechecked the treatment of critical values against both the L05 written materials and presentation: the L05 script correctly separates the observed t-statistic, critical limits, and p-value, while the presentation mainly visualizes the observed statistic and its two-sided p-value tails.
+- Rewrote the L06 explanation so the critical limits -1.969 and +1.969 explicitly delimit the central 95% from alpha = 0.05, the genuinely observed statistic is +23.61, and -23.61 is identified only as the mirrored boundary used for the two-sided p-value.
+- Rebuilt the t-distribution labels and caption accordingly: solid orange marks the observed statistic, dashed orange marks its mirrored boundary, purple marks the critical limits, and the caption distinguishes the shaded alpha tails from the regions whose area under the t-curve forms the p-value.
+- Re-rendered the complete artifact to HTML and a 43-page PDF and visually inspected the revised pages 27-28. A targeted independent statistical, visual, and glossary review reported no blocking findings; its two minor caption clarifications were incorporated before the final render.
+
+## Stage 3 sixth revision pass
+
+- Reframed the final learning outcome to distinguish the overall test of all groups from subsequent comparisons of specific pairs.
+- Renamed the pairwise section to identify it explicitly as post-hoc and added a two-step callout: first evaluate the overall F-test with `anova()`, then use `TukeyHSD()` to ask which individual species pairs differ.
+- Repeated that hierarchy in the student-visible code comment, Tukey table and figure captions, the biological conclusion, and the final takeaways; the conclusion now reports the overall analysis-of-variance result before the post-hoc findings.
+- Re-rendered the complete artifact to HTML and a 43-page PDF and visually inspected the overall-test-to-post-hoc transition on pages 36-39 and the reordered conclusion on page 42. Independent lesson-vision and glossary closure reviews reported no remaining findings.
+
+## Stage 3 seventh revision pass
+
+- Removed the unexplained `aov(mod_tri_druhy)` conversion from the post-hoc workflow and kept the already fitted `lm` object as the single source for every subsequent estimate.
+- Added a visible `emmeans()` step that extracts the three species means from `mod_tri_druhy`, explicitly states that no new model is fitted, and reconnects the numerical estimates to the group means already shown in the figures.
+- Replaced `TukeyHSD()` with `pairs(..., reverse = TRUE, adjust = "tukey")`; the visible output now shows estimates, standard errors, degrees of freedom, simultaneous intervals, test statistics, and Tukey-adjusted p-values before the reformatted table and interval figure.
+- Verified numerically that all three differences, interval endpoints, and adjusted p-values are identical to the previous `TukeyHSD()` results, then re-rendered the complete artifact to HTML and a 44-page PDF. All pages passed contact-sheet QA and pages 37-39 passed full-page inspection.
+
+## Stage 3 eighth revision pass
+
+- Confirmed that `pairs()` is a generic and that `pairs` is not exported from the `emmeans` namespace, so the requested `emmeans::pairs()` call would fail.
+- Replaced the generic call with the fully namespaced equivalent `emmeans::contrast(method = "revpairwise", adjust = "tukey")`, which produces exactly the same contrasts and preserves their displayed direction.
+- Added a student-visible comment explaining that the first value in `infer = c(TRUE, TRUE)` requests confidence intervals and the second requests t-tests and p-values.
+
+## Stage 3 ninth revision pass
+
+- Printed `prumery_druhu` in the student-visible console immediately after `emmeans::emmeans()` so students can inspect the fitted mean for every species before any pairwise contrast is calculated.
+- Explained the `emmean`, `SE`, `df`, `lower.CL`, and `upper.CL` columns and distinguished the 95% intervals for individual species means from the simultaneous intervals for pairwise differences shown in the following step.
+- Added page breaks that keep the fitted-means code and output together on page 38 and the post-hoc contrasts together on page 39.
+- Resolved four low-severity glossary first-occurrence findings from the independent full-file closure review by linking `výběr`, `intercept`, `P-hodnota`, and `nejistotu` in their respective sections.
+- Re-rendered the complete artifact to HTML and a 45-page PDF; all pages passed contact-sheet QA and the affected pages 10, 19-20, 27-28, and 37-40 passed full-page inspection. The final independent lesson-vision and glossary closure reviews reported no remaining findings.
+
+## Stage 3 tenth revision pass
+
+- Corrected the horizontal group-mean segments in the right panel of `zobrazit-jeden-proti-trem-prumerum`. Sequential evaluation inside `dplyr::transmute()` had made each segment run only from `x - 0.32` to `x`; separate `x_start` and `x_end` variables now place it symmetrically from `x - 0.32` to `x + 0.32`.
+- Verified numerically that the three segment midpoints are exactly the species positions 1, 2, and 3, then re-rendered the HTML and 45-page PDF and visually inspected the corrected page 33 at full resolution.
 
 ## Author direction incorporated
 
@@ -32,6 +117,7 @@ The complete Stage 2 development pass is ready for human review. The draft imple
 
 - `renv` activates L06 in a fresh R session and `renv::status()` reports no issues: [x]
 - Locked `palmerpenguins` version 0.1.1 is available: [x]
+- Locked `emmeans` version 2.0.4 and its required dependencies are available: [x]
 - Reproducible preparation script added at `R/prepare_penguin_data.R`: [x]
 - Prepared teaching table added at `data/palmer_penguins.csv`: [x]
 - Data provenance and recreation instructions added at `data/README.md`: [x]
@@ -170,7 +256,7 @@ The formula bridge should occupy a full early concept block rather than appearin
 
 - `knitr::purl()` extraction and R parsing completed successfully: [x]
 - Project render wrapper completed for HTML and Typst PDF: [x]
-- All 25 PDF pages inspected for clipping, overlap, leaked warnings, and readability: [x]
+- All 45 PDF pages inspected for clipping, overlap, leaked warnings, and readability: [x]
 - Rendered text checked for deprecated-plot warnings, source-helper leakage, and stale terminology: [x]
 - Independent lesson-vision closure review: no findings [x]
 - Independent glossary-coverage closure review: no findings [x]
