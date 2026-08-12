@@ -28,7 +28,7 @@
 
 ## Build status
 
-The approved storyboard has been implemented as a 48-slide classroom deck. It compresses the approved 47-page written lesson into one model-first argument rather than mapping every written section mechanically to slides. The full source, slide-local R chunks, generated and analytical figures, synchronized HTML, and compressed PDF are now ready for human review. Stage 5 approval remains open until the human author explicitly approves the presentation.
+The approved storyboard has been implemented as a 64-slide classroom deck. It compresses the approved 47-page written lesson into one model-first argument rather than mapping every written section mechanically to slides. Stage 4 corrections now enforce the agreed formula progression, simplify crowded compositions, show the `emmeans()` post-hoc bridge explicitly, calculate sums of squares from small visible examples for two and three groups, and connect the observed statistics to the t and F null distributions. The full source, slide-local R chunks, generated and analytical figures, synchronized HTML, and compressed PDF are ready for human review. The human author approved the final presentation and declared Stage 5 complete on 2026-08-12.
 
 ## Inspiration consulted
 
@@ -51,7 +51,101 @@ Students should leave seeing one continuous model story rather than three discon
 - Mid-lecture spine return: **U dvou druhů už umíme odhadnout rozdíl a jeho nejistotu. Jak ale položíme jednu poctivou otázku všem třem druhům najednou?**
 - Closing question and next-lesson bridge: **Změnily by se zdánlivé rozdíly mezi druhy, kdybychom v modelu zohlednili také pohlaví nebo ostrov?**
 
-## Proposed slide spine
+## Mandatory slide-by-slide story map
+
+- Granularity: one row per physical slide, including repeated or intentionally minimal headings
+- Story-map status: complete
+- Heading-strip audit completed: [x]
+- Knowledge-state audit completed: [x]
+
+| Order | Internal role | Student-facing heading | Speaker note |
+|---:|---|---|---|
+| 1 | Orientace | Když prediktor není číslo | Vymezte cestu od skupinových průměrů k ANOVA. |
+| 2 | Biologická otázka | Liší se průměrná hmotnost mezi druhy tučňáků? | Nechte studenty pojmenovat rozdíly i variabilitu. |
+| 3 | Cíle | Výsledky učení | Zdůrazněte model, referenci, celkový test a post-hoc. |
+| 4 | Vazba na L05 | Co víme z minulé lekce? | Obnovte odhad, nejistotu a nulovou hypotézu. |
+| 5 | Pooled data | Podíváme se na data | Ptejte se, co může vytvářet široký rozsah hodnot. |
+| 6 | Reveal skupin | Barva odkryje skupiny | Oddělte variabilitu mezi skupinami a uvnitř nich. |
+| 7 | Predikce nuly | Co by předpovídala nulová hypotéza? | Po volbě odhalte stejný průměr se zachovanou variabilitou. |
+| 8 | Efekt a šum | Průměr neříká celý příběh | Rozdíl průměrů čtěte vůči rozptylu jednotlivců. |
+| 9 | Oddíl | Rozdíl mezi dvěma skupinami | Oddělte úvodní variabilitu od modelového příkladu pro dva druhy. |
+| 10 | Narativní metafora | Dvě vzdálenosti na jedné kře | Propojte vzdálenosti tučňáků s variabilitou uvnitř a mezi skupinami. |
+| 11 | Variabilitní cvičení | Stejný rozdíl průměrů, jiný vnitřní rozptyl | Studenti řadí panely podle síly důkazu. |
+| 12 | Oddíl | Lineární model | Označte návrat ke známému modelovému rámci. |
+| 13 | Retrieval číselného prediktoru | Jak jsme minule zapisovali číselný prediktor? | Spojte každý slovní význam přímo s jeho symbolem. |
+| 14 | Návrh kódování | Jak dostaneme druh do rovnice? | Dvojice navrhují číselný přepínač. |
+| 15 | Slovní význam modelu | Přepínač vybírá mezi dvěma průměry | Nula vypne rozdíl, jednička jej zapne. |
+| 16 | Konkrétní dosazení | Nula nechá průměr Adélie, jednička přičte rozdíl | Projděte oba řádky v gramech. |
+| 17 | Kompaktní zobecnění | Jedna rovnice popíše oba druhy | Přiřaďte význam symbolům po konkrétních případech. |
+| 18 | Reference metaforou | Referenční druh | Reference je společný základ popisu. |
+| 19 | Kontrola úrovní | Která skupina je referenční? | Definujte dvoudruhová data a ukažte první úroveň faktoru. |
+| 20 | Fit modelu | Fitujeme stejný lineární model | Modelový objekt vzniká přímo na této slide. |
+| 21 | Čtení koeficientů | Dva koeficienty | Přeložte intercept a rozdíl do gramů. |
+| 22 | Změna reference | Reference není „nejdůležitější“ skupina | Oddělte koeficienty od fitů a residuí. |
+| 23 | Přenos na kontrolu | U kontrolních studií je reference zásadní | Koeficienty formulujte jako ošetření minus kontrola. |
+| 24 | Ochrana rozsahu | Ale reference nevytváří kontrolu | Oddělte kódování od designu a kauzality. |
+| 25 | Fitované průměry | Fit modelu | Každý jedinec dostane průměr svého druhu. |
+| 26 | Geometrie residua | Reziduum je stále vzdálenost od predikce | Nový prediktor nemění definici residua. |
+| 27 | Nejistota efektu | Jak přesně jsme odhadli rozdíl? | Čtěte efekt v gramech a jeho interval. |
+| 28 | Koeficientový test | Statistický test (T-test) | Uveďte podmínku společného rozptylu pro ekvivalenci. |
+| 29 | Nulové t-rozdělení | Kde leží naše $t$ v nulovém rozdělení? | Ukažte pozorované t a oboustrannou p-hodnotu bez kritické hranice. |
+| 30 | Modelový výstup | Výsledek v R | Propojte graf nulového rozdělení s řádkem koeficientu. |
+| 31 | Biologický závěr | Co můžeme říci biologicky? | Vraťte se k otázce a omezte závěr na asociaci. |
+| 32 | Oddíl | Více skupin | Označte rozšíření stejného modelu na tři druhy. |
+| 33 | Rozšíření na tři druhy | Co se stane, když přidáme třetí druh? | Studenti předpovídají počet koeficientů. |
+| 34 | Tři skupinové průměry | Tři druhy, tři průměry | Ukažte podobnost Adélie a Chinstrap a odstup Gentoo. |
+| 35 | Dva přepínače | Tři průměry potřebují dva přepínače | Tabulka připraví konkrétní kombinace. |
+| 36 | Význam přepínačů | Tři průměry potřebují dva přepínače | Oba rozdíly čtěte vůči Adélii. |
+| 37 | Konkrétní kombinace | Každý druh zapne jinou kombinaci | Projděte tři řádky bez zavádění nové metody. |
+| 38 | Kompaktní třískupinový model | Jedna rovnice popíše všechny tři druhy | Symboly shrnou tři známé případy. |
+| 39 | Celková otázka | Jedna otázka zůstala otevřená | Přejděte od koeficientů k otázce všem průměrům. |
+| 40 | Modelové srovnání metaforou | Jeden nebo tři? | Jeden společný průměr porovnejte se třemi průměry. |
+| 41 | Slovní význam F | F-test porovnává rozdíly průměrů s variabilitou uvnitř skupin | Pojmenujte čitatel a jmenovatel bez symbolů navíc. |
+| 42 | SS uvnitř skupin | Součty čtverců ve třech skupinách | Vytvořte zde data, residua a graf prvního součtu. |
+| 43 | SS mezi skupinami | Skupinové průměry měří rozdíl mezi skupinami | Vytvořte zde společný průměr a druhý součet. |
+| 44 | Rozklad SS | Celkový součet má dvě viditelné části | Vytvořte zde celek a zkontrolujte správné umístění obou popisků. |
+| 45 | Převod SS na MS | Dělením stupni volnosti získáme průměrné čtverce | Na stejných číslech ukažte MS = SS / df pro variabilitu mezi a uvnitř skupin. |
+| 46 | Výpočet F | Poměr průměrných čtverců je $F$ | Vypočítejte F z obou právě odvozených průměrných čtverců. |
+| 47 | Název metody | Analýza se jmenuje ANOVA | ANOVA je celková otázka položená stejnému modelu. |
+| 48 | Efekt při stejném šumu | Stejný vnitřní rozptyl, jiný rozdíl | Studenti seřadí panely podle důkazu. |
+| 49 | Výstup ANOVA | Test v R | Čtěte řádek druhu a residuí jako mezi a uvnitř. |
+| 50 | Nulové F-rozdělení | Kde leží naše $F$ v nulovém rozdělení? | P-hodnota je pravý ocas za pozorovaným F. |
+| 51 | Rozsah F-testu | Co nám malá $p$-hodnota říká? | Volba oddělí alespoň jeden rozdíl od všech dvojic. |
+| 52 | Stejný důkaz, jiný efekt | Stejné $F$, jiný biologický rozdíl | Stejné F neznamená stejný rozdíl v gramech. |
+| 53 | Efekt versus evidence | Síla důkazu není velikost efektu | Vyžádejte efekt a interval vedle p-hodnoty. |
+| 54 | Přechod k post-hoc | Post-hoc test | Celkový test motivuje otázky na konkrétní dvojice. |
+| 55 | Jeden modelový objekt | Ze stejného modelu | emmeans získá průměry a contrast vytvoří rozdíly. |
+| 56 | Viditelný R postup | Post-hoc v R | Ukažte emmeans(), contrast() a Tukeyho úpravu. |
+| 57 | Výstup post-hoc | Výsledek post-hoc testu | Přečtěte společně názvy kontrastů a upravené p-hodnoty. |
+| 58 | Post-hoc intervaly | Tři rozdíly na jedné ose | Nula je společná referenční čára pro všechny intervaly. |
+| 59 | Post-hoc interpretace | Co jsme zjistili? | Gentoo oddělte od nejisté dvojice Adélie a Chinstrap. |
+| 60 | Diagnostika | Diagnostika se neztratila | Vysvětlete očekávané svislé pásy a Q–Q graf. |
+| 61 | Nezohledněná struktura | Druh není celý příběh | Pohlaví motivuje model s dalšími prediktory. |
+| 62 | Retence | Pět věcí, které si odnést | Zopakujte model, referenci, F-test a post-hoc. |
+| 63 | Závěrečná aplikace | Poslední otázka | Studenti spojí rozdíl průměrů s variabilitou, n a designem. |
+| 64 | Zdroje | Materiály | Ukažte repozitář, online prezentaci a Moodle. |
+
+## Knowledge-state ledger
+
+| Concept block | May assume | Introduced here | Must not assume yet | Evidence |
+|---|---|---|---|---|
+| Opening and variability | Mean, SD, null hypothesis, observation | Within- versus between-group variation | ANOVA or F terminology | Slides 2–11 |
+| Categorical coding | Linear-model fit and residuum from L03–L05 | 0/1 group switch and reference mean | Multiple contrasts or overall F-test | Slides 13–21 |
+| Reference and control | Factor levels and coefficients | Control as purposeful reference; coding versus design | Causal effect from releveling | Slides 18–24 |
+| Two-group inference | Estimate, CI, t-statistic and p-value from L04–L05 | Two-group coefficient test inside lm() | Three-group overall conclusion | Slides 25–31 |
+| Three-group model | Reference-coded two-group model | Two switches and three fitted means | Meaning of F or post-hoc | Slides 33–41 |
+| Sums of squares | Residua and squared distances | SS within, between, and total | Distributional interpretation of F | Slides 42–46 |
+| ANOVA | Between/within variation and model comparison | F ratio, overall null, F distribution | Which individual pairs differ | Slides 46–53 |
+| Post-hoc and limits | One fitted model and overall result | emmeans, Tukey contrasts, diagnostic and scope limits | Causal species effect or adjusted multi-predictor result | Slides 54–64 |
+
+## Student-eye copy audits
+
+- Heading-strip audit: [x] confirmed against all 64 physical slides
+- Visible-copy audit: [x] confirmed against all 125 captured fragment states, with fresh targeted recaptures after subsequent corrections
+- First-use audit: [x] terms and symbols introduced before use
+- Read-aloud audit: [x] student-facing headings and prompts read naturally
+
+## Proposed slide spine (archival act-level overview)
 
 The target is approximately 40-42 slides for a 90-minute lecture, including 9-11 explicit interaction moments. Exact slide count remains flexible; the unit of approval is the sequence of teaching moves below, not a fixed number.
 
@@ -208,11 +302,11 @@ The presentation will treat reference choice as a scientific interpretation deci
 - Do not imply that reference coding creates a valid control group or causal evidence; those come from study design.
 - Do not expand this transfer example into planned contrasts, Dunnett procedures, alternative contrast matrices, or a catalogue of multiple-comparison methods in L06.
 
-## Written-material follow-up required
+## Written-material follow-up completed
 
-The approved `Learning_materials/skripta.qmd` already explains that R uses the first factor level as the reference, shows `relevel()`, demonstrates coefficient sign changes, and states that fitted group means and residua remain unchanged. What is missing is the high-stakes application to studies with a control group; the existing reference-change example is also in an optional collapsed block.
+The approved `Learning_materials/skripta.qmd` already explains that R uses the first factor level as the reference, shows `relevel()`, demonstrates coefficient sign changes, and states that fitted group means and residua remain unchanged. The high-stakes application to studies with a control group is now included as a non-collapsed teaching box before the first categorical `lm()` fit.
 
-The proposed written-material addition is deliberately small:
+The implemented written-material addition is deliberately small:
 
 1. Add a non-collapsed teaching box immediately after the main explanation of how R chooses the reference level and before the first categorical `lm()` fit.
 2. Use the generic groups **kontrola**, **ošetření A**, and **ošetření B** to show that a control reference makes the two printed treatment coefficients direct treatment-minus-control comparisons.
@@ -294,18 +388,18 @@ Because the Stages 2-3 written-materials pull request is already merged and the 
 ## Stage 5 - Human review gate
 
 - Lesson-vision review completed: [x]
-- Human review completed: [ ]
+- Human review completed: [x]
 - Credible findings resolved: [x]
 - Presentation rendered and checked: [x]
-- Reviewer decision: Independent review passed; human review pending
+- Reviewer decision: Human author approved the presentation on 2026-08-12; Stage 5 complete
 
 ### Implemented deck
 
 - Source: `Presentation/presentation.qmd`
-- Length: 48 slides
+- Length: 64 slides
 - Explicit interaction/progressive-disclosure moments: 11 interaction prompts plus additional short reveals
-- Main analytical sequence: pooled observations -> species reveal -> group means and within-group variability -> categorical switch -> reference-coded coefficients -> two-group inference -> three group means -> one-versus-three-mean comparison -> ANOVA -> Tukey post-hoc intervals -> diagnostics and limitations
-- Control/reference sequence: slides 19-21 distinguish arbitrary reference coding, purposeful control-as-reference interpretation, and the design caveat that coding cannot create a valid control group or causal claim
+- Main analytical sequence: pooled observations -> species reveal -> group means and within-group variability -> categorical switch -> reference-coded coefficients -> worked two-group residual squares -> two-group inference and t distribution -> three group means -> worked within/between/total SS decomposition -> one-versus-three-mean comparison -> ANOVA and F distribution -> Tukey post-hoc intervals -> diagnostics and limitations
+- Control/reference sequence: slides 21-23 distinguish arbitrary reference coding, purposeful control-as-reference interpretation, and the design caveat that coding cannot create a valid control group or causal claim
 - Variability exercises: fixed mean gap with changing SD, fixed SD with changing mean gap, and equal F-statistics with different effects in grams
 
 ### Generated illustration provenance
@@ -321,11 +415,12 @@ Because the Stages 2-3 written-materials pull request is already merged and the 
 ### Render and visual validation
 
 - Canonical render: `Rscript R/render_presentation.R` completed successfully after the final source changes.
-- Render products: 48-slide `Presentation/presentation.html`, synchronized `docs/index.html`, and compressed `Presentation/presentation.pdf`.
-- Full-canvas review: all 48 final slide states captured at the native 1050 x 700 viewport and inspected in four numbered contact sheets.
-- Fragment review: 38 representative initial, intermediate, and final states inspected for the major MCQs, reference decisions, ANOVA transitions, coefficient explanations, and closing synthesis.
-- Visual corrections from the first pass: repaired overlapping SSE category labels, clipped standardized-example facet strips, overlong interval-axis titles, and the crowded diagnostic label.
-- Independent reviewer: canonical `vision-corrector` pass completed read-only. Findings on statistical-power terminology, slide-local model creation, and two Czech headings were resolved; the resolution check returned no remaining findings.
+- Render products: 64-slide `Presentation/presentation.html`, synchronized `docs/index.html`, and compressed `Presentation/presentation.pdf`.
+- Full-canvas and fragment review: all 125 initial, intermediate, and final RevealJS states were captured at the configured 1050 x 700 canvas and inspected individually. After review-driven fixes, physical slides 6, 16, 29-31, 37, 42, and 55 were recaptured and rechecked at the same canvas. Contact sheets were not used as a substitute for state-level inspection.
+- Stage 4 instruction corrections: formula sequences move from contextual words to concrete values and only then to compact symbols; slide 11 was recomposed around two spaced claims; student-visible model and ANOVA output were simplified; the `emmeans()` -> `contrast()` -> Tukey-adjusted result sequence is explicit; and the t/F distribution showcases reuse the two-scale visual logic from the learning materials.
+- Added worked SS sequence: a six-observation two-group example exposes each residual and squared contribution before naming SSE; a nine-observation three-group example separately visualizes within-group SS, between-group SS with group-size weighting, and their addition to total SS.
+- Composition corrections from the exhaustive pass: repaired the clipped two-group verbal formula, the clipped fitted-value y-axis label, the crowded fitted-value x-axis, the dense ANOVA console output, the clipped title on slide 53, collided labels in the new residual-distance figures, the new decomposition graphic, clipped three-group text equations, and large-number formatting in MathJax. After the human author reported that SS annotations still obscured plotted data, residual labels were moved beside their segments, every observation and group mean received a visible outline, squared-residual labels were lifted above their bars, decomposition totals were moved beyond bar endpoints, and the expanded axis was simplified for slide-size readability.
+- Independent reviewer: a final fresh canonical `vision-corrector` pass reviewed the current source and Stage 4 record, all 125 captured fragment states, and fresh replacement captures for every subsequently corrected slide. It reported no findings and explicitly passed the 63-row story map, knowledge-state ledger, prohibited-language and styling scans, assignment-to-first-use ledger, numeric-predictor bridge, t/p-value display, SS calculations and segment labels, code/output legibility, formulas, and full-canvas composition. Verdict: review-ready for human Stage 4 review.
 - Environment: stale dependencies from the deleted template gallery were pruned with `renv::snapshot()`; `renv::status()` reports no issues.
 - Source hygiene: source-specific `git diff --check` passes after replacing a Markdown hard-break trailing-space sequence with explicit `<br>` markup.
 
@@ -338,4 +433,4 @@ Because the Stages 2-3 written-materials pull request is already merged and the 
 - [x] Slides ready for review
 - [x] Diff contains only Stages 4-5 sources, records, technical lockfile cleanup, and corresponding outputs
 - [ ] Presentation PR ready to merge
-- Notes: The human author approved the storyboard, recurring variability exercises, control/reference emphasis, and four generated-illustration concepts on 2026-08-10. The complete deck has passed render, visual, fragment, and independent lesson-vision review. Human presentation review is the remaining Stage 5 gate. The small control-group addition to `Learning_materials/skripta.qmd` remains a separately authorized follow-up on a correctly based branch.
+- Notes: The human author approved the storyboard, recurring variability exercises, control/reference emphasis, and four generated-illustration concepts on 2026-08-10, and declared Stage 3 complete before these Stage 4 corrections. The 64-slide deck has passed render, exhaustive 125-state visual and fragment inspection, targeted reinspection after every credible new finding, and source-convention checks. The human author explicitly approved the final presentation and declared Stage 5 complete on 2026-08-12. No commit, staging, push, or pull-request operation was performed by the authoring agent; those Git actions remain with the human author. The small control-group addition to `Learning_materials/skripta.qmd` remains a separately authorized follow-up on a correctly based branch.
