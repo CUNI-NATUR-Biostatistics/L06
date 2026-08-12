@@ -1459,6 +1459,22 @@ Zápis se od číselného prediktoru téměř nezměnil. Změnil se význam prom
 Kdybychom vyměnili referenční druh, změnil by se přepínač, intercept i znaménko koeficientu. Skupinové průměry a biologický obsah dat by však zůstaly stejné. Kódování je jazyk modelu, ne vlastnost tučňáků.
 :::
 
+::: {.box-rule title="Ve studii s kontrolou nastavte referenci záměrně"}
+Pokud má studie skutečnou kontrolní skupinu, je obvykle nejčitelnější nastavit ji jako referenci. Intercept potom vyjadřuje průměr kontroly a každý léčebný koeficient odpovídá přímo otázce **ošetření minus kontrola**.
+
+```r
+data_studie$skupina <-
+  relevel(
+    x = data_studie$skupina,
+    ref = "kontrola"
+  )
+
+levels(data_studie$skupina)
+```
+
+Tato volba pouze zpřehlední koeficienty. Nevytváří randomizaci, kontrolní podmínku ani kauzální důkaz — ty závisejí na designu studie. Změna reference také nemění fitované skupinové průměry, residua ani celkový test modelu.
+:::
+
 ## Fitujeme dvouskupinový model v R
 
 V R zůstává funkce `lm()` stejná. Do pravé strany formule jednoduše vložíme `druh`. R ale musí rozhodnout, vůči kterému druhu bude zapisovat rozdíl. Proto zvolí jednu úroveň faktoru jako **referenční skupinu**.

@@ -1,5 +1,5 @@
 ---
-format: 
+format:
   revealjs:
     slide-number: true
     theme: [default, ../theme/presentation_theme.scss, ../theme/presentation_components.scss]
@@ -19,1191 +19,2511 @@ filters:
 #| include: false
 options(htmltools.dir.version = FALSE)
 knitr::opts_chunk$set(
-  fig.width = 7,
-  fig.height = 5,
   fig.align = "center",
-  out.width = "100%"
+  out.width = "100%",
+  message = FALSE,
+  warning = FALSE
 )
 
-if (!require("here")) install.packages("here")
-
 library(here)
-
 here::i_am("Presentation/presentation.qmd")
+source(here::here("R", "set_r_theme.R"))
 
-if (!require("tidyverse")) install.packages("tidyverse")
-if (!require("ggbeeswarm")) install.packages("ggbeeswarm")
-if (!require("ggview")) install.packages("ggview")
-if (!require("magick")) install.packages("magick")
-if (!require("cowplot")) install.packages("cowplot")
-if (!require("remotes")) install.packages("remotes")
-if (!require("waffle")) remotes::install_github("hrbrmstr/waffle")
+path_materials <- "Presentation/Materials"
 
-library(tidyverse)
-library(ggbeeswarm)
-library(ggview)
-library(magick)
-library(cowplot)
-library(waffle)
-
-path_materials <-
-  "Presentation/Materials"
-
-include_local_figure <- function(data_source) {
-  knitr::include_graphics(
-    path = here::here(
-      path_materials,
-      data_source
-    ),
-    error = TRUE
-  )
-}
+source(here::here("R", "include_local_figure.R"))
+source(here::here("R", "format_whole_number.R"))
+source(here::here("R", "format_whole_number_for_math.R"))
 ```
 
 ```{r}
-#| label: dynamic link generation
+#| label: dynamic-links
 #| include: false
-project_name <-
-  basename(here::here())
-
-display_name <-
-  paste("Biostatistika", "-", project_name)
-
-github_url <-
-  paste0(
-    "https://github.com/CUNI-NATUR-Biostatistics/",
-    project_name
-  )
-
-slides_url <-
-  paste0(
-    "https://CUNI-NATUR-Biostatistics.github.io/",
-    project_name, "/"
-  )
+project_name <- basename(here::here())
+display_name <- "Biostatistika"
+github_url <- paste0(
+  "https://github.com/CUNI-NATUR-Biostatistics/",
+  project_name
+)
+slides_url <- paste0(
+  "https://CUNI-NATUR-Biostatistics.github.io/",
+  project_name, "/"
+)
 ```
 
-## Název přednášky
+## Když prediktor není číslo {.center}
+
+::: {.text-color-indigo_velvet .text-font-heading .text-size-heading1 .text-bold}
+Od dvou průměrů k analýze rozptylu
+:::
 
 <br>
 
-::: {.text-color-white .text-font-heading .text-size-heading .text-bold}
+::: {.text-size-larger .text-center}
 `r display_name`
 :::
 
 <br>
 
-[👤](https://ondrejmottl.github.io/) Ondřej Mottl
-
+[👤](https://ondrejmottl.github.io/) Ondřej Mottl<br>
 [Moodle](https://dl2.cuni.cz/course/view.php?id=106)
+
+## Liší se průměrná hmotnost mezi druhy tučňáků?
+
+::: columns
+::: {.column width="58%"}
+```{r}
+#| label: zobrazit-druhy-tucnaku
+#| echo: false
+#| out-width: "100%"
+include_local_figure("lter_penguins.png")
+```
+:::
+
+::: {.column width="42%"}
+
+<br>
+
+::: {.panel-question .fragment .text-center}
+[Biologická otázka]{.panel-title}
+
+Je rozdíl mezi druhy větší, než bychom čekali od variability jednotlivých tučňáků?
+:::
+
+:::
+:::
+
+::: {.footer}
+Ilustrace: Allison Horst · Data: Palmer Station LTER / palmerpenguins
+:::
 
 ## Výsledky učení
 
-Po absolvování této přednášky budete schopni:
-
-- TODO: výsledek učení 1
-- TODO: výsledek učení 2
-- TODO: výsledek učení 3
-
-# Obsah přednášky
-
-## Snímek 1
-
-TODO: obsah snímku
-
-```{r}
-#| label: demo-plot
-#| echo: true
-# TODO: ukázka kódu v R
-```
-
-## Shrnutí
-
-- TODO: klíčové body přednášky
-
-# Slide Creator's Guide {.center}
-
-[Slides in this section are intended for lecture authors, not students. Delete this section and the `# Tools Overview` section before using as an actual lecture.]{.text-size-smaller .text-color-grey_olive}
-
-# Golden Rules {.center}
-
-## Rule 1 — Data story first {.bg-parchment}
-
-::: columns
-::: {.column width="48%"}
-::: {.card-warning}
-[Wrong]{.card-title}
-**Pearson correlation**
-
-Pearson's correlation coefficient measures the strength of the linear relationship between two variables...
-
-[formula]
-:::
-:::
-::: {.column width="48%"}
-::: {.card-insight}
-[Right]{.card-title}
-**How do we turn the shape of a cloud into a number?**
-
-[scatter plot the students have seen for several slides already]
-
-*What properties would such a number need to have?*
-
-→ **Correlation coefficient** [the name arrives as the answer]{.text-size-smaller .text-color-grey_olive}
-:::
-:::
-:::
-
-[A statistical term never opens a concept as a heading. Data first → observation → question → only then the name.]{.text-size-smaller .text-color-grey_olive}
-
-## Rule 2 — One idea per slide
-
-**Every slide communicates one thing.**
-
-If you need to say two things, use two slides.
-
-If you need to say three things, add an interaction between them.
-
-::: {.takeaway-strip}
-**One message. One slide. Contribute to understanding — not to overload.**
-:::
-
-[Test: cover the heading — is the main idea of the slide still clear from the visual or a single sentence?]{.text-size-smaller .text-color-grey_olive}
-
-## Rule 3 — Interaction every 10–15 minutes
-
-::: {.panel-note}
-[Six interaction types]{.panel-title}
-
-| Type | When to use |
-|---|---|
-| Prediction question | Before revealing a result, graph, or test output |
-| Conceptual MCQ | To surface a common misconception; ideally with a polling tool |
-| Think–Pair–Share | After a new concept; 30 s thinking + 1–2 min pair discussion |
-| Silent write | Before discussion or reveal; each student writes one sentence |
-| Interpretation task | After showing a graph, model output, or table |
-| Data exploration | To open a topic — what patterns / hypotheses do you see? |
-:::
-
-::: {.panel-question}
-[Example — prediction question]{.panel-title}
-
-*How does the confidence interval change if we double the sample size?*
-
-**A)** Narrows   **B)** Stays the same   **C)** Widens
-:::
-
-## Rule 4 — Always frame biologically
-
-Every statistical method must be grounded in a concrete biological question.
-
-::: {.blockquote}
-**Four steps of the biological frame:**
-
-1. **Biological question** — "we want to find out whether…"
-2. **Data** — description, type, source
-3. **Statistical method** — what and why
-4. **Interpretation in biological context** — what the result says about the world, not about numbers
-:::
-
-[Never start with "today we'll learn the t-test". Always start with "we want to know whether…"]{.text-size-smaller .text-color-grey_olive}
-
-## Rule 5 — Alternate visual patterns (3-of-5 rule)
-
-**At most 3 of 5 consecutive slides may use a named component as the primary visual element.**
-
-A plain slide — a bold question on an empty background, a full-width graph, a single prominent number — carries more weight precisely because the surrounding slides are more structured.
-
-::: {.strip-orange}
-**3 of 5 — the law of slide visual contrast** · review the block before finalising
-:::
-
-[Components: `.card-*`, `.panel-*`, `.blockquote`, `.takeaway-strip`. If you reach 4+ in a row, convert one slide to a plain visual or an unframed question.]{.text-size-smaller .text-color-grey_olive}
-
-# Five Slide Families {.center}
-
-## Five slide families
-
-::: columns
-::: {.column width="62%"}
-
-| Family | Goal | Typical component |
-|---|---|---|
-| **Interaction** | Prediction / MCQ / TPS | bold question, `.panel-question` |
-| **Data reveal** | New data or output | full-width graph, plain slide |
-| **Interpretation** | Read the result | `.panel-result`, `.takeaway-strip` |
-| **Rule / warning** | Heuristic, error | `.card-warning`, `.panel-warning` |
-| **Transition / summary** | Reset, conclusion | `.blockquote` in two columns |
-
-:::
-::: {.column width="35%"}
-::: {.card-olive}
-[Variety of families]{.card-title}
-In one lecture, cycle through all five families.
-
-No block of 5+ slides should belong to only one family.
-:::
-:::
-:::
-
-[Students should be able to recognise the role of a slide before reading the text — from the colour key, layout, or position in the structure.]{.text-size-smaller .text-color-grey_olive}
-
-# Tools Overview {.center}
-
-## `.box-*` aliases — when to use what
-
-| Alias | Maps to | Weight | Colour | When to use |
-|-------|-----------|------|-------|------------|
-| `.box-question` | `.panel-question` | panel (lighter) | orange left border | MCQ, reflection question |
-| `.box-result` | `.panel-result` | panel (lighter) | indigo left border | main conclusion, analysis result |
-| `.box-data` | `.panel-data` | panel (lighter) | olive left border | dataset description, data context |
-| `.box-rule` | `.card-rule` | card (heavier) | amethyst top strip + shadow | rule, heuristic |
-| `.box-warning` | `.card-warning` | card (heavier) | red top strip + shadow | methodological warning |
-
-[Panel aliases (lighter): coloured left border, no shadow. Card aliases (heavier): coloured top strip + shadow. Inner heading: `[text]{.panel-title}` for panels · `[text]{.card-title}` for cards.]{.text-size-smaller .text-color-grey_olive}
-
-## `.box-question` — interaction, MCQ
-
-::: columns
-::: {.column width="55%"}
-::: {.box-question}
-[Question for reflection]{.panel-title}
-
-What percentage of penguin body-mass variability is explained by bill length?
-
-**A)** less than 30 % &nbsp;&nbsp; **B)** 30–60 % &nbsp;&nbsp; **C)** more than 60 %
-:::
-:::
-::: {.column width="42%"}
-```markdown
-::: {.box-question}
-[Question for reflection]{.panel-title}
-
-Question text + choices A / B / C.
-:::
-```
-
-[= `.panel-question` · orange left border · heading `{.panel-title}`]{.text-size-smaller .text-color-grey_olive}
-:::
-:::
-
-## `.box-result` — main result
-
-::: columns
-::: {.column width="55%"}
-::: {.box-result}
-[What we see]{.panel-title}
-
-Each millimetre of bill length corresponds on average to **+8.7 g** body mass
-(95% CI: 6.2–11.2 g). The model explains 45 % of body-mass variability.
-:::
-:::
-::: {.column width="42%"}
-```markdown
-::: {.box-result}
-[What we see]{.panel-title}
-
-Main conclusion or analysis result.
-:::
-```
-
-[= `.panel-result` · indigo left border · heading `{.panel-title}` or `{.panel-lead}`]{.text-size-smaller .text-color-grey_olive}
-:::
-:::
-
-## `.box-data` — dataset description
-
-::: columns
-::: {.column width="55%"}
-::: {.box-data}
-[Palmer Penguins]{.panel-title}
-
-344 penguins from three islands · 3 species *(Adelie, Chinstrap, Gentoo)*
-
-Variables: bill length and depth (mm), flipper length (mm), body mass (g), sex, year
-:::
-:::
-::: {.column width="42%"}
-```markdown
-::: {.box-data}
-[Dataset name]{.panel-title}
-
-Brief description: number of
-observations, variables, source.
-:::
-```
-
-[= `.panel-data` · olive left border · heading `{.panel-title}`]{.text-size-smaller .text-color-grey_olive}
-:::
-:::
-
-## `.box-warning` — methodological warning
-
-::: columns
-::: {.column width="55%"}
-::: {.box-warning}
-[Caution — correlation ≠ causation]{.card-title}
-
-A longer bill does not imply that *the bill causes* greater body mass — both traits
-may reflect overall body size.
-:::
-:::
-::: {.column width="42%"}
-```markdown
-::: {.box-warning}
-[Warning heading]{.card-title}
-
-Methodological error, misinterpretation,
-data limitation.
-:::
-```
-
-[= `.card-warning` · **card** · red top strip + shadow · heading `{.card-title}`]{.text-size-smaller .text-color-grey_olive}
-:::
-:::
-
-## `.box-rule` — rule, heuristic
-
-::: columns
-::: {.column width="55%"}
-::: {.box-rule}
-[Mean or median?]{.card-title}
-
-If the data are symmetric → mean.
-
-If the data are skewed or contain outliers → median.
-:::
-:::
-::: {.column width="42%"}
-```markdown
-::: {.box-rule}
-[Rule heading]{.card-title}
-
-Condition → recommendation.
-Or a verbal heuristic.
-:::
-```
-
-[= `.card-rule` · **card** · amethyst top strip + shadow · heading `{.card-title}`]{.text-size-smaller .text-color-grey_olive}
-:::
-:::
-
-## Combination: `.box-question` + `.takeaway-strip`
-
-::: columns
-::: {.column width="55%"}
-::: {.box-question}
-[Question for reflection]{.panel-title}
-
-Why does bill length differ between penguin species and within a single species?
-:::
-
-::: {.takeaway-strip}
-**Morphology as adaptation.** Bill length reflects life strategy — Gentoo penguins forage differently from Adelie.
-:::
-:::
-::: {.column width="42%"}
-```markdown
-::: {.box-question}
-[Question]{.panel-title}
-Question...
-:::
-
-::: {.takeaway-strip}
-**Conclusion.** Closing the conclusion.
-:::
-```
-
-[`.takeaway-strip` after `.box-question` closes a slide sequence. One slide = one question + one conclusion.]{.text-size-smaller .text-color-grey_olive}
-:::
-:::
-
-## Fragment: incremental reveal of `.box-result`
-
-::: columns
-::: {.column width="55%"}
-Let's look at the linear model output.
-
-::: {.fragment}
-::: {.box-result}
-[Result]{.panel-title}
-
-Bill length coefficient: **+8.7 g/mm** (95% CI: 6.2–11.2 g).
-The effect is statistically and biologically significant.
-:::
-:::
-:::
-::: {.column width="42%"}
-```markdown
-Sentence before the pause.
-
-::: {.fragment}
-::: {.box-result}
-[Result]{.panel-title}
-Text that is revealed.
-:::
-:::
-```
-
-[`::: {.fragment}` wraps any `.box-*` block. Students see the sentence → click → result.]{.text-size-smaller .text-color-grey_olive}
-:::
-:::
-
-## Tool: plain question without a frame {.center}
-
 <br>
 
-::: {.text-center .text-size-large .text-bold}
-How does the confidence interval change if we double the sample size?
-:::
-
-<br>
-
-::: {.text-center}
-**A)** Narrows &nbsp;&nbsp;&nbsp; **B)** Stays the same &nbsp;&nbsp;&nbsp; **C)** Widens
-:::
-
-<br>
-
-[Plain slide: bold question + choices without a frame. Maximum visual contrast against slides with `.box-*` components.]{.text-size-smaller .text-color-grey_olive}
-
-## Roughnotation — use sparingly
-
-Each millimetre of penguin bill length corresponds on average to
-[+8.7 g body mass]{.rn-underline-indigo} — the effect is
-[biologically significant]{.rn-box-orange}.
-
-<br>
-
-::: columns
-::: {.column width="48%"}
-```markdown
-[text]{.rn-underline-indigo}
-[text]{.rn-box-orange}
-[text]{.rn-circle-amethyst}
-[text]{.rn-bracket-indigo}
-```
-:::
-::: {.column width="48%"}
-```markdown
-[text]{.rn-highlight-orange}
-[text]{.rn-cross-graphite}
-```
-
-Colours: `indigo`, `orange`, `amethyst`,
-`olive`, `graphite`, `red`
-:::
-:::
-
-[**Sparingly:** max 1–2 effects per slide, 3–5 per lecture. Types: `underline`, `box`, `circle`, `bracket`, `highlight`, `cross`. Not as decoration — only for one key moment in a concept.]{.text-size-smaller .text-color-grey_olive}
-
-# Reference Slides: SCSS Components {.center}
-
-# Cards {.center}
-
-## Card: basic structure
-
-::: {.card-indigo}
-[Card heading]{.card-title}
-
-Card body — one or two short paragraphs. The font is intentionally smaller than the base
-slide size (0.82 em) to fit more content.
-
-- Cards can also contain a list
-- Each item on its own line
-:::
-
-[Syntax: `::: {.card-indigo}` + `[text]{.card-title}` for the coloured top strip — without the old `.slide-card` + variant combination.]{.text-size-smaller .text-color-grey_olive}
-
-## Card: .card-title
-
-::: columns
-::: {.column width="60%"}
-::: {.card-insight}
-[This is .card-title]{.card-title}
-
-`[text]{.card-title}` must be the **first thing** inside the card — it creates the coloured top strip.
-:::
-:::
-
-::: {.column width="38%"}
-```markdown
-::: {.card-insight}
-[Section name]{.card-title}
-
-Card body.
-:::
-```
-:::
-:::
-
-## Card: compact variant
-
-::: columns
-::: {.column width="48%"}
-::: {.card-orange}
-[Standard]{.card-title}
-
-`.card-orange` — padding `0.7rem 1rem`. Suitable for longer content.
-:::
-:::
-
-::: {.column width="48%"}
-::: {.card-orange .card-compact}
-[Compact]{.card-title}
-
-`.card-orange .card-compact` — reduced padding (`0.45rem 0.75rem`). For denser layouts.
-:::
-:::
-:::
-
-## Card: overview of variants
-
-::: columns
-::: {.column width="18%"}
-::: {.card-indigo}
-[indigo]{.card-title}
-`.card-indigo`
-:::
-:::
-::: {.column width="18%"}
-::: {.card-orange}
-[orange]{.card-title}
-`.card-orange`
-:::
-:::
-::: {.column width="18%"}
-::: {.card-amethyst}
-[amethyst]{.card-title}
-`.card-amethyst`
-:::
-:::
-::: {.column width="18%"}
-::: {.card-olive}
-[olive]{.card-title}
-`.card-olive`
-:::
-:::
-::: {.column width="18%"}
-::: {.card-red}
-[red]{.card-title}
-`.card-red`
-:::
-:::
-:::
-
-::: columns
-::: {.column width="16%"}
-::: {.card-question}
-[question]{.card-title}
-`.card-question`
-:::
-:::
-::: {.column width="16%"}
-::: {.card-insight}
-[insight]{.card-title}
-`.card-insight`
-:::
-:::
-::: {.column width="16%"}
-::: {.card-warning}
-[warning]{.card-title}
-`.card-warning`
-:::
-:::
-::: {.column width="16%"}
-::: {.card-data}
-[data]{.card-title}
-`.card-data`
-:::
-:::
-::: {.column width="16%"}
-::: {.card-result}
-[result]{.card-title}
-`.card-result`
-:::
-:::
-::: {.column width="16%"}
-::: {.card-rule}
-[rule]{.card-title}
-`.card-rule`
-:::
-:::
-:::
-
-[Semantic variants are aliases: `.card-question` = orange, `.card-insight` = `.card-result` = indigo, `.card-warning` = red, `.card-data` = olive, `.card-rule` = amethyst. Shorthand: `.box-question`, `.box-result`, `.box-data`, `.box-warning`, `.box-rule`.]{.text-size-smaller .text-color-grey_olive}
-
-# Panels {.center}
-
-## Panel: `.panel-result`
-
-::: columns
-::: {.column width="55%"}
-::: {.panel-result}
-[Key insight]{.panel-title}
-
-Purple left border. For the main message of a block — conclusion, analysis result, or key number.
-:::
-:::
-::: {.column width="42%"}
-```markdown
-::: {.panel-result}
-[Heading]{.panel-title}
-Panel text.
-:::
-```
-
-[`.panel-title` is `display: block`; gives the heading h3 appearance without `###`.]{.text-size-smaller .text-color-grey_olive}
-:::
-:::
-
-## Panel: `.panel-question`
-
-::: columns
-::: {.column width="55%"}
-::: {.panel-question}
-[Conclusion or option]{.panel-title}
-
-Orange left border. For conclusions, comparison results, or offering multiple answer choices.
-:::
-:::
-::: {.column width="42%"}
-```markdown
-::: {.panel-question}
-[Conclusion or option]{.panel-title}
-Panel text.
-:::
-```
-:::
-:::
-
-## Panel: `.panel-question` + `.panel-lead`
-
-::: columns
-::: {.column width="55%"}
-::: {.panel-question}
-[Computation result]{.panel-lead}
-
-Large highlighted result — replaces the old `.answer-title`. Use at most once per slide.
-:::
-:::
-::: {.column width="42%"}
-```markdown
-::: {.panel-question}
-[Computation result]{.panel-lead}
-
-Text below the result.
-:::
-```
-
-[`.panel-lead` is large and bold. Suitable for a key number or conclusion.]{.text-size-smaller .text-color-grey_olive}
-:::
-:::
-
-## Panel: `.panel-note` and `.panel-warning`
-
-::: columns
-::: {.column width="48%"}
-::: {.panel-note}
-[Instructions or output]{.panel-title}
-
-Neutral olive border. For instructions, workflow steps, or model output.
-:::
-:::
-::: {.column width="48%"}
-::: {.panel-warning}
-[Caution!]{.panel-title}
-
-Red left border. For warnings, common errors, or deliberate alerts.
-:::
-:::
-:::
-
-## Panel: overview of colour variants
-
-::: columns
-::: {.column width="18%"}
-::: {.panel-indigo}
-[indigo]{.panel-title}
-`.panel-indigo`
-:::
-:::
-::: {.column width="18%"}
-::: {.panel-orange}
-[orange]{.panel-title}
-`.panel-orange`
-:::
-:::
-::: {.column width="18%"}
-::: {.panel-amethyst}
-[amethyst]{.panel-title}
-`.panel-amethyst`
-:::
-:::
-::: {.column width="18%"}
-::: {.panel-olive}
-[olive]{.panel-title}
-`.panel-olive`
-:::
-:::
-::: {.column width="18%"}
-::: {.panel-red}
-[red]{.panel-title}
-`.panel-red`
-:::
-:::
-:::
-
-[Semantic variants are aliases: `.panel-result` = indigo, `.panel-question` = orange, `.panel-warning` = red, `.panel-note` = amethyst, `.panel-data` = olive. Shorthand (`.box-*`) wraps the matching panel.]{.text-size-smaller .text-color-grey_olive}
-
-# Takeaway strip {.center}
-
-## Takeaway strip: standard
-
-Sentence that leads into the conclusion — contextual paragraph above the strip.
-
-::: {.takeaway-strip}
-**Main slide conclusion.** `.takeaway-strip` — indigo-to-orange gradient background,
-indigo left border. One per slide, placed at the bottom.
-:::
-
-[`::: {.takeaway-strip}` — the gradient is built in, no extra class needed.]{.text-size-smaller .text-color-grey_olive}
-
-## Takeaway strip: compact variant
-
-Sentence above the strip as usual.
-
-::: {.takeaway-strip}
-Main conclusion — standard strip.
-:::
-
-::: {.takeaway-strip .strip-compact}
-Supplementary conclusion — `.strip-compact` reduces `margin-top`. Useful for two conclusions together.
-:::
-
-## Strip: colour variants
-
-::: columns
-::: {.column width="18%"}
-::: {.strip-indigo}
-`.strip-indigo`
-:::
-:::
-::: {.column width="18%"}
-::: {.strip-orange}
-`.strip-orange`
-:::
-:::
-::: {.column width="18%"}
-::: {.strip-amethyst}
-`.strip-amethyst`
-:::
-:::
-::: {.column width="18%"}
-::: {.strip-olive}
-`.strip-olive`
-:::
-:::
-::: {.column width="18%"}
-::: {.strip-red}
-`.strip-red`
-:::
-:::
-:::
-
-# Blockquote {.center}
-
-## Blockquote div: `.blockquote`
-
-::: {.blockquote}
-**Definition or quotation.** `.blockquote` — light purple background, indigo left border (6px),
-rounded corners. Font 0.82 em.
-
-- Can contain a list
-- Each item on its own line
-:::
-
-[Use `::: {.blockquote}`, not Markdown `>`. The div variant gets correct styling;
-Markdown blockquote gets different styles from `presentation_theme.scss`.]{.text-size-smaller .text-color-grey_olive}
-
-# Slide backgrounds {.center}
-
-## Backgrounds: dark variants {.bg-indigo}
-
-This slide has the class `{.bg-indigo}`. Text and headings are automatically white.
-
-::: columns
-::: {.column width="48%"}
-Syntax — add the class to the slide heading:
-
-```markdown
-## Slide title {.bg-indigo}
-```
-:::
-::: {.column width="48%"}
-Available dark variants:
-
-- `{.bg-indigo}` — primary indigo
-- `{.bg-amethyst}` — lighter purple
-- `{.bg-olive}` — grey-green
-- `{.bg-red}` — red
-- `{.bg-graphite}` — dark grey
-:::
-:::
-
-## Backgrounds: light variants {.bg-parchment}
-
-This slide has the class `{.bg-parchment}`. Text is automatically graphite.
-
-::: columns
-::: {.column width="48%"}
-Available light variants:
-
-- `{.bg-orange}` — orange
-- `{.bg-parchment}` — cream
-- `{.bg-white}` — pure white
-:::
-::: {.column width="48%"}
-Text and heading colour adapts automatically — no need to add `.text-color-*`.
-:::
-:::
-
-# Inline highlights {.center}
-
-## Inline highlight: `.text-hgl-{color}`
-
-The model intercept is −153.4 and the length coefficient is
-[4.05 g/mm]{.text-hgl-indigo_velvet} — each millimetre of length corresponds on average
-to four grams of body mass.
-
-Caution — this procedure works [only when the normality assumption is met]{.text-hgl-orange}.
-
-[Syntax: `[text]{.text-hgl-indigo_velvet}` — coloured chip with contrasting text. Available colours: `indigo_velvet`, `orange`, `amethyst`, `grey_olive`, `graphite`, `white`, `light_gray`, `parchment`.]{.text-size-smaller .text-color-grey_olive}
-
-## Inline highlight: `.text-bg-{color}` and `.text-color-{color}`
-
-::: columns
-::: {.column width="48%"}
-[`.text-hgl-indigo_velvet`]{.text-hgl-indigo_velvet} — chip with contrasting text
-
-[`.text-bg-indigo_velvet`]{.text-bg-indigo_velvet} — chip without text colour change
-
-[`.text-color-indigo_velvet`]{.text-color-indigo_velvet} — text colour only
-
-[`.text-color-indigo_velvet .text-bold`]{.text-color-indigo_velvet .text-bold} — colour + bold
-:::
-::: {.column width="48%"}
-```markdown
-[text]{.text-hgl-indigo_velvet}
-[text]{.text-bg-indigo_velvet}
-[text]{.text-color-indigo_velvet}
-[text]{.text-color-indigo_velvet .text-bold}
-```
-:::
-:::
-
-# Roughnotation {.center}
-
-## Roughnotation: shorthand syntax
-
-Shorthand `{.rn-{type}-{colour}}` expands via `rn-shorthand.lua`:
-
-::: columns
-::: {.column width="48%"}
-**Short form (new):**
-
-Each millimetre of length corresponds to approximately
-[four grams of body mass]{.rn-underline-indigo}.
-
-```markdown
-[text]{.rn-underline-indigo}
-```
-:::
-::: {.column width="48%"}
-**Long form (still functional):**
-
-```markdown
-[text]{.rn-fragment rn-type=underline
-  rn-color="#5D2890"}
-```
-:::
-:::
-
-[Available types: `underline`, `box`, `circle`, `highlight`, `cross`, `bracket`. Colours: `indigo`, `orange`, `amethyst`, `olive`, `graphite`, `red`.]{.text-size-smaller .text-color-grey_olive}
-
-## Roughnotation: `box`, `circle`, `bracket`
-
-::: columns
-::: {.column width="32%"}
-**box**
-
-**R² = [0.76]{.rn-box-indigo}**
-
-```markdown
-[0.76]{.rn-box-indigo}
-```
-:::
-::: {.column width="32%"}
-**circle**
-
-The relationship is [strong]{.rn-circle-orange}.
-
-```markdown
-[strong]{.rn-circle-orange}
-```
-:::
-::: {.column width="32%"}
-**bracket**
-
-**ŷ = β₀ + [β₁x]{.rn-bracket-indigo}**
-
-```markdown
-[β₁x]{.rn-bracket-indigo}
-```
-:::
-:::
-
-[Animation fires on fragment arrival. Do not use both colours on the same slide.]{.text-size-smaller .text-color-grey_olive}
-
-# Fragments and progressive disclosure {.center}
-
-## Fragment: `.fragment` block
-
-A sentence that is on the slide from the start.
-
-::: {.fragment}
-::: {.panel-result}
-[Conclusion arrives after pause]{.panel-title}
-
-This entire block appears as a single fragment — the student sees the sentence above
-and only after clicking does the panel with the conclusion reveal itself.
-:::
-:::
-
-[Syntax: `::: {.fragment}` wraps any block. Works with panels, blockquotes, strips, and cards.]{.text-size-smaller .text-color-grey_olive}
-
-## Fragment: `.incremental` list
-
-Which properties must a good correlation coefficient satisfy?
+Po dnešní lekci dokážete:
 
 ::: {.incremental}
-- It must be symmetric: correlation of X with Y = correlation of Y with X.
-- It must be dimensionless: independent of the scale of variables.
-- It must be in the interval −1 to +1.
-- +1 = perfect positive dependence, −1 = perfect negative dependence.
+
+- fitovat `lm(y ~ skupina)` pro dvě i více skupin;
+- interpretovat [intercept jako průměr reference]{.text-hgl-indigo_velvet}
+  a další koeficienty jako rozdíly vůči ní;
+- vysvětlit t-test a ANOVA jako otázky položené lineárnímu modelu;
+- rozlišit [celkový F-test]{.text-hgl-indigo_velvet}
+  od [post-hoc porovnání]{.text-hgl-orange};
+- formulovat závěr v biologicky smysluplných jednotkách.
+
 :::
 
-[Each item appears on click.]{.text-size-smaller .text-color-grey_olive}
 
-# Typography {.center}
+## Co víme z minulé lekce?
 
-## Typography: sizes
+<br>
 
-::: columns
-::: {.column width="55%"}
-[`.text-size-heading` — 140 % of base]{.text-size-heading}
-
-[`.text-size-large` — 130 % of base]{.text-size-large}
-
-Normal text (100 %, base 30 px)
-
-[`.text-size-smaller` — 82 % of base]{.text-size-smaller}
-
-[`.text-size-tiny` — 65 % of base]{.text-size-tiny}
-:::
-::: {.column width="42%"}
-```markdown
-[text]{.text-size-heading}
-[text]{.text-size-large}
-[text]{.text-size-smaller}
-[text]{.text-size-tiny}
-```
-
-[`.text-size-body` = 100 % (explicit reset). Old `.text-larger`/`.text-smaller`/`.text-tiny` are removed.]{.text-size-smaller .text-color-grey_olive}
-:::
-:::
-
-## Typography: weight, alignment, font
-
-::: {.text-center}
-`.text-center` — horizontal centre
-:::
-
-::: {.text-right}
-`.text-right` — right alignment
+::: {.text-size-larger .text-center .fragment}
+$$
+\text{pozorování} = \text{model} + \text{reziduum}
+$$
 :::
 
 <br>
 
-[`.text-font-heading` — Source Sans 3, heading weight]{.text-font-heading}
+::: columns
+::: {.column width="31%"}
+::: {.card-indigo .fragment}
+Odhadneme koeficient.
+:::
+:::
+::: {.column width="31%"}
+::: {.card-amethyst .fragment}
+Změříme jeho nejistotu.
+:::
+:::
+::: {.column width="31%"}
+::: {.card-orange .fragment}
+Otestumejeme nulovou hypotézu.
+:::
+:::
+:::
 
-[`.text-font-monospace` — JetBrains Mono]{.text-font-monospace}
+<br>
 
-[`.text-bold` — bold]{.text-bold}
+::: {.takeaway-strip .fragment .text-center}
+Logika modelu zůstává stejná. Mění se typ prediktoru.
+:::
 
-# Colour utilities {.center}
+## Podíváme se na data
 
-## Colours: indigo_velvet and amethyst
+```{r}
+#| label: vytvorit-graf-spojenych-dat
+#| include: false
+data_penguins <-
+  readr::read_csv(
+    here::here("data", "palmer_penguins.csv"),
+    na = c("", "NA"),
+    show_col_types = FALSE
+  ) |>
+  dplyr::filter(!is.na(hmotnost_tela_g)) |>
+  dplyr::mutate(
+    druh = factor(druh, levels = c("Adelie", "Chinstrap", "Gentoo"))
+  )
+
+
+set.seed(606)
+data_pooled_plot <-
+  data_penguins |>
+  dplyr::mutate(
+    skupina = "všichni tučňáci"
+  )
+
+plot_pooled <-
+  ggplot2::ggplot(
+    data_pooled_plot,
+    ggplot2::aes(x = skupina, y = hmotnost_tela_g)
+  ) +
+  ggplot2::geom_violin(
+    fill = biostat_cols[["graphite"]],
+    alpha = 0.22,
+    color = NA
+  ) +
+  ggbeeswarm::geom_quasirandom(
+    width = 0.2, 
+    alpha = 0.24, 
+    size = 2.1,
+    color = biostat_cols[["graphite"]]
+  ) +
+  ggplot2::geom_boxplot(
+    width = 0.18,
+    alpha = 0.22,
+    fill = biostat_cols[["grey_olive"]],
+    color = biostat_cols[["white"]],
+    outliers = FALSE
+  ) +
+  ggplot2::scale_x_discrete(labels = "?") +
+  ggplot2::labs(x = NULL, y = "Hmotnost těla (g)") +
+  ggplot2::coord_cartesian(xlim = c(0.55, 1.45)) +
+  theme_biostat(base_size = 18) +
+  ggview::canvas(width = 1500, height = 780, units = "px")
+
+ggview::save_ggplot(
+  plot = plot_pooled,
+  file = here::here(path_materials, "pooled_body_mass.png")
+)
+```
+
+```{r}
+#| label: zobrazit-graf-spojenych-dat
+#| echo: false
+#| out-width: "74%"
+include_local_figure("pooled_body_mass.png")
+```
+
+::: {.panel-question .fragment .text-center}
+Co by mohlo vytvářet tak široký rozsah hodnot?
+:::
+
+## Barva odkryje skupiny
+
+```{r}
+#| label: vytvorit-pozorovani-podle-druhu
+#| include: false
+barvy_druhu <- c(
+  "Adelie" = "darkorange",
+  "Chinstrap" = "mediumpurple",
+  "Gentoo" = "cyan4"
+)
+
+popisky_druhu <- c(
+  "Adelie" = "Adélie",
+  "Chinstrap" = "Chinstrap",
+  "Gentoo" = "Gentoo"
+)
+
+plot_species <-
+  ggplot2::ggplot(
+    data_penguins,
+    ggplot2::aes(x = druh, y = hmotnost_tela_g, color = druh,
+    fill = druh)
+  ) +
+   ggplot2::geom_violin(
+    alpha = 0.22,
+    color = NA
+  ) +
+  ggbeeswarm::geom_quasirandom(
+    width = 0.2, 
+    alpha = 0.24, 
+    size = 2.1,
+  ) +
+  ggplot2::geom_boxplot(
+    width = 0.18,
+    alpha = 0.22,
+    color = biostat_cols[["white"]],
+    outliers = FALSE
+  ) +
+  ggplot2::scale_color_manual(values = barvy_druhu, guide = "none") +
+  ggplot2::scale_fill_manual(values = barvy_druhu, guide = "none") +
+  ggplot2::scale_x_discrete(labels = popisky_druhu) +
+  ggplot2::labs(x = NULL, y = "Hmotnost těla (g)") +
+  theme_biostat(base_size = 16) +
+  ggview::canvas(width = 1500, height = 780, units = "px")
+
+ggview::save_ggplot(
+  plot = plot_species,
+  file = here::here(path_materials, "body_mass_by_species.png")
+)
+```
+
+```{r}
+#| label: zobrazit-pozorovani-podle-druhu
+#| echo: false
+#| out-width: "80%"
+include_local_figure("body_mass_by_species.png")
+```
+
+::: {.takeaway-strip .fragment .text-center}
+Vidíme rozdíly mezi skupinami **i** variabilitu uvnitř skupin.
+:::
+
+## Co by předpovídala nulová hypotéza?
+
+<br>
+
+::: {.panel-olive}
+[Hlasování]{.panel-title}
+
+Kdyby druh s hmotností nesouvisel, jaký vzorec bychom čekali?
+:::
+
+<br>
 
 ::: columns
-::: {.column width="48%"}
-::: {.bg-indigo_velvet style="padding:0.55rem 0.8rem;border-radius:10px;margin-bottom:0.5rem;"}
-[`.bg-indigo_velvet` — primary indigo]{.text-color-white}
-:::
-[`.text-color-indigo_velvet`]{.text-color-indigo_velvet}
-
-[`.text-hgl-indigo_velvet`]{.text-hgl-indigo_velvet}
-:::
-::: {.column width="48%"}
-::: {.bg-amethyst style="padding:0.55rem 0.8rem;border-radius:10px;margin-bottom:0.5rem;"}
-[`.bg-amethyst` — lighter purple]{.text-color-white}
-:::
-[`.text-color-amethyst`]{.text-color-amethyst}
-
-[`.text-hgl-amethyst`]{.text-hgl-amethyst}
-:::
-:::
-
-## Colours: orange and graphite
-
-::: columns
-::: {.column width="48%"}
-::: {.bg-orange style="padding:0.55rem 0.8rem;border-radius:10px;margin-bottom:0.5rem;"}
-[`.bg-orange` — vivid orange]{.text-color-graphite}
-:::
-[`.text-color-orange`]{.text-color-orange}
-
-[`.text-hgl-orange`]{.text-hgl-orange}
-:::
-::: {.column width="48%"}
-::: {.bg-graphite style="padding:0.55rem 0.8rem;border-radius:10px;margin-bottom:0.5rem;"}
-[`.bg-graphite` — dark base]{.text-color-white}
-:::
-[`.text-color-graphite`]{.text-color-graphite}
-
-[`.text-hgl-graphite`]{.text-hgl-graphite}
-:::
-:::
-
-## Colours: neutral palette tones
-
-::: columns
-::: {.column width="23%"}
-::: {.bg-parchment style="padding:0.5rem 0.7rem;border-radius:10px;border:1px solid #ccc;"}
-[`.bg-parchment`]{.text-color-graphite .text-size-smaller}
-:::
-[`.text-color-parchment`]{.text-color-parchment .text-size-smaller .bg-graphite style="padding:1px 4px;border-radius:3px;"}
-
-[`.text-hgl-parchment`]{.text-hgl-parchment .text-size-smaller}
-:::
-::: {.column width="23%"}
-::: {.bg-grey_olive style="padding:0.5rem 0.7rem;border-radius:10px;"}
-[`.bg-grey_olive`]{.text-color-white .text-size-smaller}
-:::
-[`.text-color-grey_olive`]{.text-color-grey_olive .text-size-smaller}
-
-[`.text-hgl-grey_olive`]{.text-hgl-grey_olive .text-size-smaller}
-:::
-::: {.column width="23%"}
-::: {.bg-light_gray style="padding:0.5rem 0.7rem;border-radius:10px;border:1px solid #ccc;"}
-[`.bg-light_gray`]{.text-color-graphite .text-size-smaller}
-:::
-[`.text-color-light_gray`]{.text-color-light_gray .text-size-smaller .bg-graphite style="padding:1px 4px;border-radius:3px;"}
-
-[`.text-hgl-light_gray`]{.text-hgl-light_gray .text-size-smaller}
-:::
-::: {.column width="23%"}
-::: {.bg-white style="padding:0.5rem 0.7rem;border-radius:10px;border:1px solid #ccc;"}
-[`.bg-white`]{.text-color-graphite .text-size-smaller}
-:::
-[`.text-color-white`]{.text-color-white .text-size-smaller .bg-graphite style="padding:1px 4px;border-radius:3px;"}
-
-[`.text-hgl-white`]{.text-hgl-white .text-size-smaller}
-:::
-:::
-
-# Layout utilities {.center}
-
-## Layout: `.columns.align-top`
-
-::: {.columns .align-top}
-::: {.column width="48%"}
-**Left column** starts at the top — without `.align-top` the content would be vertically centred.
-
+::: {.column width="31%"}
 ::: {.card-indigo}
-Card in the left column.
+[A]{.card-title}
 
-Second paragraph inside the card — the left column is taller.
+Stejný průměr, žádná variabilita.
 :::
+:::
+::: {.column width="31%"}
+::: {.card-indigo .rn-circle-orange .fragment}
+[B]{.card-title}
+
+Stejný průměr, variabilita zůstává.
+:::
+:::
+::: {.column width="31%"}
+::: {.card-indigo}
+[C]{.card-title}
+
+Jiný průměr pro každý druh.
+:::
+:::
+:::
+
+## Průměr neříká celý příběh
+
+```{r}
+#| label: vytvorit-graf-prumeru-a-sd
+#| include: false
+prumery_druhu <-
+  data_penguins |>
+  dplyr::group_by(druh) |>
+  dplyr::summarise(
+    n = dplyr::n(),
+    prumer = mean(hmotnost_tela_g),
+    sd = sd(x = hmotnost_tela_g),
+    .groups = "drop"
+  )
+
+plot_means_sd <-
+  ggplot2::ggplot(
+    data_penguins,
+    ggplot2::aes(
+      x = druh,
+      y = hmotnost_tela_g,
+      color = druh, 
+      fill = druh
+    )
+  ) +
+  ggplot2::geom_violin(
+    alpha = 0.22,
+    color = NA
+  ) +
+  ggbeeswarm::geom_quasirandom(
+    width = 0.2,
+    alpha = 0.24,
+    size = 2.1
+  ) +
+  ggplot2::geom_errorbar(
+    data = prumery_druhu,
+    ggplot2::aes(
+      x = druh,
+      ymin = prumer - sd,
+      ymax = prumer + sd
+    ),
+    width = 0.12,
+    linewidth = 1.4,
+    color = biostat_cols[["white"]],
+    inherit.aes = FALSE
+  ) +
+  ggplot2::geom_point(
+    data = prumery_druhu,
+    ggplot2::aes(y = prumer),
+    color = biostat_cols[["white"]],
+    size = 5.5
+  ) +
+  ggplot2::scale_color_manual(values = barvy_druhu, guide = "none") +
+  ggplot2::scale_fill_manual(values = barvy_druhu, guide = "none") +
+  ggplot2::scale_x_discrete(labels = popisky_druhu) +
+  ggplot2::labs(x = NULL, y = "Hmotnost těla (g)") +
+  theme_biostat(base_size = 18) +
+  ggview::canvas(width = 1500, height = 780, units = "px")
+
+ggview::save_ggplot(
+  plot = plot_means_sd,
+  file = here::here(path_materials, "species_means_sd.png")
+)
+```
+
+```{r}
+#| label: zobrazit-graf-prumeru-a-sd
+#| echo: false
+#| out-width: "78%"
+include_local_figure("species_means_sd.png")
+```
+
+::: {.takeaway-strip}
+Rozdíl průměrů hodnotíme vůči rozptylu jednotlivých pozorování.
+:::
+
+# Rozdíl mezi dvěma skupinami 
+
+## Dvě vzdálenosti na jedné kře
+
+```{r}
+#| label: zobrazit-ledove-kry
+#| echo: false
+#| out-width: "88%"
+include_local_figure("ice_floe_laboratory.png")
+```
+
+::: columns
+::: {.column width="48%"}
+[**uvnitř skupin**]{.text-hgl-orange}: jak daleko jsou jedinci od vlastního průměru
 :::
 ::: {.column width="48%"}
-**Right column** is shorter.
-
-Without `.align-top` the right text would shift down to the centre of the column pair.
+[**mezi skupinami**]{.text-hgl-indigo_velvet}: jak daleko jsou skupinové průměry
 :::
 :::
 
-[Syntax: `::: {.columns .align-top}` — add the class `.align-top` to `.columns`.]{.text-size-smaller .text-color-grey_olive}
+## Stejný rozdíl průměrů, jiný vnitřní rozptyl
 
-## Layout: vertical offsets
+```{r}
+#| label: vytvorit-scenare-stejneho-rozdilu
+#| include: false
+z_pattern <- as.numeric(scale(seq(-1, 1, length.out = 10)))
 
-::: {.card-question}
-[Example: `.slide-margin-top-15`]{.kicker}
+fixed_gap <-
+  tidyr::crossing(
+    sd = c(250, 500, 1000),
+    skupina = c("A", "B"),
+    i = seq_along(z_pattern)
+  ) |>
+  dplyr::mutate(
+    prumer = ifelse(skupina == "A", 3500, 4500),
+    hodnota = prumer + sd * z_pattern[i],
+    scenar = factor(
+      paste0("SD = ", sd, " g"),
+      levels = paste0("SD = ", c(250, 500, 1000), " g")
+    )
+  )
 
-This card would have `margin-top: 15%` if it had the class `.slide-margin-top-15`.
-Useful for vertically centring an isolated element on a slide.
+plot_fixed_gap <-
+  ggplot2::ggplot(
+    fixed_gap,
+    ggplot2::aes(x = skupina, y = hodnota, color = skupina)
+  ) +
+  ggbeeswarm::geom_quasirandom(width = 0.12, size = 3, alpha = 0.75) +
+  ggplot2::stat_summary(fun = mean, geom = "crossbar", width = 0.55, linewidth = 1.1) +
+  ggplot2::facet_wrap(~ scenar, nrow = 1) +
+  ggplot2::scale_color_manual(
+    values = c("A" = biostat_cols[["indigo_velvet"]], "B" = biostat_cols[["orange"]]),
+    guide = "none"
+  ) +
+  ggplot2::scale_y_continuous(limits = c(2200, 5800), breaks = seq(2500, 5500, 1000)) +
+  ggplot2::labs(x = NULL, y = "Hmotnost (g)") +
+  theme_biostat(base_size = 15) +
+  ggview::canvas(width = 1600, height = 690, units = "px")
+
+ggview::save_ggplot(
+  plot = plot_fixed_gap,
+  file = here::here(path_materials, "fixed_gap_varying_sd.png")
+)
+```
+
+::: {.panel-olive}
+[Odhad bez počítání]{.panel-title}
+
+Rozdíl průměrů je vždy **1 000 g**. Ve kterém panelu máme největší šanci zamítnout nulovou hypotézu?
 :::
 
-::: {.takeaway-strip .strip-compact}
-`.slide-margin-top-15` → `margin-top: 15%` · `.slide-margin-top-25` → `margin-top: 25%` · `.center-vertical` → absolute centre
+```{r}
+#| label: zobrazit-scenare-stejneho-rozdilu
+#| echo: false
+#| out-width: "94%"
+include_local_figure("fixed_gap_varying_sd.png")
+```
+
+# Lineární model
+
+## Jak jsme minule zapisovali číselný prediktor?
+
+<br>
+
+::: {.text-size-larger .text-center}
+$$
+\begin{aligned}
+\text{odhadnutá hodnota }(\widehat{y}_i)
+={}& \text{intercept }(\widehat{\beta}_0) \\
+&+ \text{sklon }(\widehat{\beta}_1)
+\times \text{číselný prediktor }(x_i)
+\end{aligned}
+$$
 :::
 
-[For a group of related elements, prefer the normal-flow `.layout-stack.layout-center-y` utility shown below.]{.text-size-smaller .text-color-grey_olive}
+<br>
 
-## Layout: `.layout-grid-2`
-
-:::: {.layout-grid-2}
+::: columns
+::: {.column width="48%" .fragment}
 ::: {.panel-result}
-[Left result]{.panel-title}
+[Když $x=0$]{.panel-title}
 
-Two equal-width elements form one comparison.
+$\widehat{y}=\widehat{\beta}_0$
 :::
-
+:::
+::: {.column width="48%" .fragment}
 ::: {.panel-question}
-[Right question]{.panel-title}
+[Když $x=1$]{.panel-title}
 
-The shared gap keeps the pair readable.
+$\widehat{y}=\widehat{\beta}_0+\widehat{\beta}_1$
 :::
-::::
-
-::: {.takeaway-strip}
-Use `::: {.layout-grid-2}` for a comparison or prompt pair—not merely to decorate an ordinary list.
+:::
 :::
 
-## Layout: vertical stack
+<br>
 
-:::: {.layout-stack}
-::: {.box-question}
-First related teaching element.
+::: {.fragment .takeaway-strip .text-center}
+Co když 0 a 1 nejsou spojitá čísla, ale "přepínač" (vypnout / zapnout)?
 :::
 
-::: {.box-result}
-Second element with consistent breathing room.
+## Jak dostaneme druh do rovnice?
+
+<br>
+
+::: {.panel-olive}
+[Diskuze ve dvojici — 90 sekund]{.panel-title}
+
+Jak by se dal "přepínač" (0/1) nastavit aby vybral mezi dvěma druhy?
 :::
 
-::: {.takeaway-strip}
-The default gap is `1.4rem`; override `--layout-gap` on the wrapper only when the rendered composition needs it.
-:::
-::::
+<br>
 
-## Layout: centred stack
-
-:::: {.layout-stack .layout-center-y}
-::: {.box-question .text-center}
-Which observation would change your conclusion?
+::: {.fragment}
+| Druh | Přepínač „je Gentoo?“ |
+|:--|--:|
+| Adélie | 0 |
+| Gentoo | 1 |
 :::
+
+## Přepínač vybírá mezi dvěma průměry
+
+<br>
+
+::: {.text-size-larger .text-center}
+$$
+\begin{aligned}
+\text{odhadnutá hmotnost}
+={}& \text{průměr Adélie} \\
+&+ \text{přepínač "Je Gentoo?"} \\
+ \times \text{rozdíl Gentoo minus Adélie}
+\end{aligned}
+$$
+:::
+
+<br>
+
+::: {.takeaway-strip .text-center .fragment}
+Nula rozdíl vypne. Jednička ho zapne.
+:::
+
+## Nula nechá průměr Adélie, jednička přičte rozdíl
+
+```{r}
+#| label: pripravit-hodnoty-dvou-skupin
+#| include: false
+mean_adelie <-
+  prumery_druhu |>
+  dplyr::filter(druh == "Adelie") |>
+  dplyr::pull(prumer)
+
+mean_gentoo <-
+  prumery_druhu |>
+  dplyr::filter(druh == "Gentoo") |>
+  dplyr::pull(prumer)
+
+difference_gentoo_adelie <- mean_gentoo - mean_adelie
+
+
+```
+
+::: {.text-size-larger .text-center}
+$$
+\begin{aligned}
+\text{odhadnutá hmotnost}
+={}& \text{průměr Adélie} \\
+&+ \text{přepínač "Je Gentoo?"} \\
+&\quad \times \text{rozdíl Gentoo minus Adélie}
+\end{aligned}
+$$
+:::
+
+<br>
+
+::: {.text-size-smaller .text-color-grey_olive .fragment}
+Průměr Adélie: `r format_whole_number(mean_adelie)` g<br>
+Průměr Gentoo: `r format_whole_number(mean_gentoo)` g<br>
+Rozdíl Gentoo − Adélie: `r format_whole_number(difference_gentoo_adelie)` g
+:::
+
+<br>
+
+::: columns
+::: {.column width="48%" .fragment}
+::: {.card-orange}
+[přepínač 1 (je Gentoo)]{.card-title}
+
+$$
+`r format_whole_number(mean_adelie)`\ \mathrm{g}
++ 1 \times `r format_whole_number(difference_gentoo_adelie)`\ \mathrm{g}
+= `r format_whole_number(mean_gentoo)`\ \mathrm{g}
+$$
+:::
+:::
+
+::: {.column width="48%" .fragment}
+::: {.card-indigo}
+[přepínač 0 (není Gentoo (Adélie))]{.card-title}
+
+$$
+`r format_whole_number(mean_adelie)`\ \mathrm{g}
++ 0 \times `r format_whole_number(difference_gentoo_adelie)`\ \mathrm{g}
+= `r format_whole_number(mean_adelie)`\ \mathrm{g}
+$$
+:::
+:::
+
+:::
+
+## Jedna rovnice popíše oba druhy
+
+<br>
+
+::: {.text-size-larger .text-center}
+$$
+\widehat{y}_i = \widehat{\beta}_0 + \widehat{\beta}_1 x_i
+$$
+:::
+
+<br>
+
+| Symbol | Význam v našich datech |
+|---|---|
+| $\widehat{y}_i$ | odhadnutá hmotnost tučňáka $i$ |
+| $\widehat{\beta}_0$ | průměr referenčního druhu Adélie |
+| $\widehat{\beta}_1$ | rozdíl Gentoo minus Adélie |
+| $x_i$ | přepínač: 0 pro Adélie, 1 pro Gentoo |
+
+
+::: {.fragment .takeaway-strip .text-center}
+Stejná rovnice jako pro číselný prediktor, jen interpretace koeficientů se liší.
+:::
+
+## Referenční druh
+
+```{r}
+#| label: zobrazit-modelovy-pas
+#| echo: false
+#| out-width: "86%"
+include_local_figure("penguin_model_passport.png")
+```
 
 ::: {.takeaway-strip .text-center}
-`.layout-center-y` centres the short stack in normal flow without transforming its children.
+Model zapisuje jednu skupinu (druh) přímo a ostatní jako rozdíly vůči ní.
 :::
-::::
 
+## Která skupina je referenční?
+
+<br>
+
+```{r}
+#| label: pripravit-data-dvou-skupin
+#| include: false
+data_penguins_two <-
+  data_penguins |>
+  dplyr::filter(druh %in% c("Adelie", "Gentoo")) |>
+  dplyr::mutate(druh = droplevels(druh))
+```
+
+```{r}
+#| label: zkontrolovat-urovne-faktoru
+#| echo: true
+#| eval: true
+levels(x = data_penguins_two$druh)
+```
+
+<br>
+
+::: columns
+::: {.column width="48%" .fragment}
+::: {.panel-result}
+[První úroveň]{.panel-title}
+
+`Adelie` je reference.
+:::
+:::
+::: {.column width="48%" .fragment}
+::: {.panel-note}
+[Výsledek]{.panel-title}
+
+R vytvoří koeficient `druhGentoo`.
+:::
+:::
+:::
+
+<br>
+
+::: {.fragment .takeaway-strip .fragment}
+Pořadí úrovní faktoru je součást interpretace modelu.
+:::
+
+## Fitujeme stejný lineární model
+
+<br>
+
+```{r}
+#| label: fitovat-model-dvou-skupin-viditelne
+#| echo: true
+#| eval: true
+mod_dva <- lm(
+  formula = hmotnost_tela_g ~ druh,
+  data = data_penguins_two
+)
+
+coef(object = mod_dva)
+```
+
+
+## Dva koeficienty
+
+```{r}
+#| label: pripravit-koeficienty-dvou-skupin
+#| include: false
+coef_dva <- coef(object = mod_dva)
+```
+
+<br>
+
+```{r}
+#| label: fitovat-model-dvou-skupin-tajne
+#| echo: false
+#| eval: true
+coef(object = mod_dva)
+```
+
+<br>
+
+::: columns
+::: {.column width="48%" .fragment}
+::: {.card-indigo}
+[`(Intercept)`]{.card-title}
+
+`r format_whole_number(coef_dva[["(Intercept)"]])` g
+
+Průměrná hmotnost druhu **Adélie**.
+:::
+:::
+::: {.column width="48%" .fragment}
+::: {.card-orange}
+[`druhGentoo`]{.card-title}
+
++`r format_whole_number(coef_dva[["druhGentoo"]])` g
+
+Rozdíl **Gentoo − Adélie**.
+:::
+:::
+:::
+
+<br>
+
+::: {.takeaway-strip .fragment .text-center}
+Gentoo: `r format_whole_number(coef_dva[["(Intercept)"]] + coef_dva[["druhGentoo"]])` g
+= reference + rozdíl.
+:::
+
+## Reference není „nejdůležitější“ skupina
+
+<br>
+
+::: {.panel-olive}
+[Hlasování]{.panel-title}
+
+Změníme referenci z Adélie na Gentoo. Co se musí změnit?
+:::
+
+<br>
+
+::: columns
+::: {.column width="31%"}
+::: {.card-indigo}
+[A]{.card-title}
+
+Fitované hodnoty.
+:::
+:::
+::: {.column width="31%"}
+::: {.card-indigo .rn-circle-orange .fragment}
+[B]{.card-title}
+
+Jména a znaménka koeficientů.
+:::
+:::
+::: {.column width="31%"}
+::: {.card-indigo}
+[C]{.card-title}
+
+Rezidua.
+:::
+:::
+:::
+
+<br>
+
+::: {.fragment .takeaway-strip}
+Reference mění souřadný systém popisu — ne data ani predikce modelu.
+:::
+
+## U kontrolních studií je reference zásadní
+
+<br>
+
+| Skupina | Koeficient | Význam |
+|---|:---:|---|
+| **kontrola** | $\widehat{\beta}_0$ | průměr kontroly |
+| **lék A** | $\widehat{\beta}_1$ | A − kontrola |
+| **lék B** | $\widehat{\beta}_2$ | B − kontrola |
+
+<br>
+
+::: {.takeaway-strip}
+Je-li kontrola referencí, každý koeficient odpovídá přirozené otázce „oproti kontrole“.
+:::
+
+## Ale reference nevytváří kontrolu
+
+<br>
+
+::: {.panel-warning}
+[Pozor na interpretaci]{.panel-title}
+
+Příkaz `relevel()` pouze změní, kterou skupinu model používá jako výchozí.
+
+Nevytváří randomizaci, kontrolní podmínky ani kauzální důkaz.
+:::
+
+```{r}
+#| label: zmenit-referenci-viditelne
+#| echo: true
+#| eval: false
+data_pokus <-
+  data.frame(
+    skupina = factor(c("kontrola", "lék A", "lék B"))
+  )
+
+data_pokus$skupina <-
+  relevel(
+    x = data_pokus$skupina,
+    ref = "kontrola"
+  )
+```
+
+::: {.takeaway-strip .fragment}
+Kontrolní skupinu vytváří design studie. Reference pouze zpřehlední otázku.
+:::
+
+## Fit modelu
+
+```{r}
+#| label: vytvorit-fit-dvou-skupin
+#| include: false
+data_two_plot <-
+  data_penguins_two |>
+  dplyr::mutate(
+    x = ifelse(druh == "Adelie", 0, 1),
+    fitted = fitted(object = mod_dva)
+  )
+
+plot_two_fit <-
+  ggplot2::ggplot(
+    data_two_plot,
+    ggplot2::aes(x = x, y = hmotnost_tela_g, color = druh)
+  ) +
+  ggbeeswarm::geom_quasirandom(width = 0.12, alpha = 0.34, size = 2.2) +
+  ggplot2::geom_segment(
+    data = data.frame(
+      x = c(-0.2, 0.8), xend = c(0.2, 1.2),
+      y = c(coef_dva[[1]], sum(coef_dva)),
+      yend = c(coef_dva[[1]], sum(coef_dva)),
+      druh = factor(c("Adelie", "Gentoo"), levels = levels(data_penguins_two$druh))
+    ),
+    ggplot2::aes(x = x, xend = xend, y = y, yend = yend, color = druh),
+    linewidth = 2,
+    inherit.aes = FALSE
+  ) +
+  ggplot2::scale_color_manual(values = barvy_druhu, guide = "none") +
+  ggplot2::scale_x_continuous(
+    breaks = c(0, 1),
+    labels = c("Adélie (0)", "Gentoo (1)"),
+    limits = c(-0.35, 1.35)
+  ) +
+  ggplot2::labs(x = NULL, y = "Hmotnost (g)") +
+  theme_biostat(base_size = 18) +
+  ggview::canvas(width = 1500, height = 760, units = "px")
+
+ggview::save_ggplot(
+  plot = plot_two_fit,
+  file = here::here(path_materials, "two_group_fitted_means.png")
+)
+```
+
+```{r}
+#| label: zobrazit-fit-dvou-skupin
+#| echo: false
+#| out-width: "75%"
+include_local_figure("two_group_fitted_means.png")
+```
+
+::: {.takeaway-strip}
+Každý tučňák dostane jako fit průměr svého druhu.
+:::
+
+## Reziduum je stále vzdálenost od predikce
+
+```{r}
+#| label: vytvorit-graf-residui
+#| include: false
+set.seed(6061)
+data_residual_plot <-
+  data_two_plot |>
+  dplyr::group_by(druh) |>
+  dplyr::slice_sample(n = 18) |>
+  dplyr::ungroup() |>
+  dplyr::mutate(
+    xj = x + runif(
+      n = dplyr::n(),
+      min = -0.12,
+      max = 0.12
+    )
+  )
+
+plot_residuals <-
+  ggplot2::ggplot(data_residual_plot) +
+  ggplot2::geom_segment(
+    ggplot2::aes(
+      x = xj, xend = xj,
+      y = fitted, yend = hmotnost_tela_g,
+      color = druh
+    ),
+    alpha = 0.5,
+    linewidth = 0.7
+  ) +
+  ggplot2::geom_point(
+    ggplot2::aes(x = xj, y = hmotnost_tela_g, color = druh),
+    size = 2.8
+  ) +
+  ggplot2::geom_segment(
+    data = data.frame(
+      x = c(-0.2, 0.8), xend = c(0.2, 1.2),
+      y = c(coef_dva[[1]], sum(coef_dva)),
+      yend = c(coef_dva[[1]], sum(coef_dva)),
+      druh = factor(c("Adelie", "Gentoo"), levels = levels(data_penguins_two$druh))
+    ),
+    ggplot2::aes(x = x, xend = xend, y = y, yend = yend, color = druh),
+    linewidth = 2,
+    inherit.aes = FALSE
+  ) +
+  ggplot2::scale_color_manual(values = barvy_druhu, guide = "none") +
+  ggplot2::scale_x_continuous(
+    breaks = c(0, 1), labels = c("Adélie", "Gentoo"), limits = c(-0.35, 1.35)
+  ) +
+  ggplot2::labs(x = NULL, y = "Hmotnost těla (g)") +
+  theme_biostat(base_size = 18) +
+  ggview::canvas(width = 1500, height = 760, units = "px")
+
+ggview::save_ggplot(
+  plot = plot_residuals,
+  file = here::here(path_materials, "two_group_residuals.png")
+)
+```
+
+```{r}
+#| label: zobrazit-graf-residui
+#| echo: false
+#| out-width: "79%"
+include_local_figure("two_group_residuals.png")
+```
+
+::: {.takeaway-strip}
+Jiný tvar prediktoru, stejná definice rezidua.
+:::
+
+## Jak přesně jsme odhadli rozdíl?
+
+```{r}
+#| label: vytvorit-interval-dvou-skupin
+#| include: false
+ci_dva <- confint(object = mod_dva)["druhGentoo", ]
+ci_plot_data <- data.frame(
+  odhad = coef_dva[["druhGentoo"]],
+  dolni = ci_dva[[1]],
+  horni = ci_dva[[2]],
+  srovnani = "Gentoo − Adélie"
+)
+
+plot_two_ci <-
+  ggplot2::ggplot(
+    ci_plot_data,
+    ggplot2::aes(y = srovnani, x = odhad, xmin = dolni, xmax = horni)
+  ) +
+  ggplot2::geom_vline(xintercept = 0, linetype = "dashed", color = biostat_cols[["grey_olive"]]) +
+  ggplot2::geom_errorbarh(height = 0.12, linewidth = 2, color = biostat_cols[["orange"]]) +
+  ggplot2::geom_point(size = 6, color = biostat_cols[["indigo_velvet"]]) +
+  ggplot2::labs(x = "Rozdíl hmotnosti (g)", y = NULL) +
+  ggplot2::scale_x_continuous(
+    limits = c(-100, 1650),
+    breaks = c(0, 750, 1500)
+  ) +
+  theme_biostat(base_size = 20) +
+  ggview::canvas(width = 1500, height = 560, units = "px")
+
+ggview::save_ggplot(
+  plot = plot_two_ci,
+  file = here::here(path_materials, "two_group_difference_ci.png")
+)
+```
+
+```{r}
+#| label: zobrazit-interval-dvou-skupin
+#| echo: false
+#| out-width: "85%"
+include_local_figure("two_group_difference_ci.png")
+```
+
+::: {.text-size-larger .text-center}
+Odhad: [**+`r format_whole_number(coef_dva[["druhGentoo"]])` g**]{.text-hgl-indigo_velvet}
+
+95% CI: [`r format_whole_number(ci_dva[[1]])` až `r format_whole_number(ci_dva[[2]])` g]{.text-hgl-orange}
+:::
+
+## Statistický test (T-test)
+
+```{r}
+#| label: pripravit-t-statistiku
+#| include: false
+tab_coef_dva <- summary(mod_dva)$coefficients
+t_dva <- unname(tab_coef_dva["druhGentoo", "t value"])
+```
+<br>
+
+::: {.text-size-larger .text-center}
+$$
+\text{nulová hypotéza: průměr Gentoo minus průměr Adélie}
+= 0\ \mathrm{g}
+$$
+:::
+
+<br>
+
+::: {.panel-result .fragment}
+[$t$-statistika]{.panel-title}
+
+Vzdálenost v jednotkách standardní chyby (SE) = rozdíl mezi pozorovaným a nulovým nulovým rozdílem ÷ standardní chyba (SE) odhadu rozdílu.
+
+`r formatC(t_dva, format = "f", digits = 2, decimal.mark = ",")`
+:::
+
+<br>
+
+::: {.takeaway-strip .fragment}
+Pro dvě skupiny dává tento model stejnou testovou otázku jako klasický dvouvýběrový t-test se společným rozptylem.
+:::
+
+## Kde leží naše $t$ v nulovém rozdělení?
+
+```{r}
+#| label: vytvorit-ukazku-t-rozdeleni
+#| include: false
+df_t <- df.residual(object = mod_dva)
+p_dva <- 2 * stats::pt(q = -abs(t_dva), df = df_t)
+p_label_t <- format.pval(p_dva, digits = 2, eps = 0.001)
+p_label_t <- gsub(pattern = "\\.", replacement = ",", x = p_label_t)
+t_limit_observed <- ceiling(abs(t_dva) * 1.08)
+
+t_distribution <-
+  dplyr::bind_rows(
+    data.frame(
+      panel = "Tvar nulového t-rozdělení",
+      t = seq(-4.5, 4.5, length.out = 1000)
+    ),
+    data.frame(
+      panel = "Pozorované t na celé ose",
+      t = seq(-t_limit_observed, t_limit_observed, length.out = 1800)
+    )
+  ) |>
+  dplyr::mutate(
+    panel = factor(
+      panel,
+      levels = c(
+        "Tvar nulového t-rozdělení",
+        "Pozorované t na celé ose"
+      )
+    ),
+    hustota = stats::dt(x = t, df = df_t),
+    ocas = ifelse(
+      panel == "Pozorované t na celé ose" & abs(t) >= abs(t_dva),
+      "p-hodnota",
+      "střed"
+    ),
+    strana_ocasu = ifelse(t < 0, "levý ocas", "pravý ocas")
+  )
+
+t_lines <- data.frame(
+  panel = factor(
+    rep("Pozorované t na celé ose", 2),
+    levels = levels(t_distribution$panel)
+  ),
+  x = c(-abs(t_dva), abs(t_dva))
+)
+
+t_annotations <- data.frame(
+  panel = factor(
+    c("Tvar nulového t-rozdělení", "Pozorované t na celé ose"),
+    levels = levels(t_distribution$panel)
+  ),
+  x = c(0, 0),
+  y = c(0.35, 0.35),
+  label = c(
+    "nulové rozdělení\nkolem 0",
+    paste0(
+      "pozorované |t| = ",
+      format(round(abs(t_dva), 2), decimal.mark = ","),
+      "\np ",
+      p_label_t
+    )
+  )
+)
+
+plot_t_distribution <-
+  ggplot2::ggplot(t_distribution, ggplot2::aes(x = t, y = hustota)) +
+  ggplot2::geom_area(
+    data = dplyr::filter(t_distribution, ocas == "p-hodnota"),
+    ggplot2::aes(fill = ocas, group = strana_ocasu),
+    alpha = 0.68
+  ) +
+  ggplot2::geom_line(linewidth = 1.2, color = biostat_cols[["graphite"]]) +
+  ggplot2::geom_vline(
+    data = t_lines,
+    ggplot2::aes(xintercept = x),
+    color = biostat_cols[["indigo_velvet"]],
+    linewidth = 1.25,
+    linetype = "dashed"
+  ) +
+  ggplot2::geom_label(
+    data = t_annotations,
+    ggplot2::aes(x = x, y = y, label = label),
+    inherit.aes = FALSE,
+    size = 4.8,
+    label.size = 0,
+    fill = "white",
+    color = biostat_cols[["graphite"]]
+  ) +
+  ggplot2::facet_wrap(~ panel, scales = "free_x", nrow = 1) +
+  ggplot2::scale_fill_manual(
+    values = c("p-hodnota" = biostat_cols[["orange"]]),
+    guide = "none"
+  ) +
+  ggplot2::scale_y_continuous(limits = c(0, 0.42), breaks = NULL) +
+  ggplot2::labs(x = "Hodnota t při platnosti nulové hypotézy", y = NULL) +
+  theme_biostat(base_size = 16) +
+  ggview::canvas(width = 1600, height = 700, units = "px")
+
+ggview::save_ggplot(
+  plot = plot_t_distribution,
+  file = here::here(path_materials, "t_distribution_showcase.png")
+)
+```
+
+```{r}
+#| label: zobrazit-ukazku-t-rozdeleni
+#| echo: false
+#| out-width: "92%"
+include_local_figure("t_distribution_showcase.png")
+```
+
+::: {.takeaway-strip}
+$p$-hodnota `r p_label_t` je plocha v obou ocasech ještě dál od nuly než pozorované $t$.
+:::
+
+## Výsledek v R
+
+<br>
+
+::: {.text-size-larger}
+```{r}
+#| label: vypis-fit-dvou-skupin
+#| echo: true
+coef(summary(mod_dva))
+```
+:::
+
+## Co můžeme říci biologicky?
+
+<br>
+
+::: {.panel-result}
+[Výsledek]{.panel-title}
+
+V tomto souboru jsou tučňáci Gentoo v průměru o přibližně
+[**`r format_whole_number(coef_dva[["druhGentoo"]])` g těžší**]{.text-hgl-indigo_velvet}
+než tučňáci Adélie (95% CI `r format_whole_number(ci_dva[[1]])` až `r format_whole_number(ci_dva[[2]])` g).
+:::
+
+<br>
+
+::: {.fragment .panel-warning}
+[Rozsah závěru]{.panel-title}
+
+Jde o asociaci v pozorovaných datech.
+:::
+
+# Více skupin
+
+## Co se stane, když přidáme třetí druh?
+
+<br>
+
+::: {.panel-olive}
+[Předpověď]{.panel-title}
+
+Kolik koeficientů potřebujeme pro tři skupinové průměry?
+:::
+
+<br>
+
+::: columns
+::: {.column width="31%"}
+::: {.card-indigo}
+[A]{.card-title}
+
+Jeden
+:::
+:::
+::: {.column width="31%"}
+::: {.card-indigo}
+[B]{.card-title}
+
+Dva
+:::
+:::
+::: {.column width="31%"}
+::: {.card-indigo .rn-circle-orange .fragment}
+[C]{.card-title}
+
+Tři
+:::
+:::
+:::
+
+<br>
+
+::: {.fragment .text-center}
+tři průměry = jeden referenční (intercept) + dva rozdíly .
+:::
+
+## Tři druhy, tři průměry
+
+```{r}
+#| label: vytvorit-prumery-tri-skupin
+#| include: false
+plot_three_means <-
+  ggplot2::ggplot(
+    data_penguins,
+    ggplot2::aes(x = druh, y = hmotnost_tela_g, color = druh)
+  ) +
+  ggbeeswarm::geom_quasirandom(width = 0.2, alpha = 0.28, size = 2.1) +
+  ggplot2::geom_point(
+    data = prumery_druhu,
+    ggplot2::aes(y = prumer),
+    size = 6,
+    color = biostat_cols[["white"]],
+  ) +
+  ggplot2::scale_color_manual(values = barvy_druhu, guide = "none") +
+  ggplot2::scale_x_discrete(labels = popisky_druhu) +
+  ggplot2::labs(x = NULL, y = "Hmotnost těla (g)") +
+  theme_biostat(base_size = 18) +
+  ggview::canvas(width = 1500, height = 760, units = "px")
+
+ggview::save_ggplot(
+  plot = plot_three_means,
+  file = here::here(path_materials, "three_species_means.png")
+)
+```
+
+```{r}
+#| label: zobrazit-prumery-tri-skupin
+#| echo: false
+#| out-width: "80%"
+include_local_figure("three_species_means.png")
+```
+
+::: {.takeaway-strip .fragment}
+Adélie a Chinstrap mají podobné průměry; Gentoo je zřetelně výše.
+:::
+
+## Tři průměry potřebují dva přepínače 
+
+<br>
+
+| Druh | Referenční průměr Adélie | Je Chinstrap?  | Je Gentoo? |
+|---|:---:|:---:|:---:|
+| Adélie | 1 | 0 | 0 |
+| Chinstrap | 1 | 1 | 0 |
+| Gentoo | 1 | 0 | 1 |
+
+<br>
+
+::: {.takeaway-strip}
+Každý řádek říká, které rozdíly se mají přičíst k průměru Adélie.
+:::
+
+## Tři průměry potřebují dva přepínače 
+
+<br>
+<br>
+
+::: {.text-size-larger .text-center}
+$$
+\begin{aligned}
+\text{odhadnutá hmotnost}
+={}& \text{průměr Adélie} \\
+&+ \text{přepínač Chinstrap}
+\times \text{rozdíl Chinstrap minus Adélie} \\
+&+ \text{přepínač Gentoo}
+\times \text{rozdíl Gentoo minus Adélie}
+\end{aligned}
+$$
+:::
+
+## Každý druh zapne jinou kombinaci
+
+```{r}
+#| label: pripravit-hodnoty-tri-skupin
+#| include: false
+mean_chinstrap <-
+  prumery_druhu |>
+  dplyr::filter(druh == "Chinstrap") |>
+  dplyr::pull(prumer)
+
+difference_chinstrap_adelie <- mean_chinstrap - mean_adelie
+```
+
+::: {.text-center}
+**Základ:** průměr Adélie = `r format_whole_number(mean_adelie)` g
+
+**Rozdíly:** Chinstrap − Adélie = `r format_whole_number(difference_chinstrap_adelie)` g;
+Gentoo − Adélie = `r format_whole_number(difference_gentoo_adelie)` g
+:::
+
+::: {.card-indigo .fragment}
+[Adélie]{.card-title}
+
+`r format_whole_number(mean_adelie)` g + 0 × `r format_whole_number(difference_chinstrap_adelie)` g
++ 0 × `r format_whole_number(difference_gentoo_adelie)` g = **`r format_whole_number(mean_adelie)` g**
+:::
+
+::: {.card-amethyst .fragment}
+[Chinstrap]{.card-title}
+
+`r format_whole_number(mean_adelie)` g + 1 × `r format_whole_number(difference_chinstrap_adelie)` g
++ 0 × `r format_whole_number(difference_gentoo_adelie)` g = **`r format_whole_number(mean_chinstrap)` g**
+:::
+
+::: {.card-orange .fragment}
+[Gentoo]{.card-title}
+
+`r format_whole_number(mean_adelie)` g + 0 × `r format_whole_number(difference_chinstrap_adelie)` g
++ 1 × `r format_whole_number(difference_gentoo_adelie)` g = **`r format_whole_number(mean_gentoo)` g**
+:::
+
+## Jedna rovnice popíše všechny tři druhy
+
+<br>
+
+::: {.text-center}
+$$
+\begin{aligned}
+\text{odhadnutá hmotnost}
+={}& \text{průměr Adélie} \\
+&+ \text{přepínač Chinstrap}
+\times \text{rozdíl Chinstrap minus Adélie} \\
+&+ \text{přepínač Gentoo}
+\times \text{rozdíl Gentoo minus Adélie}
+\end{aligned}
+$$
+:::
+
+<br>
+
+::: {.text-size-larger .text-center .fragment}
+$$
+\widehat y_i = \widehat\beta_0
++ \widehat\beta_1 I_{\mathrm{Chinstrap},i}
++ \widehat\beta_2 I_{\mathrm{Gentoo},i}
+$$
+:::
+
+<br>
+
+::: {.panel-note .fragment}
+$I$ je přepínač pro konkrétního tučňáka $i$.
+$\widehat\beta_0$ je průměr Adélie;
+$\widehat\beta_1$ a $\widehat\beta_2$ jsou rozdíly vůči Adélie.
+:::
+
+<br>
+
+::: {.takeaway-strip .fragment}
+Pro tři skupiny potřebujeme jeden referenční průměr a dva rozdílové přepínače.
+:::
+
+## Jedna otázka zůstala otevřená
+
+::: {.text-size-larger .text-center .fragment}
+Liší se [alespoň jeden skupinový průměr]{.text-hgl-indigo_velvet}
+od ostatních?
+:::
+
+<br>
+
+::: {.panel-question .fragment}
+Nechceme zatím tři samostatné testy. Chceme jednu celkovou otázku.
+:::
+
+<br>
+
+::: {.fragment .takeaway-strip .text-center}
+Porovnáme model s jedním průměrem (nulový) a model se třemi průměry.
+:::
+
+## Jeden nebo tři?
+
+```{r}
+#| label: zobrazit-krmne-praporky
+#| echo: false
+#| out-width: "90%"
+include_local_figure("one_vs_three_feeding_flags.png")
+```
+
+::: columns
+::: {.column width="48%"}
+[**nulový model**]{.text-hgl-graphite}: jeden společný průměr
+:::
+::: {.column width="48%"}
+[**skupinový model**]{.text-hgl-indigo_velvet}: jeden průměr pro každý druh
+:::
+:::
+
+## F-test porovnává rozdíly průměrů s variabilitou uvnitř skupin
+
+<br>
+
+::: {.text-size-larger .text-center}
+Testová statistika porovnává **variabilitu mezi skupinovými průměry**
+s **variabilitou jedinců uvnitř skupin**.
+:::
+
+<br>
+
+::: {.text-center .text-color-grey_olive}
+Čitatel roste, když se vzdalují průměry. Jmenovatel roste, když se více rozptylují jedinci.
+:::
+
+## Součty čtverců ve třech skupinách
+
+```{r}
+#| label: vytvorit-priklad-ss-tri-skupin
+#| include: false
+data_ss_three <-
+  data.frame(
+    druh = factor(
+      rep(c("Adelie", "Chinstrap", "Gentoo"), each = 3),
+      levels = c("Adelie", "Chinstrap", "Gentoo")
+    ),
+    hmotnost_g = c(
+      3300, 3500, 4000,
+      4000, 4500, 4700,
+      4300, 5100, 5300
+    ),
+    posun_x = rep(c(-0.18, 0, 0.18), times = 3)
+  ) |>
+  dplyr::group_by(druh) |>
+  dplyr::mutate(
+    prumer_g = mean(hmotnost_g),
+    residuum_g = hmotnost_g - prumer_g,
+    ctverec_uvnitr_g2 = residuum_g^2,
+    x = dplyr::cur_group_id() + posun_x
+  ) |>
+  dplyr::ungroup()
+
+means_ss_three <-
+  data_ss_three |>
+  dplyr::summarise(
+    prumer_g = dplyr::first(prumer_g),
+    n = dplyr::n(),
+    .by = druh
+  ) |>
+  dplyr::mutate(
+    x = dplyr::row_number(),
+    xmin = x - 0.30,
+    xmax = x + 0.30
+  )
+
+ss_three_within <- sum(data_ss_three$ctverec_uvnitr_g2)
+
+plot_ss_three_within <-
+  ggplot2::ggplot(data_ss_three) +
+  ggplot2::geom_segment(
+    ggplot2::aes(
+      x = x, xend = x,
+      y = prumer_g, yend = hmotnost_g
+    ),
+    color = biostat_cols[["orange"]],
+    linewidth = 1.4
+  ) +
+  ggplot2::geom_segment(
+    data = means_ss_three,
+    ggplot2::aes(
+      x = xmin, xend = xmax,
+      y = prumer_g, yend = prumer_g,
+      color = druh
+    ),
+    linewidth = 3,
+    inherit.aes = FALSE
+  ) +
+  ggplot2::geom_point(
+    ggplot2::aes(x = x, y = hmotnost_g, fill = druh),
+    shape = 21,
+    size = 4.8,
+    stroke = 1.4,
+    color = "white"
+  ) +
+  ggplot2::scale_color_manual(values = barvy_druhu, guide = "none") +
+  ggplot2::scale_fill_manual(values = barvy_druhu, guide = "none") +
+  ggplot2::scale_x_continuous(
+    breaks = 1:3,
+    labels = unname(popisky_druhu),
+    limits = c(0.55, 3.45)
+  ) +
+  ggplot2::scale_y_continuous(
+    breaks = seq(3400, 5200, 400),
+    limits = c(3150, 5350)
+  ) +
+  ggplot2::labs(x = NULL, y = "Ilustrační hmotnost (g)") +
+  theme_biostat(base_size = 17) +
+  ggview::canvas(width = 1500, height = 660, units = "px")
+
+ggview::save_ggplot(
+  plot = plot_ss_three_within,
+  file = here::here(path_materials, "ss_three_within.png")
+)
+```
+
+::: {.text-size-larger .text-center}
+$$
+\begin{aligned}
+\text{součet uvnitř skupin}
+&= \text{čtverce vzdáleností jedinců} \\
+&\quad \text{od vlastního skupinového průměru}
+\end{aligned}
+$$
+:::
+
+<br>
+
+::: columns
+::: {.column width="43%"}
+```{r}
+#| label: zobrazit-ss-uvnitr-tri-skupin
+#| echo: false
+#| out-width: "100%"
+include_local_figure("ss_three_within.png")
+```
+:::
+::: {.column width="57%"}
+::: {.text-size-smaller .text-center}
+$$
+\begin{aligned}
+\mathrm{SS}_{\text{Adélie}} &= (-300)^2 + (-100)^2 + 400^2 = 260\,000 \\
+\mathrm{SS}_{\text{Chinstrap}} &= (-400)^2 + 100^2 + 300^2 = 260\,000 \\
+\mathrm{SS}_{\text{Gentoo}} &= (-600)^2 + 200^2 + 400^2 = 560\,000 \\
+\mathrm{SS}_{\text{uvnitř}} &= 260\,000 + 260\,000 + 560\,000 \\
+&= 1\,080\,000\ \mathrm{g}^2
+\end{aligned}
+$$
+:::
+:::
+:::
+
+## Skupinové průměry měří rozdíl mezi skupinami
+
+```{r}
+#| label: vytvorit-ss-mezi-tremi-skupinami
+#| include: false
+grand_mean_ss_three <- mean(data_ss_three$hmotnost_g)
+
+means_ss_three <-
+  means_ss_three |>
+  dplyr::mutate(
+    odchylka_g = prumer_g - grand_mean_ss_three,
+    ctverec_mezi_g2 = n * odchylka_g^2
+  )
+
+ss_three_between <- sum(means_ss_three$ctverec_mezi_g2)
+
+plot_ss_three_between <-
+  ggplot2::ggplot(means_ss_three) +
+  ggplot2::geom_hline(
+    yintercept = grand_mean_ss_three,
+    linewidth = 1.4,
+    linetype = "dashed",
+    color = biostat_cols[["grey_olive"]]
+  ) +
+  ggplot2::geom_segment(
+    ggplot2::aes(
+      x = x, xend = x,
+      y = grand_mean_ss_three, yend = prumer_g
+    ),
+    linewidth = 2,
+    color = biostat_cols[["indigo_velvet"]]
+  ) +
+  ggplot2::geom_point(
+    ggplot2::aes(x = x, y = prumer_g, fill = druh),
+    shape = 21,
+    size = 7,
+    stroke = 1.5,
+    color = "white"
+  ) +
+  ggplot2::scale_fill_manual(values = barvy_druhu, guide = "none") +
+  ggplot2::scale_x_continuous(
+    breaks = 1:3,
+    labels = unname(popisky_druhu),
+    limits = c(0.55, 3.45)
+  ) +
+  ggplot2::scale_y_continuous(
+    breaks = seq(3500, 5000, 300),
+    limits = c(3450, 5100)
+  ) +
+  ggplot2::labs(x = NULL, y = "Průměr (g)") +
+  theme_biostat(base_size = 17) +
+  ggplot2::theme(plot.margin = ggplot2::margin(12, 22, 46, 28)) +
+  ggview::canvas(width = 1500, height = 660, units = "px")
+
+ggview::save_ggplot(
+  plot = plot_ss_three_between,
+  file = here::here(path_materials, "ss_three_between.png")
+)
+```
+
+::: {.text-size-larger .text-center}
+$$
+\begin{aligned}
+\text{součet mezi skupinami}
+&= \text{velikosti skupin} \times \text{čtverce vzdáleností} \\
+&\quad \text{skupinových průměrů od společného průměru}
+\end{aligned}
+$$
+:::
+
+```{r}
+#| label: zobrazit-ss-mezi-tremi-skupinami
+#| echo: false
+#| out-width: "68%"
+include_local_figure("ss_three_between.png")
+```
+
+::: {.text-size-larger .text-center}
+$$
+`r means_ss_three$n[[1]]` \times (`r format_whole_number_for_math(means_ss_three$odchylka_g[[1]])`)^2
++ `r means_ss_three$n[[2]]` \times (`r format_whole_number_for_math(means_ss_three$odchylka_g[[2]])`)^2
++ `r means_ss_three$n[[3]]` \times (`r format_whole_number_for_math(means_ss_three$odchylka_g[[3]])`)^2
+= `r format_whole_number_for_math(ss_three_between)`\ \mathrm{g}^2
+$$
+:::
+
+## Celkový součet má dvě viditelné části
+
+```{r}
+#| label: vytvorit-rozklad-ss-tri-skupin
+#| include: false
+ss_three_total <- sum((data_ss_three$hmotnost_g - grand_mean_ss_three)^2)
+
+data_ss_two_parts <-
+  data.frame(
+    cast = factor(
+      c("Mezi skupinami", "Uvnitř skupin"),
+      levels = c("Mezi skupinami", "Uvnitř skupin")
+    ),
+    xmin = c(0, ss_three_between),
+    xmax = c(ss_three_between, ss_three_total),
+    ss = c(ss_three_between, ss_three_within)
+  ) |>
+  dplyr::mutate(
+    label_x = (xmin + xmax) / 2,
+    label = paste0(c("mezi skupinami", "uvnitř skupin"), "\n", format_whole_number(ss), " g²")
+  )
+
+plot_ss_two_parts <-
+  ggplot2::ggplot(data_ss_two_parts) +
+  ggplot2::geom_rect(
+    ggplot2::aes(xmin = xmin, xmax = xmax, ymin = 0.55, ymax = 1.45, fill = cast)
+  ) +
+  ggplot2::geom_text(
+    ggplot2::aes(x = label_x, y = 1, label = label),
+    size = 4.4,
+    lineheight = 0.95,
+    color = "white"
+  ) +
+  ggplot2::scale_fill_manual(
+    values = c(
+      "Mezi skupinami" = biostat_cols[["indigo_velvet"]],
+      "Uvnitř skupin" = biostat_cols[["orange"]]
+    ),
+    guide = "none"
+  ) +
+  ggplot2::scale_x_continuous(
+    labels = scales::label_number(
+      scale = 1e-6, suffix = " mil.", decimal.mark = ","
+    ),
+    limits = c(0, ss_three_total),
+    expand = ggplot2::expansion(mult = c(0, 0))
+  ) +
+  ggplot2::scale_y_continuous(limits = c(0.45, 1.55), breaks = NULL) +
+  ggplot2::labs(x = "Součet čtverců (g²)", y = NULL) +
+  theme_biostat(base_size = 16) +
+  ggplot2::theme(plot.margin = ggplot2::margin(18, 34, 18, 24)) +
+  ggview::canvas(width = 1500, height = 500, units = "px")
+
+ggview::save_ggplot(
+  plot = plot_ss_two_parts,
+  file = here::here(path_materials, "ss_two_decomposition.png")
+)
+```
+
+<br>
+
+::: {.text-size-larger .text-center}
+$$
+\text{celkový součet čtverců}
+= \text{součet mezi skupinami} + \text{součet uvnitř skupin}
+$$
+:::
+
+<br>
+
+```{r}
+#| label: zobrazit-rozklad-ss-tri-skupin
+#| echo: false
+#| out-width: "65%"
+include_local_figure("ss_two_decomposition.png")
+```
+
+## Dělením stupni volnosti získáme průměrné čtverce
+
+```{r}
+#| label: vypocitat-ms-tri-skupin
+#| include: false
+df_three_between <- nlevels(data_ss_three$druh) - 1
+df_three_within <- nrow(data_ss_three) - nlevels(data_ss_three$druh)
+
+ms_three_between <- ss_three_between / df_three_between
+ms_three_within <- ss_three_within / df_three_within
+f_three_example <- ms_three_between / ms_three_within
+```
+
+::: {.text-size-larger .text-center}
+$$
+MS = \frac{SS}{\text{stupně volnosti}}
+$$
+:::
+
+<br>
+
+::: columns
+::: {.column width="48%"}
+::: {.panel-result}
+[Mezi skupinami]{.panel-title}
+
+$$
+df = 3 - 1 = `r df_three_between`
+$$
+
+$$
+MS_{\mathrm{mezi}}
+=
+\frac{`r format_whole_number_for_math(ss_three_between)`}{`r df_three_between`}
+=
+`r format_whole_number_for_math(ms_three_between)`\ \mathrm{g}^2
+$$
+:::
+:::
+::: {.column width="48%"}
+::: {.panel-note}
+[Uvnitř skupin]{.panel-title}
+
+$$
+df = 9 - 3 = `r df_three_within`
+$$
+
+$$
+MS_{\mathrm{uvnitř}}
+=
+\frac{`r format_whole_number_for_math(ss_three_within)`}{`r df_three_within`}
+=
+`r format_whole_number_for_math(ms_three_within)`\ \mathrm{g}^2
+$$
+:::
+:::
+:::
+
+::: {.takeaway-strip}
+Oba součty čtverců přepočítáme na variabilitu připadající na jeden stupeň volnosti.
+:::
+
+## Poměr průměrných čtverců je $F$
+
+<br>
+
+::: {.text-size-larger .text-center}
+$$
+F
+=
+\frac{MS_{\mathrm{mezi}}}{MS_{\mathrm{uvnitř}}}
+=
+\frac{`r format_whole_number_for_math(ms_three_between)`}{`r format_whole_number_for_math(ms_three_within)`}
+=
+`r format(round(f_three_example, 2), decimal.mark = "," )`
+$$
+:::
+
+<br>
+
+::: columns
+::: {.column width="48%"}
+::: {.panel-result}
+[$MS_{\mathrm{mezi}}$]{.panel-title}
+
+variabilita připadající na jeden stupeň volnosti mezi skupinami
+:::
+:::
+::: {.column width="48%"}
+::: {.panel-note}
+[$MS_{\mathrm{uvnitř}}$]{.panel-title}
+
+variabilita připadající na jeden stupeň volnosti uvnitř skupin
+:::
+:::
+:::
+
+## Analýza se jmenuje ANOVA
+
+<br>
+
+::: {.text-size-larger .text-center}
+[ANOVA]{.text-hgl-indigo_velvet} = analýza rozptylu
+:::
+
+<br>
+
+::: {.panel-note .fragment}
+Název zdůrazňuje mechanismus: rozdíly mezi průměry posuzujeme pomocí rozptylu uvnitř skupin.
+:::
+
+<br>
+
+::: {.fragment .takeaway-strip .text-center .fragment}
+Model je stále `lm()`. ANOVA je test tohoto modelu.
+:::
+
+## Stejný vnitřní rozptyl, jiný rozdíl
+
+```{r}
+#| label: vytvorit-scenare-stejne-sd
+#| include: false
+fixed_sd <-
+  tidyr::crossing(
+    gap = c(250, 500, 1000),
+    skupina = c("A", "B"),
+    i = seq_along(z_pattern)
+  ) |>
+  dplyr::mutate(
+    prumer = 4000 + ifelse(skupina == "A", -gap / 2, gap / 2),
+    hodnota = prumer + 500 * z_pattern[i],
+    scenar = factor(
+      paste0("Rozdíl = ", gap, " g"),
+      levels = paste0("Rozdíl = ", c(250, 500, 1000), " g")
+    )
+  )
+
+plot_fixed_sd <-
+  ggplot2::ggplot(
+    fixed_sd,
+    ggplot2::aes(x = skupina, y = hodnota, color = skupina)
+  ) +
+  ggbeeswarm::geom_quasirandom(width = 0.12, size = 3, alpha = 0.75) +
+  ggplot2::stat_summary(fun = mean, geom = "crossbar", width = 0.55, linewidth = 1.1) +
+  ggplot2::facet_wrap(~ scenar, nrow = 1) +
+  ggplot2::scale_color_manual(
+    values = c("A" = biostat_cols[["indigo_velvet"]], "B" = biostat_cols[["orange"]]),
+    guide = "none"
+  ) +
+  ggplot2::scale_y_continuous(limits = c(2600, 5400), breaks = seq(3000, 5000, 1000)) +
+  ggplot2::labs(x = NULL, y = "Ilustrační hmotnost (g)") +
+  theme_biostat(base_size = 15) +
+  ggview::canvas(width = 1600, height = 690, units = "px")
+
+ggview::save_ggplot(
+  plot = plot_fixed_sd,
+  file = here::here(path_materials, "fixed_sd_varying_gap.png")
+)
+```
+
+::: {.panel-olive}
+[Pořadí panelů]{.panel-title}
+
+Seřaďte panely od nejslabšího po nejsilnější důkaz proti shodným průměrům.
+:::
+
+```{r}
+#| label: zobrazit-scenare-stejne-sd
+#| echo: false
+#| out-width: "94%"
+include_local_figure("fixed_sd_varying_gap.png")
+```
+
+
+## Test v R
+
+```{r}
+#| label: anova-viditelne
+#| echo: true
+#| eval: true
+#| output: false
+mod_tri <- lm(
+  formula = hmotnost_tela_g ~ druh,
+  data = data_penguins
+)
+
+anova(object = mod_tri)
+```
+
+```{r}
+#| label: pripravit-vysledek-anova
+#| include: false
+tab_anova <- anova(object = mod_tri)
+f_anova <- unname(tab_anova["druh", "F value"])
+p_anova <- unname(tab_anova["druh", "Pr(>F)"])
+df_anova <- unname(tab_anova["druh", "Df"])
+df_residual <- unname(tab_anova["Residuals", "Df"])
+```
+
+<br>
+
+| Zdroj variability | df | $F$ | $p$-hodnota |
+|---|---:|---:|---:|
+| mezi druhy | `r df_anova` | `r format(round(f_anova, 1), decimal.mark = ",")` | < 0,001 |
+| uvnitř druhů | `r df_residual` | — | — |
+
+<br>
+
+::: {.takeaway-strip .fragment}
+$F = `r formatC(f_anova, format = "f", digits = 1, decimal.mark = ",")`$, $p$ `r if (p_anova < 0.001) "< 0,001" else paste("=", round(p_anova, 3))`:
+data odporují shodě všech tří průměrů.
+:::
+
+## Kde leží naše $F$ v nulovém rozdělení?
+
+```{r}
+#| label: vytvorit-ukazku-f-rozdeleni
+#| include: false
+f_limit_observed <- ceiling(f_anova * 1.04)
+
+f_distribution <-
+  dplyr::bind_rows(
+    data.frame(
+      panel = "Tvar nulového F-rozdělení",
+      f = seq(0, 8, length.out = 1200)
+    ),
+    data.frame(
+      panel = "Pozorované F na celé ose",
+      f = seq(0, f_limit_observed, length.out = 2400)
+    )
+  ) |>
+  dplyr::mutate(
+    panel = factor(
+      panel,
+      levels = c(
+        "Tvar nulového F-rozdělení",
+        "Pozorované F na celé ose"
+      )
+    ),
+    hustota = stats::df(x = f, df1 = df_anova, df2 = df_residual),
+    ocas = panel == "Pozorované F na celé ose" & f >= f_anova
+  )
+
+f_line <- data.frame(
+  panel = factor(
+    "Pozorované F na celé ose",
+    levels = levels(f_distribution$panel)
+  ),
+  f = f_anova
+)
+
+f_annotations <- data.frame(
+  panel = factor(
+    c("Tvar nulového F-rozdělení", "Pozorované F na celé ose"),
+    levels = levels(f_distribution$panel)
+  ),
+  x = c(3.6, f_anova * 0.55),
+  y = c(0.72, 0.72),
+  label = c(
+    "velké hodnoty F\nleží v pravém ocasu",
+    paste0(
+      "pozorované F = ",
+      format(round(f_anova, 1), decimal.mark = ","),
+      "\np < 0,001"
+    )
+  )
+)
+
+plot_f_distribution <-
+  ggplot2::ggplot(f_distribution, ggplot2::aes(x = f, y = hustota)) +
+  ggplot2::geom_area(
+    data = dplyr::filter(f_distribution, ocas),
+    fill = biostat_cols[["orange"]],
+    alpha = 0.75
+  ) +
+  ggplot2::geom_line(linewidth = 1.25, color = biostat_cols[["graphite"]]) +
+  ggplot2::geom_vline(
+    data = f_line,
+    ggplot2::aes(xintercept = f),
+    linewidth = 1.4,
+    linetype = "dashed",
+    color = biostat_cols[["orange"]]
+  ) +
+  ggplot2::geom_label(
+    data = f_annotations,
+    ggplot2::aes(x = x, y = y, label = label),
+    inherit.aes = FALSE,
+    size = 3.9,
+    label.size = 0,
+    fill = "white",
+    color = biostat_cols[["graphite"]]
+  ) +
+  ggplot2::facet_wrap(~ panel, scales = "free_x", nrow = 1) +
+  ggplot2::scale_y_continuous(limits = c(0, 1.02), breaks = NULL) +
+  ggplot2::labs(x = "Hodnota F při platnosti nulové hypotézy", y = NULL) +
+  theme_biostat(base_size = 16) +
+  ggview::canvas(width = 1600, height = 700, units = "px")
+
+ggview::save_ggplot(
+  plot = plot_f_distribution,
+  file = here::here(path_materials, "f_distribution_showcase.png")
+)
+```
+
+```{r}
+#| label: zobrazit-ukazku-f-rozdeleni
+#| echo: false
+#| out-width: "92%"
+include_local_figure("f_distribution_showcase.png")
+```
+
+::: {.takeaway-strip}
+$p$-hodnota je plocha napravo od pozorovaného $F$; zde je tak malá, že ji v grafu téměř nevidíme.
+:::
+
+## Co nám malá $p$-hodnota říká?
+
+<br>
+
+::: {.panel-olive}
+[Hlasování]{.panel-title}
+
+Který závěr plyne přímo z celkového F-testu?
+:::
+
+<br>
+
+::: columns
+::: {.column width="31%"}
+::: {.card-indigo}
+[A]{.card-title}
+
+Všechny dvojice se liší.
+:::
+:::
+::: {.column width="31%"}
+::: {.card-indigo .rn-circle-orange .fragment}
+[B]{.card-title}
+
+Alespoň jeden průměr se liší.
+:::
+:::
+::: {.column width="31%"}
+::: {.card-indigo}
+[C]{.card-title}
+
+Gentoo je příčinou rozdílu.
+:::
+:::
+:::
+
+<br>
+
+::: {.fragment .takeaway-strip}
+Celkový test neříká, které konkrétní dvojice se liší.
+:::
+
+
+## Stejné $F$, jiný biologický rozdíl
+
+```{r}
+#| label: vytvorit-scenare-stejneho-f
+#| include: false
+same_f_cases <- data.frame(
+  gap = c(500, 1000, 1500),
+  sd = c(250, 500, 750)
+)
+
+same_f <-
+  tidyr::crossing(
+    case = seq_len(nrow(same_f_cases)),
+    skupina = c("A", "B"),
+    i = seq_along(z_pattern)
+  ) |>
+  dplyr::left_join(
+    dplyr::mutate(same_f_cases, case = dplyr::row_number()),
+    by = "case"
+  ) |>
+  dplyr::mutate(
+    prumer = 4000 + ifelse(skupina == "A", -gap / 2, gap / 2),
+    hodnota = prumer + sd * z_pattern[i],
+    scenar = factor(
+      paste0("Rozdíl ", gap, " g\nSD ", sd, " g"),
+      levels = paste0(
+        "Rozdíl ", same_f_cases$gap,
+        " g\nSD ", same_f_cases$sd, " g"
+      )
+    )
+  )
+
+plot_same_f <-
+  ggplot2::ggplot(
+    same_f,
+    ggplot2::aes(x = skupina, y = hodnota, color = skupina)
+  ) +
+  ggbeeswarm::geom_quasirandom(width = 0.12, size = 3, alpha = 0.75) +
+  ggplot2::stat_summary(fun = mean, geom = "crossbar", width = 0.55, linewidth = 1.1) +
+  ggplot2::facet_wrap(~ scenar, nrow = 1) +
+  ggplot2::scale_color_manual(
+    values = c("A" = biostat_cols[["indigo_velvet"]], "B" = biostat_cols[["orange"]]),
+    guide = "none"
+  ) +
+  ggplot2::scale_y_continuous(limits = c(1900, 6100), breaks = seq(2000, 6000, 1000)) +
+  ggplot2::labs(x = NULL, y = "Ilustrační hmotnost (g)") +
+  theme_biostat(base_size = 14) +
+  ggview::canvas(width = 1600, height = 690, units = "px")
+
+ggview::save_ggplot(
+  plot = plot_same_f,
+  file = here::here(path_materials, "same_f_different_effect.png")
+)
+```
+
+```{r}
+#| label: zobrazit-scenare-stejneho-f
+#| echo: false
+#| out-width: "94%"
+include_local_figure("same_f_different_effect.png")
+```
+
+::: {.panel-question}
+Všechny panely mají $F=20$. Jsou biologické závěry stejné?
+:::
+
+## Síla důkazu není velikost efektu
+
+<br>
+
+::: columns
+::: {.column width="48%"}
+::: {.panel-result}
+[Stejné]{.panel-title}
+
+- poměr rozdílu k šumu;
+- $F$-statistika;
+- $p$-hodnota.
+:::
+:::
+::: {.column width="48%" .fragment}
+::: {.panel-question}
+[Jiné]{.panel-title}
+
+- rozdíl v gramech;
+- biologická relevance;
+- praktický závěr.
+:::
+:::
+:::
+
+<br>
+
+::: {.takeaway-strip .fragment}
+Vždy uvádějte odhad efektu a jeho interval — ne pouze $p$-hodnotu.
+:::
+
+## Post-hoc test
+
+```{r}
+#| label: zobrazit-lupu
+#| echo: false
+#| out-width: "88%"
+include_local_figure("penguin_group_magnifying_glass.png")
+```
+
+::: {.takeaway-strip .text-center}
+ANOVA: „je někde rozdíl?“ → post-hoc: „mezi kterými dvojicemi?“
+:::
+
+## Ze stejného modelu
+
+<br>
+
+::: {.takeaway-strip .text-center .fragment}
+Post-hoc otázky čteme ze stejného fitovaného modelu. Nefitujeme tři nové modely.
+:::
+
+<br>
+
+::: columns
+::: {.column width="29%"}
+::: {.card-indigo .text-center .fragment}
+[Model]{.card-title}
+
+`mod_tri`
+:::
+:::
+::: {.column width="34%"}
+::: {.card-amethyst .text-center .fragment}
+[Odhadnuté průměry]{.card-title}
+
+`emmeans()` pro každý druh
+:::
+:::
+::: {.column width="34%"}
+::: {.card-orange .text-center .fragment}
+[3. Párové rozdíly]{.card-title}
+
+`contrast()` s Tukeyho úpravou
+:::
+:::
+:::
+
+## Post-hoc v R
+
+```{r}
+#| label: emmeans-post-hoc-viditelne
+#| echo: true
+#| eval: true
+prumery_emm <-
+  emmeans::emmeans(
+    object = mod_tri,
+    specs = ~druh
+  )
+
+post_hoc_tri <-
+  emmeans::contrast(
+    object = prumery_emm,
+    method = "revpairwise",
+    adjust = "tukey"
+  )
+```
+
+<br>
+
+::: {.takeaway-strip .fragment}
+`specs` vybírá skupinové průměry; `adjust` říká, že tři navazující otázky hodnotíme společně.
+:::
+
+## Výsledek post-hoc testu
+
+```{r}
+#| label: emmeans-post-hoc-viditelne-vysledek
+#| echo: true
+#| eval: true
+summary(post_hoc_tri)
+```
+
+## Tři rozdíly na jedné ose
+
+```{r}
+#| label: vytvorit-graf-post-hoc
+#| include: false
+post_hoc_plot <-
+  post_hoc_tri |>
+  confint() |>
+  as.data.frame() |>
+  dplyr::mutate(
+    kontrast = dplyr::recode(
+      contrast,
+      "Chinstrap - Adelie" = "Chinstrap − Adélie",
+      "Gentoo - Adelie" = "Gentoo − Adélie",
+      "Gentoo - Chinstrap" = "Gentoo − Chinstrap"
+    ),
+    kontrast = factor(
+      kontrast,
+      levels = c(
+        "Gentoo − Adélie",
+        "Gentoo − Chinstrap",
+        "Chinstrap − Adélie"
+      )
+    )
+  )
+
+plot_posthoc <-
+  ggplot2::ggplot(
+    post_hoc_plot,
+    ggplot2::aes(y = kontrast, x = estimate, xmin = lower.CL, xmax = upper.CL)
+  ) +
+  ggplot2::geom_vline(xintercept = 0, linetype = "dashed", color = biostat_cols[["grey_olive"]]) +
+  ggplot2::geom_errorbarh(height = 0.12, linewidth = 1.7, color = biostat_cols[["orange"]]) +
+  ggplot2::geom_point(size = 5.5, color = biostat_cols[["indigo_velvet"]]) +
+  ggplot2::labs(x = "Rozdíl hmotnosti (g)", y = NULL) +
+  ggplot2::scale_x_continuous(
+    breaks = c(-500, 0, 750, 1500),
+    limits = c(-500, 1750)
+  ) +
+  theme_biostat(base_size = 18) +
+  ggview::canvas(width = 1500, height = 720, units = "px")
+
+ggview::save_ggplot(
+  plot = plot_posthoc,
+  file = here::here(path_materials, "posthoc_species_intervals.png")
+)
+```
+
+```{r}
+#| label: zobrazit-graf-post-hoc
+#| echo: false
+#| out-width: "84%"
+include_local_figure("posthoc_species_intervals.png")
+```
+
+::: {.text-size-smaller .text-color-grey_olive .text-center}
+Tukeyho simultánní 95% intervaly: všechna tři porovnání jsou vyhodnocena společně.
+:::
+
+## Co jsme zjistili?
+
+<br>
+
+::: columns
+::: {.column width="48%"}
+::: {.panel-result}
+[Gentoo]{.panel-title}
+
+Je v průměru asi o **1,3 kg těžší** než Adélie i Chinstrap.
+:::
+:::
+::: {.column width="48%"}
+::: {.panel-note}
+[Adélie vs. Chinstrap]{.panel-title}
+
+Odhad rozdílu je jen asi **`r format_whole_number(abs(post_hoc_plot$estimate[post_hoc_plot$kontrast == "Chinstrap − Adélie"]))` g**
+a interval obsahuje nulu.
+:::
+:::
+:::
+
+<br>
+
+::: {.takeaway-strip .fragment}
+Významná (signifikantní) ANOVA neznamená, že se liší každá dvojice.
+:::
+
+## Diagnostika se neztratila
+
+```{r}
+#| label: vytvorit-diagnosticke-grafy
+#| include: false
+diag_data <- data.frame(
+  fitted = fitted(object = mod_tri),
+  residual = residuals(object = mod_tri),
+  std_residual = rstandard(model = mod_tri)
+)
+
+plot_resid_fitted <-
+  ggplot2::ggplot(diag_data, ggplot2::aes(x = fitted, y = residual)) +
+  ggplot2::geom_hline(yintercept = 0, linetype = "dashed", color = biostat_cols[["grey_olive"]]) +
+  ggplot2::geom_point(alpha = 0.5, color = biostat_cols[["indigo_velvet"]], size = 2.2) +
+  ggplot2::scale_x_continuous(
+    breaks = c(3700, 5100),
+    labels = c("≈3 700", "≈5 100"),
+    limits = c(3500, 5350)
+  ) +
+  ggplot2::labs(x = "Fitovaná hodnota (g)", y = "Reziduum (g)") +
+  theme_biostat(base_size = 14)
+
+plot_qq <-
+  ggplot2::ggplot(diag_data, ggplot2::aes(sample = std_residual)) +
+  ggplot2::stat_qq(alpha = 0.5, color = biostat_cols[["orange"]], size = 2.2) +
+  ggplot2::stat_qq_line(color = biostat_cols[["graphite"]]) +
+  ggplot2::labs(x = "Teoretické kvantily", y = "Std. rezidua") +
+  theme_biostat(base_size = 14)
+
+plot_diagnostics <-
+  cowplot::plot_grid(
+    plot_resid_fitted,
+    plot_qq,
+    labels = c("A", "B"),
+    nrow = 1
+  ) +
+  ggview::canvas(width = 1600, height = 720, units = "px")
+
+ggview::save_ggplot(
+  plot = plot_diagnostics,
+  file = here::here(path_materials, "model_diagnostics.png")
+)
+```
+
+```{r}
+#| label: zobrazit-diagnosticke-grafy
+#| echo: false
+#| out-width: "91%"
+include_local_figure("model_diagnostics.png")
+```
+
+::: {.panel-question}
+Vidíme systematický vzorec, extrémní bod nebo výrazně odlišný rozptyl skupin?
+:::
+
+## Druh není celý příběh
+
+```{r}
+#| label: vytvorit-graf-pohlavi-a-druhu
+#| include: false
+sex_species <-
+  data_penguins |>
+  dplyr::filter(!is.na(pohlavi)) |>
+  dplyr::group_by(druh, pohlavi) |>
+  dplyr::summarise(
+    prumer = mean(hmotnost_tela_g),
+    se = sd(x = hmotnost_tela_g) / sqrt(x = dplyr::n()),
+    .groups = "drop"
+  )
+
+plot_sex_species <-
+  ggplot2::ggplot(
+    sex_species,
+    ggplot2::aes(x = druh, y = prumer, color = pohlavi, group = pohlavi)
+  ) +
+  ggplot2::geom_line(linewidth = 1.2) +
+  ggplot2::geom_point(size = 4.5) +
+  ggplot2::geom_errorbar(
+    ggplot2::aes(ymin = prumer - 1.96 * se, ymax = prumer + 1.96 * se),
+    width = 0.1,
+    linewidth = 0.8
+  ) +
+  ggplot2::scale_x_discrete(labels = popisky_druhu) +
+  ggplot2::scale_color_manual(
+    values = c("female" = biostat_cols[["amethyst"]], "male" = biostat_cols[["orange"]]),
+    labels = c("female" = "samice", "male" = "samci"),
+    name = NULL
+  ) +
+  ggplot2::labs(x = NULL, y = "Průměrná hmotnost (g)") +
+  theme_biostat(base_size = 17) +
+  ggview::canvas(width = 1500, height = 720, units = "px")
+
+ggview::save_ggplot(
+  plot = plot_sex_species,
+  file = here::here(path_materials, "species_and_sex_means.png")
+)
+```
+
+```{r}
+#| label: zobrazit-graf-pohlavi-a-druhu
+#| echo: false
+#| out-width: "78%"
+include_local_figure("species_and_sex_means.png")
+```
+
+::: {.takeaway-strip}
+Jednofaktorový model odpovídá jedné otázce. Další proměnné vyžadují bohatší model a opatrnější interpretaci.
+:::
+
+
+## Pět věcí, které si odnést
+
+1. Kategoriální prediktor vstupuje do `lm()` pomocí přepínačů 0/1.
+2. Intercept je průměr [referenční skupiny]{.text-hgl-indigo_velvet}.
+3. Ostatní koeficienty jsou rozdíly vůči referenci.
+4. ANOVA porovnává variabilitu mezi skupinami s variabilitou uvnitř nich.
+5. Po celkovém testu následují post-hoc porovnání, odhad efektu a jeho interval.
+
+::: {.panel-warning .fragment}
+U studií s kontrolou zvolte kontrolu jako referenci — a stále oddělujte modelové kódování od designu studie.
+:::
+
+## Poslední otázka {.center}
+
+::: {.text-size-heading .text-bold .text-color-indigo_velvet}
+Když dvě skupiny mají stejný rozdíl průměrů,
+co rozhoduje o síle důkazu?
+:::
+
+<br>
+
+::: {.fragment .takeaway-strip .text-center}
+Rozdíl musíme číst v kontextu variability uvnitř skupin, velikosti vzorku a designu studie.
+:::
+
+## Materiály
+
+::: {.text-size-larger}
+- [Zdrojový repozitář](`r github_url`)
+- [Online prezentace](`r slides_url`)
+- [Moodle](https://dl2.cuni.cz/course/view.php?id=106)
+:::
+
+::: {.text-size-smaller .text-color-grey_olive}
+Data: Palmer Station LTER a palmerpenguins. Druhová ilustrace: Allison Horst. Ostatní narativní ilustrace byly vytvořeny pro tuto lekci.
+:::
