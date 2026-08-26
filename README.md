@@ -47,7 +47,7 @@ L06/
 ├── data/                           # Datové soubory specifické pro tento týden
 ├── R/
 │   ├── render_all.R                # Regeneruje téma a renderuje vše
-│   ├── render_presentation.R       # Renderuje prezentaci a kopíruje ji do docs/
+│   ├── render_presentation.R       # Renderuje prezentaci a exportuje PDF
 │   ├── render_skripta.R            # Renderuje skripta a komprimuje PDF
 │   ├── generate_theme.R            # Generuje všechny theme artefakty z JSON
 │   ├── set_r_theme.R               # ← generováno: ggplot2 paleta a theme_biostat()
@@ -264,9 +264,8 @@ znovu neopakují.
 
 1. synchronizaci a regeneraci theme,
 2. Quarto render `Presentation/presentation.qmd` → `Presentation/presentation.html`,
-3. kopii HTML do `docs/index.html` pro GitHub Pages,
-4. export PDF přes `decktape` → `Presentation/presentation_raw.pdf`,
-5. kompresi PDF → `Presentation/presentation.pdf`.
+3. export PDF přes `decktape` → `Presentation/presentation_raw.pdf`,
+4. kompresi PDF → `Presentation/presentation.pdf`.
 
 `render_skripta.R` provede:
 
