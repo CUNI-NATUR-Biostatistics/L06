@@ -51,22 +51,23 @@ slides_url <- paste0(
 )
 ```
 
-## Když prediktor není číslo {.center}
+## Liší se průměrná hmotnost těla mezi druhy tučňáků? {.course-title .bg-indigo}
 
-::: {.text-color-indigo_velvet .text-font-heading .text-size-heading1 .text-bold}
-Od dvou průměrů k analýze rozptylu
+::: {.course-title-mark}
+![Logo kurzu Biostatistika](../theme/course-logo-reversed.svg) BIOSTATISTIKA
 :::
 
-<br>
-
-::: {.text-size-larger .text-center}
-`r display_name`
+::: {.course-title-number}
+L06
 :::
 
-<br>
+::: {.course-title-formal}
+Když prediktor není číslo: od dvou průměrů k analýze rozptylu
+:::
 
-[👤](https://ondrejmottl.github.io/) Ondřej Mottl<br>
-[Moodle](https://dl2.cuni.cz/course/view.php?id=106)
+::: {.course-title-link}
+[cuni-natur-biostatistics.github.io/materialy.html](https://cuni-natur-biostatistics.github.io/materialy.html)
+:::
 
 ## Liší se průměrná hmotnost mezi druhy tučňáků?
 
@@ -116,40 +117,12 @@ Po dnešní lekci dokážete:
 :::
 
 
-## Co víme z minulé lekce?
+{{< include ../pollslive/generated/active.qmd >}}
 
-<br>
+## Stejná logika, jiný typ prediktoru
 
-::: {.text-size-larger .text-center .fragment}
-$$
-\text{pozorování} = \text{model} + \text{reziduum}
-$$
-:::
-
-<br>
-
-::: columns
-::: {.column width="31%"}
-::: {.card-indigo .fragment}
-Odhadneme koeficient.
-:::
-:::
-::: {.column width="31%"}
-::: {.card-amethyst .fragment}
-Změříme jeho nejistotu.
-:::
-:::
-::: {.column width="31%"}
-::: {.card-orange .fragment}
-Otestumejeme nulovou hypotézu.
-:::
-:::
-:::
-
-<br>
-
-::: {.takeaway-strip .fragment .text-center}
-Logika modelu zůstává stejná. Mění se typ prediktoru.
+::: {.takeaway-strip .text-center}
+Efekt, nejistotu a důkaz budeme číst stejně. Dnes pouze nahradíme číselný prediktor **skupinou**.
 :::
 
 ## Podíváme se na data
@@ -404,6 +377,8 @@ Rozdíl průměrů hodnotíme vůči rozptylu jednotlivých pozorování.
 #| label: zobrazit-ledove-kry
 #| echo: false
 #| out-width: "88%"
+#| fig-alt: "Dvě skupiny tučňáků na ledových krách: jedna stojí těsně u sebe, druhá je rozptýlená kolem svého praporku."
+#| fig-cap: "Ilustrační obraz vytvořen AI."
 include_local_figure("ice_floe_laboratory.png")
 ```
 
@@ -654,6 +629,8 @@ Stejná rovnice jako pro číselný prediktor, jen interpretace koeficientů se 
 #| label: zobrazit-modelovy-pas
 #| echo: false
 #| out-width: "86%"
+#| fig-alt: "Tři tučňáci u registračního místa; jeden představuje referenční skupinu a cesty k ostatním znázorňují rozdíly vůči ní."
+#| fig-cap: "Ilustrační obraz vytvořen AI."
 include_local_figure("penguin_model_passport.png")
 ```
 
@@ -728,16 +705,44 @@ coef(object = mod_dva)
 ```{r}
 #| label: pripravit-koeficienty-dvou-skupin
 #| include: false
-coef_dva <- coef(object = mod_dva)
+model_dva_tidy <-
+  broom::tidy(
+    mod_dva,
+    conf.int = TRUE
+  )
+
+coef_dva <-
+  setNames(
+    model_dva_tidy$estimate,
+    model_dva_tidy$term
+  )
+
+tabulka_koeficientu_dva <-
+  model_dva_tidy |>
+  dplyr::transmute(
+    Parametr = dplyr::recode(
+      term,
+      "(Intercept)" = "Průměr Adélie",
+      "druhGentoo" = "Gentoo − Adélie"
+    ),
+    Odhad = format_whole_number(estimate),
+    Jednotka = "g"
+  )
+
+stopifnot(
+  isTRUE(all.equal(
+    unname(model_dva_tidy$estimate),
+    unname(coef(mod_dva))
+  ))
+)
 ```
 
 <br>
 
 ```{r}
-#| label: fitovat-model-dvou-skupin-tajne
+#| label: zobrazit-tabulku-koeficientu-dvou-skupin
 #| echo: false
-#| eval: true
-coef(object = mod_dva)
+tinytable::tt(tabulka_koeficientu_dva)
 ```
 
 <br>
@@ -991,7 +996,15 @@ Jiný tvar prediktoru, stejná definice rezidua.
 ```{r}
 #| label: vytvorit-interval-dvou-skupin
 #| include: false
-ci_dva <- confint(object = mod_dva)["druhGentoo", ]
+radek_rozdilu_dva <-
+  model_dva_tidy |>
+  dplyr::filter(term == "druhGentoo")
+
+ci_dva <-
+  c(
+    radek_rozdilu_dva$conf.low,
+    radek_rozdilu_dva$conf.high
+  )
 ci_plot_data <- data.frame(
   odhad = coef_dva[["druhGentoo"]],
   dolni = ci_dva[[1]],
@@ -1039,8 +1052,9 @@ Odhad: [**+`r format_whole_number(coef_dva[["druhGentoo"]])` g**]{.text-hgl-indi
 ```{r}
 #| label: pripravit-t-statistiku
 #| include: false
-tab_coef_dva <- summary(mod_dva)$coefficients
-t_dva <- unname(tab_coef_dva["druhGentoo", "t value"])
+t_dva <-
+  radek_rozdilu_dva |>
+  dplyr::pull(statistic)
 ```
 <br>
 
@@ -1185,14 +1199,30 @@ $p$-hodnota `r p_label_t` je plocha v obou ocasech ještě dál od nuly než poz
 
 ## Výsledek v R
 
-<br>
-
-::: {.text-size-larger}
 ```{r}
-#| label: vypis-fit-dvou-skupin
-#| echo: true
-coef(summary(mod_dva))
+#| label: zobrazit-testovou-tabulku-dvou-skupin
+#| echo: false
+tabulka_testu_dva <-
+  model_dva_tidy |>
+  dplyr::filter(term == "druhGentoo") |>
+  dplyr::transmute(
+    Srovnání = "Gentoo − Adélie",
+    `Odhad (g)` = format_whole_number(estimate),
+    `Std. chyba (g)` = formatC(std.error, format = "f", digits = 1, decimal.mark = ","),
+    `t` = formatC(statistic, format = "f", digits = 2, decimal.mark = ","),
+    `p` = gsub(
+      pattern = ".",
+      replacement = ",",
+      x = format.pval(p.value, digits = 2, eps = 0.001),
+      fixed = TRUE
+    )
+  )
+
+tinytable::tt(tabulka_testu_dva)
 ```
+
+::: {.takeaway-strip}
+Odhad rozdílu čteme spolu s jeho nejistotou a důkazem proti nulové hypotéze.
 :::
 
 ## Co můžeme říci biologicky?
@@ -1333,17 +1363,67 @@ $$
 $$
 :::
 
+## Tři koeficienty z jednoho modelu
+
+```{r}
+#| label: pripravit-tabulku-koeficientu-tri-skupin
+#| include: false
+mod_tri <-
+  lm(
+    formula = hmotnost_tela_g ~ druh,
+    data = data_penguins
+  )
+
+model_tri_tidy <-
+  broom::tidy(mod_tri)
+
+coef_tri <-
+  setNames(
+    model_tri_tidy$estimate,
+    model_tri_tidy$term
+  )
+
+tabulka_koeficientu_tri <-
+  model_tri_tidy |>
+  dplyr::transmute(
+    Parametr = dplyr::recode(
+      term,
+      "(Intercept)" = "Průměr Adélie",
+      "druhChinstrap" = "Chinstrap − Adélie",
+      "druhGentoo" = "Gentoo − Adélie"
+    ),
+    Odhad = format_whole_number(estimate),
+    Jednotka = "g"
+  )
+
+stopifnot(
+  isTRUE(all.equal(
+    unname(model_tri_tidy$estimate),
+    unname(coef(mod_tri))
+  ))
+)
+```
+
+```{r}
+#| label: zobrazit-tabulku-koeficientu-tri-skupin
+#| echo: false
+tinytable::tt(tabulka_koeficientu_tri)
+```
+
+::: {.takeaway-strip}
+Jeden referenční průměr a dva rozdíly popisují všechny tři skupiny.
+:::
+
 ## Každý druh zapne jinou kombinaci
 
 ```{r}
 #| label: pripravit-hodnoty-tri-skupin
 #| include: false
 mean_chinstrap <-
-  prumery_druhu |>
-  dplyr::filter(druh == "Chinstrap") |>
-  dplyr::pull(prumer)
+  coef_tri[["(Intercept)"]] + coef_tri[["druhChinstrap"]]
 
-difference_chinstrap_adelie <- mean_chinstrap - mean_adelie
+difference_chinstrap_adelie <-
+  coef_tri[["druhChinstrap"]]
 ```
 
 ::: {.text-center}
@@ -1440,6 +1520,8 @@ Porovnáme model s jedním průměrem (nulový) a model se třemi průměry.
 #| label: zobrazit-krmne-praporky
 #| echo: false
 #| out-width: "90%"
+#| fig-alt: "Tři skupiny tučňáků se nejprve orientují podle jednoho společného praporku a potom podle tří skupinových praporků."
+#| fig-cap: "Ilustrační obraz vytvořen AI."
 include_local_figure("one_vs_three_feeding_flags.png")
 ```
 
@@ -2217,6 +2299,8 @@ Vždy uvádějte odhad efektu a jeho interval — ne pouze $p$-hodnotu.
 #| label: zobrazit-lupu
 #| echo: false
 #| out-width: "88%"
+#| fig-alt: "Lupa zvýrazňuje dvojici ze tří tučňáků a připomíná přechod od celkové otázky ANOVA ke srovnání dvojic."
+#| fig-cap: "Ilustrační obraz vytvořen AI."
 include_local_figure("penguin_group_magnifying_glass.png")
 ```
 
