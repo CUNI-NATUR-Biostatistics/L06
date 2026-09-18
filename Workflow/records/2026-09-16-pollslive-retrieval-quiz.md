@@ -12,7 +12,7 @@ Human approval: approved by the human author in this session on 2026-09-16, with
 
 ## Scope and integration map
 
-The retrieval block replaces only `Co víme z minulé lekce?`. It appears after `Výsledky učení` and before `Podíváme se na data`; it ends with `Stejná logika, jiný typ prediktoru`.
+The retrieval block replaces only `Co víme z minulé lekce?`. It appears before `Výsledky učení` and before `Podíváme se na data`; it is followed by the learning outcomes and `Stejná logika, jiný typ prediktoru`.
 
 | Position | Teaching move | Student knowledge used | Bridge |
 |---|---|---|---|
@@ -77,7 +77,7 @@ All evidence is regenerated from the approved L05 source objects or copied with 
 ## Implementation and validation
 
 - `pollslive/quiz.json` uses schema version 2 and contains the three approved questions.
-- The standard include is placed immediately after the learning outcomes and is followed by the approved bridge.
+- The standard include is placed after the opening question and before the learning outcomes; the approved bridge follows the outcomes.
 - `node pollslive/validate.mjs` passes without credentials.
 - All R chunks parse; checked source files are UTF-8 without BOM or replacement characters; no duplicate chunk labels were found.
 - Offline PollsLive rendering completed through the canonical presentation wrapper. The final PDF has 69 pages, and `Presentation/presentation.html` is byte-identical to `docs/index.html`.
@@ -98,3 +98,9 @@ The first read-only review found answer-revealing evidence in L03 Q1 and L04 Q1/
 ## Operational limitations
 
 Remote PollsLive synchronization, remote setting verification, QR/link testing on a second device, and schedule activation require an immutable pushed lesson commit and therefore remain pending. No remote poll operation was performed and no production response was submitted. Activation remains disabled.
+
+## 2026-09-18 author feedback revision
+
+The existing PollsLive include now appears after the opening question and before `Výsledky učení`; quiz content and evidence remain unchanged.
+
+Validation: canonical offline render passed; the 69-page PDF has retrieval on page 3 and outcomes on page 7, and HTML matches `docs/index.html`. The local `_internal` client was used because the pinned cache is absent.

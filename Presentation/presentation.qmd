@@ -98,6 +98,8 @@ Je rozdíl mezi druhy větší, než bychom čekali od variability jednotlivých
 Ilustrace: Allison Horst · Data: Palmer Station LTER / palmerpenguins
 :::
 
+{{< include ../pollslive/generated/active.qmd >}}
+
 ## Výsledky učení
 
 <br>
@@ -116,8 +118,6 @@ Po dnešní lekci dokážete:
 
 :::
 
-
-{{< include ../pollslive/generated/active.qmd >}}
 
 ## Stejná logika, jiný typ prediktoru
 
