@@ -434,3 +434,7 @@ Because the Stages 2-3 written-materials pull request is already merged and the 
 - [x] Diff contains only Stages 4-5 sources, records, technical lockfile cleanup, and corresponding outputs
 - [ ] Presentation PR ready to merge
 - Notes: The human author approved the storyboard, recurring variability exercises, control/reference emphasis, and four generated-illustration concepts on 2026-08-10, and declared Stage 3 complete before these Stage 4 corrections. The 64-slide deck has passed render, exhaustive 125-state visual and fragment inspection, targeted reinspection after every credible new finding, and source-convention checks. The human author explicitly approved the final presentation and declared Stage 5 complete on 2026-08-12. No commit, staging, push, or pull-request operation was performed by the authoring agent; those Git actions remain with the human author. The small control-group addition to `Learning_materials/skripta.qmd` remains a separately authorized follow-up on a correctly based branch.
+
+## Issue #5 title-screen retrofit (2026-09-16)
+
+Ondřej Mottl approved sketch A for L03–L06 on 2026-09-16. The first slide of L06 now leads with the existing lesson question, while the original formal topic remains secondary. The next biological or visual hook, learning outcomes, and remaining teaching sequence are unchanged. This title-only retrofit does not rewrite the historical story-map approval or approve the later Issue #6 illustration pass.

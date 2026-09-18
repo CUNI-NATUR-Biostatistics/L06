@@ -1,0 +1,98 @@
+{
+  "$schema": "https://raw.githubusercontent.com/CUNI-NATUR-Biostatistics/_internal/main/pollslive/quiz.schema.json",
+  "schemaVersion": 2,
+  "academicYear": "2026-27",
+  "lesson": "L06",
+  "retrievesLesson": "L05",
+  "lectureDate": "2026-11-09",
+  "title": "L06 – Opakování předchozí lekce – 2026/27",
+  "questions": [
+    {
+      "id": "spravne-cteni-p-hodnoty",
+      "text": "Která věta správně čte malou p-hodnotu?",
+      "options": [
+        {
+          "id": "pravdepodobnost-hypotezy",
+          "label": "Nulová hypotéza má malou pravděpodobnost, že je pravdivá."
+        },
+        {
+          "id": "neobvykle-za-nuly",
+          "label": "Pokud platí nulový model, výsledek alespoň tak extrémní jako náš by byl velmi neobvyklý."
+        },
+        {
+          "id": "velky-efekt",
+          "label": "Biologický efekt musí být velký."
+        },
+        {
+          "id": "pricinna-souvislost",
+          "label": "Studie dokázala příčinný vztah."
+        }
+      ],
+      "correctOptionId": "neobvykle-za-nuly",
+      "explanation": "P-hodnota je podmíněná nulovým modelem. Neudává pravděpodobnost hypotézy ani velikost či biologický význam efektu.",
+      "media": {
+        "path": "assets/l05-p-value-tails.png",
+        "alt": "Nulové t-rozdělení se zvýrazněnými oběma chvosty za stejně extrémními hodnotami, jako je pozorovaná statistika.",
+        "provenance": "Byte-identical copy of approved L05 figure Presentation/Materials/p_hodnota_chvosty.png; checksum pinned by R/render_pollslive_assets.R."
+      }
+    },
+    {
+      "id": "chyba-prvniho-stupne",
+      "text": "Test označí efekt, ačkoli ve skutečnosti žádný systematický efekt není. Jaký typ chyby nastal?",
+      "options": [
+        {
+          "id": "chyba-i",
+          "label": "Chyba I. stupně"
+        },
+        {
+          "id": "chyba-ii",
+          "label": "Chyba II. stupně"
+        },
+        {
+          "id": "bezchybny-zaver",
+          "label": "Bezchybný závěr"
+        },
+        {
+          "id": "variabilita-nemozna",
+          "label": "Výběrová variabilita nemůže takový výsledek vytvořit"
+        }
+      ],
+      "correctOptionId": "chyba-i",
+      "explanation": "Chyba I. stupně je falešně pozitivní rozhodnutí: zamítneme nulovou hypotézu, přestože v popsaném světě platí.",
+      "media": {
+        "path": "assets/l05-type-i-error.jpg",
+        "alt": "Ilustrace falešně pozitivního rozhodnutí: test hlásí efekt, přestože v popsaném světě systematický efekt není.",
+        "provenance": "Byte-identical copy of approved L05 figure Presentation/Materials/chyba_i_falesne_pozitivni.jpg; checksum pinned by R/render_pollslive_assets.R."
+      }
+    },
+    {
+      "id": "uplny-vedecky-zaver",
+      "text": "Který závěr je vědecky nejúplnější?",
+      "options": [
+        {
+          "id": "male-p-znamena-dulezity",
+          "label": "P-hodnota je malá, proto je vztah biologicky důležitý."
+        },
+        {
+          "id": "pravdepodobnost-nuly",
+          "label": "Nulová hypotéza je nepravdivá s pravděpodobností odpovídající p-hodnotě."
+        },
+        {
+          "id": "efekt-nejistota-omezeni",
+          "label": "Ve sledovaných lokalitách se šířka krunýře směrem k severu zvětšovala; uvedeme odhad s intervalem a připomeneme observační omezení."
+        },
+        {
+          "id": "nevyznamny-dokazuje-nulu",
+          "label": "Nevýznamný výsledek by dokazoval, že žádný efekt neexistuje."
+        }
+      ],
+      "correctOptionId": "efekt-nejistota-omezeni",
+      "explanation": "Závěr začíná efektem v biologických jednotkách, doplní nejistotu a důkaz a respektuje rozsah observačních dat.",
+      "media": {
+        "path": "assets/l05-effect-first-conclusion.png",
+        "alt": "Výsledková karta uvádí kladný odhad změny šířky krunýře, 95% interval a upozornění na observační omezení studie.",
+        "provenance": "Deterministically rendered by R/render_pollslive_assets.R from the approved L05 crab site means and fitted linear model."
+      }
+    }
+  ]
+}
