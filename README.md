@@ -33,6 +33,8 @@ Následující odkazy vedou vždy na nejnovější schválené vydání L06. Roz
 | --- | --- | --- |
 | Skripta | [Číst online](https://cuni-natur-biostatistics.github.io/L06/current/learning/) | [Stáhnout PDF](https://cuni-natur-biostatistics.github.io/L06/current/learning/skripta.pdf) |
 | Prezentace | [Otevřít slidy](https://cuni-natur-biostatistics.github.io/L06/current/presentation/) | [Stáhnout PDF](https://cuni-natur-biostatistics.github.io/L06/current/presentation/presentation.pdf) |
+| Praktické cvičení v R | [Stáhnout skript](https://cuni-natur-biostatistics.github.io/L06/current/code/cviceni.R) | — |
+| Data ke cvičení | [Palmer Penguins](https://cuni-natur-biostatistics.github.io/L06/current/data/palmer_penguins.csv) | — |
 
 
 - [HUB kurzu](https://cuni-natur-biostatistics.github.io/) je hlavní vstup ke všem veřejným studijním materiálům.
