@@ -22,7 +22,7 @@
 - The exercise parsed and sourced in a clean temporary project; an untracked reference harness solved all eight core and four optional tasks and confirmed the stated numerical results. Three diagnostic/output plots were visually inspected with correctly rendered Czech labels.
 - L06 is public. GitHub Pages uses GitHub Actions, and the `github-pages` environment permits `main` and `L06-v*` tags.
 - Learning and presentation HTML/PDF were committed and reviewed for the preceding stable release; this focused release change does not alter those artifacts.
-- The canonical release packager built `web-materials-L06-v0.2.0-20260922.zip`. Its manifest contains nine public resource files plus `manifest.json`; every source exists and the generated manifest records SHA-256 checksums. The ZIP SHA-256 is `7FCDDF369BC85B4D518BB06D83D61A3EBA2ED143E0642CB018670A93CF693BCE`. Rerun the same packager after this release-fix commit is merged and before tagging.
+- The canonical release packager built `web-materials-L06-v0.2.0-20260922.zip`. Its manifest contains nine public resource files plus `manifest.json`; every source exists and the generated manifest records SHA-256 checksums. Rerun the same packager after this release-fix commit is merged and before tagging.
 - The 68-minute practical route remains an author estimate and has not been timed with beginners.
 
 ## Post-tag checks
