@@ -5,8 +5,8 @@
 - Date: 2026-09-22
 - Branch: `lesson/l06-exercises`, created from clean `main` after the approved presentation was merged
 - Sources: approved L06 written lesson and presentation, `_internal/osnova_lekci.md`, and the L05 practical
-- Human exercise approval: pending
-- Independent exercise review: pending
+- Human exercise approval: Ondřej Mottl, 2026-09-22; approved the completed worksheet with no requested revisions
+- Independent exercise review: full review and focused worked-example re-review reported no findings
 
 The 90-minute practical has a planned 68-minute direct-work route: 10 minutes for project and file preparation, then 58 minutes for U01–U08. About 22 minutes remain for explanation, discussion, and slower groups. The same public script must also work for self-study. Teacher transitions and pacing cues belong here, not in the student worksheet.
 
@@ -60,4 +60,4 @@ The current public release manifest lists `exercises: []`. After explicit human 
 - An untracked reference harness solved all eight core and four optional tasks. It confirmed 344 rows, two missing body masses, 342 retained observations, group counts and means, the two-group model and equal-variance t-test identity, ordinary and Tukey intervals, ANOVA degrees of freedom and F, unchanged fitted values after reference change, within-species SDs, and the species-by-island and missing-sex counts.
 - Individual-mass, residual-versus-fitted, and Q–Q plots were saved outside the repository and visually inspected. Czech labels and units rendered correctly; the residual plot has the expected three bands.
 - A separate read-only reviewer applied the canonical exercise-reviewer prompt to the complete worksheet and blueprint and reported `No findings.` A focused re-review of the subsequent runnable worked example also reported `No findings.` The 68-minute core is an author estimate, not a timed beginner trial; U01 and U08 may take longer for slower groups.
-- The stable exercise download URL is not live while `website-release.yml` has `exercises: []`. Human approval and the separate release workflow remain necessary. Project `renv::status()` reports recorded but currently unused packages after the placeholder was replaced; `emmeans` is available and the reference harness passed without changing the lockfile.
+- The stable exercise download URL is not live while `website-release.yml` has `exercises: []`. Human approval is complete; the separate release workflow remains necessary after the exercise pull request is merged. Project `renv::status()` reports recorded but currently unused packages after the placeholder was replaced; `emmeans` is available and the reference harness passed without changing the lockfile.
