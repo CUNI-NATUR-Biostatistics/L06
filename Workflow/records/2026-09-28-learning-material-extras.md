@@ -43,5 +43,5 @@
 - Independent amendment review: passed; the percentage explanation was checked as a fixed conceptual level rather than a data-derived result.
 - Glossary coverage: checked for the added prose; no missing first-occurrence wrapper was identified.
 - Source checks: UTF-8 without BOM, no replacement characters, `git diff --check` passed.
-- Render: project-native HTML and PDF render passed; all 49 PDF pages were inspected through contact sheets with no clipping, overlap or broken layout.
+- Render: project-native HTML and PDF render passed; all 49 PDF pages were inspected through eight-page contact sheets, and new-content pages 41 and 45 were checked at readable size with no clipping, overlap, broken glyphs or orphaned blocks.
 - Pre-existing full-artifact review notes outside this amendment: two existing equation progressions and one model-derived figure caption remain candidates for a later cleanup.
