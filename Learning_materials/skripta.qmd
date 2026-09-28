@@ -3241,6 +3241,20 @@ Tukeyho metoda tedy není náhradou za celkový F-test. Je to post-hoc porovnán
 
 Kdybychom každý pár testovali jako izolovanou novou studii, s rostoucím počtem testů by rostla šance na alespoň jeden náhodně extrémní výsledek. Tukeyho post-hoc metoda proto vyhodnotí rodinu navazujících otázek společně. Získáme `r render_glossary_term("interval-spolehlivosti", display = "simultánní intervaly")` a `r render_glossary_term("p-hodnota", display = "p-hodnoty")` upravené pro všechna tři porovnání.
 
+::: {.box-data collapse="true" title="Doplňující: proč jsou Tukeyho intervaly širší"}
+
+Obyčejný pětadevadesátiprocentní interval chrání dlouhodobé pokrytí jedné předem vybrané veličiny. Zde ale chceme současně číst tři rozdíly. Kdyby měl každý neopravený interval pětiprocentní riziko minutí, šance, že alespoň jeden z celé sady mine svou skutečnou hodnotu, by byla větší než pět procent.
+
+Tukeyho metoda proto nastaví jednotlivé intervaly opatrněji tak, aby přibližně devadesát pět procent opakovaných **celých sad tří intervalů** pokrylo všechny tři skutečné rozdíly současně. Za tuto společnou ochranu obvykle platíme širšími intervaly a většími upravenými p-hodnotami než při izolovaném čtení jediné dvojice.
+:::
+
+::: {.box-data collapse="true" title="Doplňující: plánované kontrasty a post-hoc porovnání nejsou stejná otázka"}
+
+V této lekci nejprve klademe celkovou otázku a potom systematicky prohlížíme všechny tři dvojice. To je post-hoc postup. Výzkumník však někdy ještě před sběrem dat určí jeden biologicky motivovaný kontrast, například „potápěčský druh proti průměru dvou pobřežních druhů“. Taková otázka není dodatečným hledáním nejzajímavější dvojice.
+
+Předem plánovaný kontrast může být věcně přesnější než všechna párová srovnání a nemusí čekat na to, zda celkový F-test překročí jednu rozhodovací hranici. Stále však musíme transparentně uvést všechny plánované otázky a při více kontrastech zvážit jejich společnou chybovost. Výpočet kontrastů patří do pokročilejší práce s modely.
+:::
+
 Funkce `emmeans()` pracuje přímo s již fitovaným objektem `mod_tri_druhy`. **Nefitujeme nový model.** Pouze z téhož `r render_glossary_term("linearni-model", display = "lineárního modelu")` získáme průměrnou hmotnost odhadnutou pro každý druh. V tomto jednoduchém modelu s jediným `r render_glossary_term("kategoricka-promenna", display = "kategoriálním prediktorem")` jsou tyto hodnoty stejné jako skupinové průměry, které už známe z grafu.
 
 ```{r}
@@ -3402,6 +3416,13 @@ Výsledek testu není konec analýzy. Stejně jako u přímky zkontrolujeme `r r
 
 ::: {.box-warning title="Co od diagnostiky potřebujeme"}
 Test předpokládá nezávislá `r render_glossary_term("pozorovani", display = "pozorování")`, přibližně srovnatelnou `r render_glossary_term("variabilita", display = "variabilitu")` residuí ve skupinách a přibližně normální tvar residuí. Graf residuí proti odhadnutým hodnotám pomáhá posoudit srovnatelnost `r render_glossary_term("rozptyl", display = "rozptylu")`; Q–Q graf pomáhá posoudit tvar `r render_glossary_term("rozdeleni", display = "rozdělení")`. Nezávislost však z těchto grafů nepoznáme — musíme ji zdůvodnit způsobem, jakým byla pozorování získána.
+:::
+
+::: {.box-data collapse="true" title="Doplňující: co když se skupiny liší variabilitou?"}
+
+Rozdílný rozptyl residuí neznamená, že rozdíl průměrů zmizel. Znamená, že běžný model se společným residuálním rozptylem nemusí správně vyjádřit nejistotu tohoto rozdílu. Nápovědou může být výrazně širší pás residuí u jednoho druhu nebo skupinové rozdělení s velmi odlišnou šířkou.
+
+Pro dvě skupiny už jsme viděli Welchův t-test, který společný rozptyl nevyžaduje. Pro více skupin existuje Welchova ANOVA a v modelovém rámci také další způsoby výpočtu odolnější nejistoty. Volba řešení závisí na otázce, velikosti skupin a tvaru dat; diagnostický graf proto nemá sloužit jako automatický příkaz k transformaci nebo mazání pozorování.
 :::
 
 ```{r}
