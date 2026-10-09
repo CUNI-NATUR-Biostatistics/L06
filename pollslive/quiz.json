@@ -42,11 +42,11 @@
       "options": [
         {
           "id": "chyba-i",
-          "label": "Chyba I. stupně"
+          "label": "Chyba I. typu"
         },
         {
           "id": "chyba-ii",
-          "label": "Chyba II. stupně"
+          "label": "Chyba II. typu"
         },
         {
           "id": "bezchybny-zaver",
@@ -58,7 +58,7 @@
         }
       ],
       "correctOptionId": "chyba-i",
-      "explanation": "Chyba I. stupně je falešně pozitivní rozhodnutí: zamítneme nulovou hypotézu, přestože v popsaném světě platí.",
+      "explanation": "Chyba I. typu je falešně pozitivní rozhodnutí: zamítneme nulovou hypotézu, přestože v popsaném světě platí.",
       "media": {
         "path": "assets/l05-type-i-error.jpg",
         "alt": "Ilustrace falešně pozitivního rozhodnutí: test hlásí efekt, přestože v popsaném světě systematický efekt není.",
