@@ -121,9 +121,15 @@ Human story-map approval of this amendment: **approved** by Ondřej Mottl on 202
 
 Ondřej Mottl approved the polished learning materials, presentation and R exercise on 2026-10-10 („I approve learning materials, presentation and R script“). The approval does not authorize staging, commits, pushes, pull requests, synchronized PollsLive rendering or a release.
 
+## Synchronized presentation render (2026-10-10)
+
+- Ondřej Mottl pushed `polish/l06-review-fixes`; the canonical wrapper ran with `POLLSLIVE_RENDER_MODE=sync`, the configured upstream and the pinned client (no local client override).
+- Request `85bdeb35-4d0c-43f4-ac63-6b708abeb10b` for immutable source revision `b1e5fecbe8bc1be7d1eeb615775c7ef0b52652da`; input checksum `2af50ccfa18c6bb85cd79aa101696849ea9d1ce6795f0f267d5d9822c02dd93a`, definition checksum `fbd1cd71ef0f2d462757635dda944b00049f527cef7e6665552e26de3dca6be4`, remote-content checksum `8b2102473eab081373e54558a71b0c43cb08453b27e343c964cbe092834654e7`.
+- The receipt confirms the poll is published, voting is closed and public results are hidden. No response was submitted.
+- Outputs: 73 slides in HTML and PDF; `Presentation/presentation.html` and `docs/index.html` are byte-identical; the PDF contains no PollsLive URL. The theme cache re-sync produced no content changes.
+
 ## Remaining gates and open items
 
-- Synchronized PollsLive render after the branch is pushed (requires separate authorization).
 - Beginner pacing trial of the exercise (author 91 min vs reviewer 105–115 min).
 - Missing glossary slugs in `slovnik` (TODO comments in the skripta).
 - `_internal` and `slovnik` terminology edits are local only (no commits).
