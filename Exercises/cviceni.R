@@ -186,11 +186,6 @@ levels(x = vec_ukazka)
 # Vaše řešení:
 
 
-# Očekávaný výsledek:
-# Tabulka má 344 řádků. Hmotnost chybí u 2 tučňáků a pohlaví u 11.
-# Hmotnost sahá od 2 700 do 6 300 g. Po odstranění chybějících hmotností
-# zbývá 342 tučňáků: 151 Adelie, 68 Chinstrap a 123 Gentoo.
-#
 # Nápověda 1:
 # Model hmotnosti potřebuje u každého řádku naměřenou hmotnost. Řádky
 # s jinou chybějící hodnotou (například pohlaví) zatím nevadí, protože
@@ -200,6 +195,11 @@ levels(x = vec_ukazka)
 # Výsledek read.csv() přiřaďte do data_tucnaci šipkou <-. Řádky
 # ponecháte výběrem data_tucnaci[!is.na(data_tucnaci$hmotnost_tela_g), ].
 # Výsledek factor() přiřaďte zpět do data_tucnaci$druh.
+#
+# Očekávaný výsledek:
+# Tabulka má 344 řádků. Hmotnost chybí u 2 tučňáků a pohlaví u 11.
+# Hmotnost sahá od 2 700 do 6 300 g. Po odstranění chybějících hmotností
+# zbývá 342 tučňáků: 151 Adelie, 68 Chinstrap a 123 Gentoo.
 #
 # Interpretace:
 # Která proměnná bude v této lekci odezvou a která prediktorem? Co
@@ -242,11 +242,6 @@ levels(x = vec_ukazka)
 # Vaše řešení:
 
 
-# Očekávaný výsledek:
-# Průměry jsou asi 3 701 g (Adelie), 3 733 g (Chinstrap) a 5 076 g
-# (Gentoo). Směrodatné odchylky jsou asi 459, 384 a 504 g. V grafu leží
-# body Gentoo zřetelně výše, Adelie a Chinstrap se téměř překrývají.
-#
 # Nápověda 1:
 # Průměr popisuje polohu skupiny, směrodatná odchylka rozptýlení jedinců
 # uvnitř skupiny. Obojí potřebujete pro každý druh zvlášť.
@@ -254,6 +249,11 @@ levels(x = vec_ukazka)
 # Nápověda 2:
 # Do X patří sloupec s hmotnostmi a do INDEX sloupec s druhy; pro průměr
 # i směrodatnou odchylku se mění jen argument FUN.
+#
+# Očekávaný výsledek:
+# Průměry jsou asi 3 701 g (Adelie), 3 733 g (Chinstrap) a 5 076 g
+# (Gentoo). Směrodatné odchylky jsou asi 459, 384 a 504 g. V grafu leží
+# body Gentoo zřetelně výše, Adelie a Chinstrap se téměř překrývají.
 #
 # Interpretace:
 # Je rozdíl průměrů Gentoo a ostatních druhů velký vzhledem k tomu, jak
@@ -309,10 +309,6 @@ coef(object = mod_ukazka)
 # Vaše řešení:
 
 
-# Očekávaný výsledek:
-# data_dva_druhy má 274 řádků a úrovně "Adelie" "Gentoo". Intercept je
-# asi 3 700,7 g a koeficient druhGentoo asi 1 375,4 g.
-#
 # Nápověda 1:
 # Výběr řádků určí, které druhy v tabulce zůstanou. Pořadí úrovní faktoru
 # určí, který z nich bude referencí.
@@ -321,6 +317,10 @@ coef(object = mod_ukazka)
 # Řádky vyberte jako v U01, jen s podmínkou postavenou z %in%. Výsledek
 # droplevels() přiřaďte zpět do data_dva_druhy$druh. Ve formuli lm() je
 # odezva vlevo od ~ a druh vpravo.
+#
+# Očekávaný výsledek:
+# data_dva_druhy má 274 řádků a úrovně "Adelie" "Gentoo". Intercept je
+# asi 3 700,7 g a koeficient druhGentoo asi 1 375,4 g.
 #
 # Interpretace:
 # Co znamenají obě čísla v gramech? Proč se druhý koeficient jmenuje
@@ -350,12 +350,6 @@ coef(object = mod_ukazka)
 # Vaše řešení:
 
 
-# Očekávaný výsledek:
-# Součet koeficientů je asi 5 076,0 g, stejně jako průměr Gentoo. Prvních
-# šest odhadnutých hodnot je 3 700,7 g (všichni jsou Adelie); první
-# residuum je 3 750 − 3 700,7 = 49,3 g. Interval rozdílu je asi
-# 1 260,7 až 1 490,0 g.
-#
 # Nápověda 1:
 # Model má jen dvě odhadnuté hodnoty, jednu pro každý druh. Residuum je
 # naměřená hmotnost minus odhadnutá hodnota jejího druhu.
@@ -364,6 +358,12 @@ coef(object = mod_ukazka)
 # Součet dvou čísel vrátí sum(); hmotnost prvního tučňáka je
 # data_dva_druhy$hmotnost_tela_g[1]. Interval čtěte ve sloupcích 2.5 %
 # a 97.5 % řádku druhGentoo.
+#
+# Očekávaný výsledek:
+# Součet koeficientů je asi 5 076,0 g, stejně jako průměr Gentoo. Prvních
+# šest odhadnutých hodnot je 3 700,7 g (všichni jsou Adelie); první
+# residuum je 3 750 − 3 700,7 = 49,3 g. Interval rozdílu je asi
+# 1 260,7 až 1 490,0 g.
 #
 # Interpretace:
 # Jak velké rozdíly v gramech jsou podle intervalu s daty slučitelné?
@@ -403,12 +403,6 @@ coef(object = mod_ukazka)
 # Vaše řešení:
 
 
-# Očekávaný výsledek:
-# Oba postupy dávají t = 23,61 při 272 stupních volnosti a interval
-# 1 260,7 až 1 490,0 g. P-hodnota je v obou výstupech zkrácená:
-# <2e-16 v summary() a < 2.2e-16 v t.test(). Rozdíl průměrů je
-# asi 1 375,4 g, stejně jako koeficient druhGentoo.
-#
 # Nápověda 1:
 # Obě funkce porovnávají stejný rozdíl, ve stejném směru a se stejným
 # předpokladem o rozptylu skupin.
@@ -417,6 +411,12 @@ coef(object = mod_ukazka)
 # Do x dejte hmotnosti s podmínkou druh == "Gentoo", do y hmotnosti
 # s podmínkou druh == "Adelie". V summary() čtěte řádek druhGentoo, ne
 # řádek (Intercept).
+#
+# Očekávaný výsledek:
+# Oba postupy dávají t = 23,61 při 272 stupních volnosti a interval
+# 1 260,7 až 1 490,0 g. P-hodnota je v obou výstupech zkrácená:
+# <2e-16 v summary() a < 2.2e-16 v t.test(). Rozdíl průměrů je
+# asi 1 375,4 g, stejně jako koeficient druhGentoo.
 #
 # Interpretace:
 # Znamená velmi malá p-hodnota sama o sobě velký biologický rozdíl? Co
@@ -442,11 +442,6 @@ coef(object = mod_ukazka)
 # Vaše řešení:
 
 
-# Očekávaný výsledek:
-# Intercept asi 3 700,7 g (Adelie); druhChinstrap asi +32,4 g, takže
-# Chinstrap asi 3 733,1 g; druhGentoo asi +1 375,4 g, takže Gentoo asi
-# 5 076,0 g. Interval druhChinstrap je asi −100,4 až 165,2 g.
-#
 # Nápověda 1:
 # Formule se nemění, mění se jen data. Každý další druh přidá jeden
 # rozdílový koeficient vůči referenci.
@@ -454,6 +449,11 @@ coef(object = mod_ukazka)
 # Nápověda 2:
 # V lm() použijte data = data_tucnaci. K interceptu přičtěte zvlášť
 # druhChinstrap a zvlášť druhGentoo.
+#
+# Očekávaný výsledek:
+# Intercept asi 3 700,7 g (Adelie); druhChinstrap asi +32,4 g, takže
+# Chinstrap asi 3 733,1 g; druhGentoo asi +1 375,4 g, takže Gentoo asi
+# 5 076,0 g. Interval druhChinstrap je asi −100,4 až 165,2 g.
 #
 # Interpretace:
 # Proč u Chinstrap interval obsahuje nulu, zatímco u Gentoo ne? Na jakou
@@ -490,13 +490,6 @@ coef(object = mod_ukazka)
 # Vaše řešení:
 
 
-# Očekávaný výsledek:
-# Residua tvoří svislé pásy kolem nuly, přibližně od −1 100 do +1 200 g;
-# žádný pás není výrazně širší než ostatní. Pásy Adelie a Chinstrap leží
-# vlevo těsně vedle sebe, protože se jejich průměry liší jen o 32 g;
-# pás Gentoo leží daleko vpravo. Body Q–Q grafu sledují přímku, jen na
-# koncích se mírně odchylují.
-#
 # Nápověda 1:
 # Graf proti odhadnutým hodnotám ukazuje, zda se rozptýlení residuí liší
 # mezi skupinami. Q–Q graf ukazuje tvar rozdělení residuí.
@@ -505,6 +498,13 @@ coef(object = mod_ukazka)
 # V plot() zadejte x = fitted(object = mod_tri_druhy) a y jako residua
 # stejného modelu; popisky os nastaví xlab a ylab. Do qqnorm() i qqline()
 # dejte argument y s residui.
+#
+# Očekávaný výsledek:
+# Residua tvoří svislé pásy kolem nuly, přibližně od −1 100 do +1 200 g;
+# žádný pás není výrazně širší než ostatní. Pásy Adelie a Chinstrap leží
+# vlevo těsně vedle sebe, protože se jejich průměry liší jen o 32 g;
+# pás Gentoo leží daleko vpravo. Body Q–Q grafu sledují přímku, jen na
+# koncích se mírně odchylují.
 #
 # Interpretace:
 # Je některý pás výrazně širší než ostatní? Co z těchto grafů nepoznáte
@@ -543,13 +543,6 @@ coef(object = mod_ukazka)
 # Vaše řešení:
 
 
-# Očekávaný výsledek:
-# Společný průměr je asi 4 201,8 g. SSE jednoho průměru je asi
-# 219 307 697 g², SSE tří průměrů asi 72 443 483 g² a rozdíl asi
-# 146 864 214 g²; stejná čísla jsou ve sloupci Sum Sq. F je asi 343,63
-# při 2 a 339 stupních volnosti a p-hodnota < 2.2e-16. H0: všechny tři
-# průměrné hmotnosti jsou v širší populaci stejné.
-#
 # Nápověda 1:
 # Tři průměry vždy zkrátí residua aspoň trochu. F porovnává, o kolik je
 # zkrátily, s typickým čtvercem residua, který zůstává uvnitř druhů.
@@ -557,6 +550,13 @@ coef(object = mod_ukazka)
 # Nápověda 2:
 # Součet čtverců získáte jako sum() z umocněných resid(), zvlášť pro
 # každý model. Rozdíl odpovídá řádku druh v tabulce anova().
+#
+# Očekávaný výsledek:
+# Společný průměr je asi 4 201,8 g. SSE jednoho průměru je asi
+# 219 307 697 g², SSE tří průměrů asi 72 443 483 g² a rozdíl asi
+# 146 864 214 g²; stejná čísla jsou ve sloupci Sum Sq. F je asi 343,63
+# při 2 a 339 stupních volnosti a p-hodnota < 2.2e-16. H0: všechny tři
+# průměrné hmotnosti jsou v širší populaci stejné.
 #
 # Interpretace:
 # Co říká malá p-hodnota o třech průměrech? Proč z ní samotné nepoznáte,
@@ -614,13 +614,6 @@ if (
 # Vaše řešení:
 
 
-# Očekávaný výsledek:
-# Chinstrap minus Adelie asi +32,4 g, interval asi −127 až 191 g
-# (obsahuje nulu), upravená p-hodnota asi 0,881. Gentoo minus Adelie asi
-# +1 375,4 g (interval asi 1 243 až 1 508 g) a Gentoo minus Chinstrap
-# asi +1 342,9 g (interval asi 1 178 až 1 507 g); oba intervaly leží celé
-# nad nulou.
-#
 # Nápověda 1:
 # Postup má dva kroky: nejprve průměry druhů, potom rozdíly mezi nimi.
 # Interval obsahující nulu znamená, že data rozdíl od nuly neodlišují.
@@ -628,6 +621,13 @@ if (
 # Nápověda 2:
 # Do emmeans::contrast() dejte object = prumery_druhu spolu s argumenty
 # method a adjust popsanými výše. Výsledek vložte do summary() s infer.
+#
+# Očekávaný výsledek:
+# Chinstrap minus Adelie asi +32,4 g, interval asi −127 až 191 g
+# (obsahuje nulu), upravená p-hodnota asi 0,881. Gentoo minus Adelie asi
+# +1 375,4 g (interval asi 1 243 až 1 508 g) a Gentoo minus Chinstrap
+# asi +1 342,9 g (interval asi 1 178 až 1 507 g); oba intervaly leží celé
+# nad nulou.
 #
 # Interpretace:
 # Dokazuje interval Chinstrap minus Adelie, že průměry obou druhů jsou
@@ -658,13 +658,6 @@ if (
 # Vaše řešení:
 
 
-# Očekávaný výsledek:
-# Závěr začíná gramy, ne p-hodnotou. Uvádí, že Gentoo jsou asi o 1 343 až
-# 1 375 g těžší než Adelie i Chinstrap s intervaly celými nad nulou, a že
-# rozdíl Adelie a Chinstrap (asi 32 g) data od nuly neodlišují. Zmíní
-# F-test, rozumná residua, propojení druhu s ostrovem a souvislost
-# hmotnosti s pohlavím. Netvrdí, že druh rozdíl hmotnosti způsobil.
-#
 # Nápověda 1:
 # Začněte rozdílem Gentoo a Adelie v gramech a řekněte, jak velké rozdíly
 # připouští jeho interval. Test až potom doplňuje, nenahrazuje.
@@ -672,6 +665,13 @@ if (
 # Nápověda 2:
 # Čísla vezměte z U02 (průměry), U09 (rozdíly a intervaly) a U08
 # (F-test); omezení z úvodu tohoto oddílu a z grafů v U07.
+#
+# Očekávaný výsledek:
+# Závěr začíná gramy, ne p-hodnotou. Uvádí, že Gentoo jsou asi o 1 343 až
+# 1 375 g těžší než Adelie i Chinstrap s intervaly celými nad nulou, a že
+# rozdíl Adelie a Chinstrap (asi 32 g) data od nuly neodlišují. Zmíní
+# F-test, rozumná residua, propojení druhu s ostrovem a souvislost
+# hmotnosti s pohlavím. Netvrdí, že druh rozdíl hmotnosti způsobil.
 #
 # Interpretace:
 # Která věta vašeho závěru by se změnila, kdyby tučňáci byli přiřazeni ke
@@ -706,11 +706,6 @@ if (
 # Vaše řešení:
 
 
-# Očekávaný výsledek:
-# Intercept je asi 5 076,0 g (Gentoo); druhAdelie asi −1 375,4 g
-# a druhChinstrap asi −1 342,9 g. Odhadnuté hodnoty jsou stejné;
-# all.equal() vrátí TRUE.
-#
 # Nápověda 1:
 # Reference určuje, od čeho se koeficienty měří, ale nemění data ani
 # průměry druhů.
@@ -719,6 +714,11 @@ if (
 # Kopii vytvoříte přiřazením data_jina_reference <- data_tucnaci.
 # Odhadnuté hodnoty porovnejte funkcí all.equal(), u obou vektorů
 # odstraňte jména pomocí unname().
+#
+# Očekávaný výsledek:
+# Intercept je asi 5 076,0 g (Gentoo); druhAdelie asi −1 375,4 g
+# a druhChinstrap asi −1 342,9 g. Odhadnuté hodnoty jsou stejné;
+# all.equal() vrátí TRUE.
 
 #----------------------------------------#
 ### Úloha navíc | L06-N02 -----
@@ -733,11 +733,6 @@ if (
 # Vaše řešení:
 
 
-# Očekávaný výsledek:
-# Rozdíl asi +32,4 g, interval asi −93,4 až 158,2 g, p-hodnota asi 0,612.
-# Tukeyho interval stejné dvojice (asi −127 až 191 g) je širší, protože
-# zohledňuje tři porovnání současně a používá rozptyl všech tří druhů.
-#
 # Nápověda 1:
 # Data připouštějí malé rozdíly v obou směrech; nula je jen jednou
 # z hodnot slučitelných s daty.
@@ -745,6 +740,11 @@ if (
 # Nápověda 2:
 # Podmínka výběru je druh %in% c("Adelie", "Chinstrap"); nezapomeňte
 # droplevels().
+#
+# Očekávaný výsledek:
+# Rozdíl asi +32,4 g, interval asi −93,4 až 158,2 g, p-hodnota asi 0,612.
+# Tukeyho interval stejné dvojice (asi −127 až 191 g) je širší, protože
+# zohledňuje tři porovnání současně a používá rozptyl všech tří druhů.
 
 #----------------------------------------#
 ### Úloha navíc | L06-N03 -----
@@ -758,12 +758,6 @@ if (
 # Vaše řešení:
 
 
-# Očekávaný výsledek:
-# Směrodatné odchylky jsou asi 384 až 504 g. Rozdíl Gentoo a ostatních
-# druhů (asi 1 343 až 1 375 g) je asi trojnásobkem typické odchylky,
-# rozdíl Adelie a Chinstrap (asi 32 g) je mnohem menší. F je podíl dvou
-# variabilit, nemá jednotku gram.
-#
 # Nápověda 1:
 # Rozdíly průměrů popisují polohu skupin; směrodatná odchylka rozptýlení
 # jedinců uvnitř skupiny.
@@ -771,6 +765,12 @@ if (
 # Nápověda 2:
 # Podělte rozdíl průměrů směrodatnou odchylkou a sledujte, kolik
 # „typických odchylek“ rozdíl měří.
+#
+# Očekávaný výsledek:
+# Směrodatné odchylky jsou asi 384 až 504 g. Rozdíl Gentoo a ostatních
+# druhů (asi 1 343 až 1 375 g) je asi trojnásobkem typické odchylky,
+# rozdíl Adelie a Chinstrap (asi 32 g) je mnohem menší. F je podíl dvou
+# variabilit, nemá jednotku gram.
 
 #----------------------------------------#
 ### Úloha navíc | L06-N04 -----
@@ -787,17 +787,17 @@ if (
 # Vaše řešení:
 
 
-# Očekávaný výsledek:
-# Chinstrap byli měřeni jen na ostrově Dream, Gentoo jen na Biscoe
-# a Adelie na všech třech ostrovech. Pohlaví chybí u 5 Adelie, 0 Chinstrap
-# a 4 Gentoo. Druh nelze v těchto datech oddělit od ostrova.
-#
 # Nápověda 1:
 # Nejprve zjistěte, zda jsou druhy na ostrovech vůbec zastoupeny společně.
 #
 # Nápověda 2:
 # Do table() dejte dva sloupce oddělené čárkou. V tapply() je X
 # is.na(data_tucnaci$pohlavi), INDEX druh a FUN = sum.
+#
+# Očekávaný výsledek:
+# Chinstrap byli měřeni jen na ostrově Dream, Gentoo jen na Biscoe
+# a Adelie na všech třech ostrovech. Pohlaví chybí u 5 Adelie, 0 Chinstrap
+# a 4 Gentoo. Druh nelze v těchto datech oddělit od ostrova.
 
 #--------------------------------------------------#
 ## Testy a jejich varianty -----
@@ -815,11 +815,6 @@ if (
 # Vaše řešení:
 
 
-# Očekávaný výsledek:
-# Welchův test: t asi 23,39, asi 249,6 stupně volnosti a interval asi
-# 1 259,5 až 1 491,2 g. Čísla se mírně liší od lm(), protože test už
-# nepředpokládá společný rozptyl.
-#
 # Nápověda 1:
 # Stejná otázka, jiný předpoklad o rozptylu skupin: každý druh má vlastní
 # rozptyl, a proto se mění i stupně volnosti.
@@ -827,6 +822,11 @@ if (
 # Nápověda 2:
 # Výchozí nastavení var.equal je FALSE, takže Welchův test spočítá
 # t.test() s hmotnostmi Gentoo a Adelie bez dalších argumentů.
+#
+# Očekávaný výsledek:
+# Welchův test: t asi 23,39, asi 249,6 stupně volnosti a interval asi
+# 1 259,5 až 1 491,2 g. Čísla se mírně liší od lm(), protože test už
+# nepředpokládá společný rozptyl.
 
 #----------------------------------------#
 ### Úloha navíc | L06-N06 -----
@@ -840,15 +840,15 @@ if (
 # Vaše řešení:
 
 
-# Očekávaný výsledek:
-# P-hodnota je asi 2,9 · 10^(−82); anova() ji zkracuje na < 2.2e-16.
-#
 # Nápověda 1:
 # P-hodnota F-testu je plocha napravo od pozorovaného F, protože velké F
 # svědčí proti stejným průměrům.
 #
 # Nápověda 2:
 # df1 je počet stupňů volnosti v řádku druh, df2 v řádku Residuals.
+#
+# Očekávaný výsledek:
+# P-hodnota je asi 2,9 · 10^(−82); anova() ji zkracuje na < 2.2e-16.
 
 #----------------------------------------#
 ### Úloha navíc | L06-N07 -----
@@ -862,16 +862,16 @@ if (
 # Vaše řešení:
 
 
-# Očekávaný výsledek:
-# Všechny tři součty jsou 0. Odhadnutá hodnota každého druhu je jeho
-# průměr, a odchylky od průměru se vždy vyruší.
-#
 # Nápověda 1:
 # Residuum je vzdálenost od průměru vlastního druhu.
 #
 # Nápověda 2:
 # Residua i druh patří ke stejným řádkům data_tucnaci, takže je tapply()
 # může spárovat.
+#
+# Očekávaný výsledek:
+# Všechny tři součty jsou 0. Odhadnutá hodnota každého druhu je jeho
+# průměr, a odchylky od průměru se vždy vyruší.
 
 #--------------------------------------------------#
 ## Párová porovnání podrobněji -----
@@ -889,17 +889,17 @@ if (
 # Vaše řešení:
 
 
-# Očekávaný výsledek:
-# Průměry asi 3 701, 3 733 a 5 076 g s intervaly asi 3 627–3 775,
-# 3 623–3 843 a 4 994–5 158 g. Tyto intervaly popisují nejistotu
-# jednotlivých průměrů, ne rozdílů mezi nimi.
-#
 # Nápověda 1:
 # Interval průměru odpovídá na otázku „kde leží průměr druhu?“, interval
 # rozdílu na otázku „o kolik se dva druhy liší?“.
 #
 # Nápověda 2:
 # Stačí napsat název objektu a spustit jej.
+#
+# Očekávaný výsledek:
+# Průměry asi 3 701, 3 733 a 5 076 g s intervaly asi 3 627–3 775,
+# 3 623–3 843 a 4 994–5 158 g. Tyto intervaly popisují nejistotu
+# jednotlivých průměrů, ne rozdílů mezi nimi.
 
 #----------------------------------------#
 ### Úloha navíc | L06-N09 -----
@@ -913,17 +913,17 @@ if (
 # Vaše řešení:
 
 
-# Očekávaný výsledek:
-# Bez úpravy je interval Chinstrap minus Adelie asi −100 až 165 g
-# a p-hodnota asi 0,631; s Tukeyho úpravou asi −127 až 191 g a 0,881.
-# Tukeyho intervaly jsou širší, protože chrání všechny tři dvojice
-# současně.
-#
 # Nápověda 1:
 # Čím více dvojic čteme, tím snáz některá vyjde náhodně extrémní.
 #
 # Nápověda 2:
 # Hodnota "none" argumentu adjust vypne úpravu na počet dvojic.
+#
+# Očekávaný výsledek:
+# Bez úpravy je interval Chinstrap minus Adelie asi −100 až 165 g
+# a p-hodnota asi 0,631; s Tukeyho úpravou asi −127 až 191 g a 0,881.
+# Tukeyho intervaly jsou širší, protože chrání všechny tři dvojice
+# současně.
 
 #--------------------------------------------------#
 ## Stejný postup v nové situaci -----
@@ -941,11 +941,6 @@ if (
 # Vaše řešení:
 
 
-# Očekávaný výsledek:
-# Intercept asi −5 780,8 g a sklon asi 49,7 g na 1 mm. Sklon je změna
-# hmotnosti při prodloužení ploutve o 1 mm; druhGentoo je rozdíl průměrů
-# dvou skupin. Záporný intercept je extrapolace k ploutvi dlouhé 0 mm.
-#
 # Nápověda 1:
 # Formule má stejný tvar, mění se jen typ prediktoru a tím význam
 # koeficientu.
@@ -953,6 +948,11 @@ if (
 # Nápověda 2:
 # Numerický sloupec ve formuli nevyžaduje faktor; koeficient se pak
 # jmenuje podle sloupce, ne podle úrovně.
+#
+# Očekávaný výsledek:
+# Intercept asi −5 780,8 g a sklon asi 49,7 g na 1 mm. Sklon je změna
+# hmotnosti při prodloužení ploutve o 1 mm; druhGentoo je rozdíl průměrů
+# dvou skupin. Záporný intercept je extrapolace k ploutvi dlouhé 0 mm.
 
 #----------------------------------------#
 ### Úloha navíc | L06-N11 -----
@@ -967,16 +967,16 @@ if (
 # Vaše řešení:
 
 
-# Očekávaný výsledek:
-# Referencí je Biscoe (abecedně první), jeho průměr je asi 4 716,0 g.
-# Dream je asi o 1 003,1 g a Torgersen asi o 1 009,6 g lehčí. F je asi
-# 110,0 při 2 a 339 stupních volnosti.
-#
 # Nápověda 1:
 # Textový sloupec použije R jako faktor s úrovněmi v abecedním pořadí.
 #
 # Nápověda 2:
 # Úrovně zjistíte pomocí levels(x = factor(x = data_tucnaci$ostrov)).
+#
+# Očekávaný výsledek:
+# Referencí je Biscoe (abecedně první), jeho průměr je asi 4 716,0 g.
+# Dream je asi o 1 003,1 g a Torgersen asi o 1 009,6 g lehčí. F je asi
+# 110,0 při 2 a 339 stupních volnosti.
 #
 # Interpretace:
 # Všichni tučňáci oslí žijí v datech na Biscoe. Je rozdíl ostrovů
@@ -995,15 +995,15 @@ if (
 # Vaše řešení:
 
 
-# Očekávaný výsledek:
-# F je asi 557,6 a t² = 23,61² je také asi 557,6. U dvou skupin dává
-# celkový F-test stejnou odpověď jako t-test koeficientu.
-#
 # Nápověda 1:
 # U dvou skupin je jediná dvojice, takže celková a párová otázka splynou.
 #
 # Nápověda 2:
 # Druhou mocninu spočítáte operátorem ^, například 23.61^2.
+#
+# Očekávaný výsledek:
+# F je asi 557,6 a t² = 23,61² je také asi 557,6. U dvou skupin dává
+# celkový F-test stejnou odpověď jako t-test koeficientu.
 
 #----------------------------------------#
 ### Úloha navíc | L06-N13 -----
@@ -1023,10 +1023,6 @@ if (
 # Vaše řešení:
 
 
-# Očekávaný výsledek:
-# Průměrné čtverce jsou asi 73 432 107 a 213 698 g², takže F je asi
-# 343,63, stejně jako v tabulce anova().
-#
 # Nápověda 1:
 # Kdyby druh nepomáhal, byl by průměrný čtverec mezi skupinami podobně
 # velký jako uvnitř nich a F by bylo kolem 1.
@@ -1034,6 +1030,10 @@ if (
 # Nápověda 2:
 # Mezi skupinami dělte rozdíl SSE dvěma, uvnitř skupin dělte SSE tří
 # průměrů výsledkem df.residual(); potom oba výsledky podělte.
+#
+# Očekávaný výsledek:
+# Průměrné čtverce jsou asi 73 432 107 a 213 698 g², takže F je asi
+# 343,63, stejně jako v tabulce anova().
 
 #----------------------------------------------------------#
 # Ohlédnutí a vlastní kontrola -----
