@@ -12,12 +12,12 @@ here::i_am("R/verify_pollslive_assets.R")
 # local PollsLive preparation verifies the approved bytes instead.
 approved_assets <-
   c(
+    "l05-odhad-se-lokality.png" =
+      "fe97bd59c9aa76a5f37c5a0f2fa10532b5e66c093338c63aacebab88ef1d92f4",
     "l05-p-value-tails.png" =
       "7d0af829f0e0accb6d93121748bbdef8af4b9c717b3f6694cc9555930b43621a",
-    "l05-type-i-error.jpg" =
-      "c4473f17924c95d164c13d1c82f374540a74cccb1fc6b0eaa00ad1e127260228",
-    "l05-effect-first-conclusion.png" =
-      "09baa768bfa852a78c694d732b782bd8e547c2528b10c2bef0e903c3c326180b"
+    "l05-mala-studie.png" =
+      "5928a8b42ce8081fe5fc3946956ba6e0e8066c4bc2b1f4909a11ce0bf69de593"
   )
 
 asset_paths <-

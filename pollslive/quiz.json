@@ -8,90 +8,90 @@
   "title": "L06 – Opakování předchozí lekce – 2026/27",
   "questions": [
     {
-      "id": "spravne-cteni-p-hodnoty",
-      "text": "Která věta správně čte malou p-hodnotu?",
+      "id": "t-a-stupne-volnosti",
+      "text": "Spočítejte t-statistiku sklonu a určete reziduální stupně volnosti. Model stojí na průměrech lokalit.",
       "options": [
         {
-          "id": "pravdepodobnost-hypotezy",
-          "label": "Nulová hypotéza má malou pravděpodobnost, že je pravdivá."
+          "id": "t-6-df-11",
+          "label": "t ≈ 6; df = 11"
         },
         {
-          "id": "neobvykle-za-nuly",
-          "label": "Pokud platí nulový model, výsledek alespoň tak extrémní jako náš by byl velmi neobvyklý."
+          "id": "t-6-df-390",
+          "label": "t ≈ 6; df = 390"
         },
         {
-          "id": "velky-efekt",
-          "label": "Biologický efekt musí být velký."
+          "id": "t-6-df-13",
+          "label": "t ≈ 6; df = 13"
         },
         {
-          "id": "pricinna-souvislost",
-          "label": "Studie dokázala příčinný vztah."
+          "id": "t-0-16-df-390",
+          "label": "t ≈ 0,16; df = 390"
         }
       ],
-      "correctOptionId": "neobvykle-za-nuly",
-      "explanation": "P-hodnota je podmíněná nulovým modelem. Neudává pravděpodobnost hypotézy ani velikost či biologický význam efektu.",
+      "correctOptionId": "t-6-df-11",
+      "explanation": "t = odhad / SE = 0,49 / 0,08 ≈ 6. Jednotkou pozorování je lokalita, ne krab: df = 13 lokalit − 2 koeficienty = 11.",
+      "media": {
+        "path": "assets/l05-odhad-se-lokality.png",
+        "alt": "Výstup R: koeficienty modelu průměrné šířky krunýře podle zeměpisné šířky zaokrouhlené na dvě desetinná místa, sklon 0.49 a jeho Std. Error 0.08; data mají 13 lokalit a celkem 392 krabů.",
+        "provenance": "Rendered by R/render_pollslive_assets.R from lm(prumerna_sirka_mm ~ zemepisna_sirka) fitted to the approved L05 site means (pollslive/source/pie_crab_site_means.csv, SHA-256 pinned in the script); checksum pinned in R/verify_pollslive_assets.R."
+      }
+    },
+    {
+      "id": "vyklad-male-p-hodnoty",
+      "text": "Test sklonu dal p = 0,00007. Která věta je správná?",
+      "options": [
+        {
+          "id": "nahodou",
+          "label": "Pravděpodobnost, že sklon vznikl jen náhodou, je pouhých 0,007 %."
+        },
+        {
+          "id": "vzacne-za-h0",
+          "label": "Za platnosti H₀ by odhad alespoň takto vzdálený od nuly vycházel zřídka."
+        },
+        {
+          "id": "pravdepodobnost-ha",
+          "label": "S pravděpodobností 99,993 % se krunýř směrem k severu skutečně zvětšuje."
+        },
+        {
+          "id": "opakovani",
+          "label": "Kdybychom studii zopakovali, vyšla by významná s pravděpodobností 99,993 %."
+        }
+      ],
+      "correctOptionId": "vzacne-za-h0",
+      "explanation": "P-hodnota se počítá za předpokladu, že platí H₀ a model. Není pravděpodobností hypotézy, „náhody“ ani opakování výsledku.",
       "media": {
         "path": "assets/l05-p-value-tails.png",
         "alt": "Nulové t-rozdělení se zvýrazněnými oběma chvosty za stejně extrémními hodnotami, jako je pozorovaná statistika.",
-        "provenance": "Byte-identical copy of approved L05 figure Presentation/Materials/p_hodnota_chvosty.png; checksum pinned by R/render_pollslive_assets.R."
+        "provenance": "Byte-identical copy of approved L05 figure Presentation/Materials/p_hodnota_chvosty.png; checksum pinned in R/verify_pollslive_assets.R."
       }
     },
     {
-      "id": "chyba-prvniho-stupne",
-      "text": "Test označí efekt, ačkoli ve skutečnosti žádný systematický efekt není. Jaký typ chyby nastal?",
+      "id": "mala-studie-zaver",
+      "text": "Jiná studie změřila kraby jen na 4 lokalitách. Který závěr je nejlepší?",
       "options": [
         {
-          "id": "chyba-i",
-          "label": "Chyba I. typu"
+          "id": "nesouvisi",
+          "label": "Nová studie ukazuje, že zeměpisná šířka s šířkou krunýře nesouvisí."
         },
         {
-          "id": "chyba-ii",
-          "label": "Chyba II. typu"
+          "id": "studie-si-odporuji",
+          "label": "Obě studie si odporují, protože jedna je významná a druhá ne."
         },
         {
-          "id": "bezchybny-zaver",
-          "label": "Bezchybný závěr"
+          "id": "chyba-i-typu",
+          "label": "Nová studie nezamítla H₀, takže se dopustila chyby I. typu."
         },
         {
-          "id": "variabilita-nemozna",
-          "label": "Výběrová variabilita nemůže takový výsledek vytvořit"
+          "id": "slucitelna-s-obojim",
+          "label": "Data jsou slučitelná s nulou i s naším sklonem 0,49 mm/°."
         }
       ],
-      "correctOptionId": "chyba-i",
-      "explanation": "Chyba I. typu je falešně pozitivní rozhodnutí: zamítneme nulovou hypotézu, přestože v popsaném světě platí.",
+      "correctOptionId": "slucitelna-s-obojim",
+      "explanation": "Interval obsahuje nulu i náš sklon 0,49 mm/°. Nevýznamnost nedokazuje nulový efekt; malá studie mohla efekt přehlédnout (chyba II. typu).",
       "media": {
-        "path": "assets/l05-type-i-error.jpg",
-        "alt": "Ilustrace falešně pozitivního rozhodnutí: test hlásí efekt, přestože v popsaném světě systematický efekt není.",
-        "provenance": "Byte-identical copy of approved L05 figure Presentation/Materials/chyba_i_falesne_pozitivni.jpg; checksum pinned by R/render_pollslive_assets.R."
-      }
-    },
-    {
-      "id": "uplny-vedecky-zaver",
-      "text": "Který závěr je vědecky nejúplnější?",
-      "options": [
-        {
-          "id": "male-p-znamena-dulezity",
-          "label": "P-hodnota je malá, proto je vztah biologicky důležitý."
-        },
-        {
-          "id": "pravdepodobnost-nuly",
-          "label": "Nulová hypotéza je nepravdivá s pravděpodobností odpovídající p-hodnotě."
-        },
-        {
-          "id": "efekt-nejistota-omezeni",
-          "label": "Ve sledovaných lokalitách se šířka krunýře směrem k severu zvětšovala; uvedeme odhad s intervalem a připomeneme observační omezení."
-        },
-        {
-          "id": "nevyznamny-dokazuje-nulu",
-          "label": "Nevýznamný výsledek by dokazoval, že žádný efekt neexistuje."
-        }
-      ],
-      "correctOptionId": "efekt-nejistota-omezeni",
-      "explanation": "Závěr začíná efektem v biologických jednotkách, doplní nejistotu a důkaz a respektuje rozsah observačních dat.",
-      "media": {
-        "path": "assets/l05-effect-first-conclusion.png",
-        "alt": "Výsledková karta uvádí kladný odhad změny šířky krunýře, 95% interval a upozornění na observační omezení studie.",
-        "provenance": "Deterministically rendered by R/render_pollslive_assets.R from the approved L05 crab site means and fitted linear model."
+        "path": "assets/l05-mala-studie.png",
+        "alt": "Karta srovnává naši studii (13 lokalit, sklon 0,49 mm na stupeň) s novou studií ze 4 lokalit: sklon 0,45 mm na stupeň, 95% interval od −0,20 do 1,10 mm na stupeň, p = 0,10.",
+        "provenance": "Rendered by R/render_pollslive_assets.R; a hypothetical four-site study whose estimate, interval and p-value are internally consistent for df = 2 (SE 0,151), contrasted with the approved L05 crab model; checksum pinned in R/verify_pollslive_assets.R."
       }
     }
   ]
