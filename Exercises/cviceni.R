@@ -311,12 +311,14 @@ coef(object = mod_ukazka)
 
 # Nápověda 1:
 # Výběr řádků určí, které druhy v tabulce zůstanou. Pořadí úrovní faktoru
-# určí, který z nich bude referencí.
+# určí, který z nich bude referenční skupinou.
 #
 # Nápověda 2:
 # Řádky vyberte jako v U01, jen s podmínkou postavenou z %in%. Výsledek
 # droplevels() přiřaďte zpět do data_dva_druhy$druh. Ve formuli lm() je
-# odezva vlevo od ~ a druh vpravo.
+# odezva vlevo od ~ a druh vpravo. R zapisuje druh do modelu jako
+# přepínač 0/1: Gentoo = 1, Adelie = 0. Koeficient druhGentoo je proto
+# rozdíl průměrů.
 #
 # Očekávaný výsledek:
 # data_dva_druhy má 274 řádků a úrovně "Adelie" "Gentoo". Intercept je
@@ -518,14 +520,17 @@ coef(object = mod_ukazka)
 # - model s jedním společným průměrem: lm(formula = hmotnost_tela_g ~ 1),
 #   kde 1 znamená „jen intercept“;
 # - model se třemi průměry druhů: mod_tri_druhy.
-# Součet čtverců residuí (SSE) je součet umocněných residuí,
-# sum(resid(object = model)^2). Rozdíl SSE obou modelů je část
-# variability zachycená druhem.
+# Součet čtverců residuí (RSS) je součet umocněných residuí,
+# sum(resid(object = model)^2). RSS modelu s jediným průměrem je
+# celkový součet čtverců. RSS modelu se třemi průměry je součet čtverců
+# uvnitř skupin. Jejich rozdíl je součet čtverců mezi skupinami, tedy
+# část variability zachycená druhem.
 # Funkce anova(object = mod_tri_druhy) celý výpočet zobrazí v jedné
-# tabulce. Sloupec Sum Sq obsahuje součty čtverců: řádek druh rozdíl SSE
-# obou modelů, řádek Residuals SSE tří průměrů. Sloupec F value je
-# F-statistika, která tento rozdíl porovnává s variabilitou uvnitř
-# druhů; Pr(>F) je její p-hodnota.
+# tabulce. Sloupec Sum Sq obsahuje součty čtverců: řádek druh součet
+# čtverců mezi skupinami, řádek Residuals součet čtverců uvnitř skupin
+# (RSS tří průměrů). Sloupec F value je F-statistika, která porovnává
+# variabilitu mezi skupinami s variabilitou uvnitř druhů; Pr(>F) je
+# její p-hodnota.
 
 #----------------------------------------#
 ### Úloha | L06-U08 -----
@@ -552,11 +557,12 @@ coef(object = mod_ukazka)
 # každý model. Rozdíl odpovídá řádku druh v tabulce anova().
 #
 # Očekávaný výsledek:
-# Společný průměr je asi 4 201,8 g. SSE jednoho průměru je asi
-# 219 307 697 g², SSE tří průměrů asi 72 443 483 g² a rozdíl asi
-# 146 864 214 g²; stejná čísla jsou ve sloupci Sum Sq. F je asi 343,63
-# při 2 a 339 stupních volnosti a p-hodnota < 2.2e-16. H0: všechny tři
-# průměrné hmotnosti jsou v širší populaci stejné.
+# Společný průměr je asi 4 201,8 g. Celkový součet čtverců (RSS jednoho
+# průměru) je asi 219 307 697 g², součet čtverců uvnitř skupin (RSS tří
+# průměrů) asi 72 443 483 g² a jejich rozdíl, součet čtverců mezi
+# skupinami, asi 146 864 214 g²; stejná čísla jsou ve sloupci Sum Sq.
+# F je asi 343,63 při 2 a 339 stupních volnosti a p-hodnota < 2.2e-16.
+# H0: všechny tři průměrné hmotnosti jsou v širší populaci stejné.
 #
 # Interpretace:
 # Co říká malá p-hodnota o třech průměrech? Proč z ní samotné nepoznáte,
@@ -1028,8 +1034,9 @@ if (
 # velký jako uvnitř nich a F by bylo kolem 1.
 #
 # Nápověda 2:
-# Mezi skupinami dělte rozdíl SSE dvěma, uvnitř skupin dělte SSE tří
-# průměrů výsledkem df.residual(); potom oba výsledky podělte.
+# Součet čtverců mezi skupinami dělte dvěma, součet čtverců uvnitř
+# skupin (RSS tří průměrů) dělte výsledkem df.residual(); potom oba
+# výsledky podělte.
 #
 # Očekávaný výsledek:
 # Průměrné čtverce jsou asi 73 432 107 a 213 698 g², takže F je asi

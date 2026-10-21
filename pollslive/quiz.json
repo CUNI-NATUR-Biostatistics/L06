@@ -9,7 +9,7 @@
   "questions": [
     {
       "id": "t-a-stupne-volnosti",
-      "text": "Spočítejte t-statistiku sklonu a určete reziduální stupně volnosti. Model stojí na průměrech lokalit.",
+      "text": "Spočítejte t-statistiku sklonu a určete residuální stupně volnosti. Model stojí na průměrech lokalit.",
       "options": [
         {
           "id": "t-6-df-11",

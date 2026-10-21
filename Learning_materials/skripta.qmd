@@ -199,7 +199,7 @@ Způsob uvažování zůstává stejný. Výsledek začíná jednotlivými `r re
 Po prostudování této lekce dokážete:
 
 - fitovat `lm(y ~ skupina)` pro dvě i více skupin a přečíst jeho koeficienty;
-- interpretovat `r render_glossary_term("intercept", display = "intercept")` jako `r render_glossary_term("prumer", display = "průměr")` referenční skupiny a ostatní koeficienty jako rozdíly vůči této skupině;
+- interpretovat `r render_glossary_term("intercept", display = "intercept")` jako `r render_glossary_term("prumer", display = "průměr")` `r render_glossary_term("referencni-skupina", display = "referenční skupiny")` a ostatní koeficienty jako rozdíly vůči této skupině;
 - vysvětlit `r render_glossary_term("t-test", display = "dvouvýběrový t-test")` a `r render_glossary_term("anova", display = "analýzu rozptylu (ANOVA)")` jako otázky položené `r render_glossary_term("linearni-model", display = "lineárnímu modelu")`;
 - rozlišit celkový F-test od `r render_glossary_term("post-hoc-test", display = "post-hoc porovnání")` dvojic a rozhodnout, kdy párová porovnání dávají smysl;
 - napsat závěr v biologicky smysluplných jednotkách: rozdíl, jeho `r render_glossary_term("nejistota", display = "nejistota")`, test a omezení studie.
@@ -280,7 +280,7 @@ colSums(x = is.na(x = data_tucnaci))
 
 Tabulka má `r count_all` řádků. Sloupec `druh` je zatím text (`chr`) a u `r count_missing_mass` tučňáků chybí hmotnost. Hmotnost se pohybuje od `r format_cz(min(data_penguins$hmotnost_tela_g), 0)` do `r format_cz(max(data_penguins$hmotnost_tela_g), 0)` g, což jsou u dospělých tučňáků těchto druhů věrohodné hodnoty.
 
-Model hmotnosti nemůže použít řádek, ve kterém hmotnost chybí: bez naměřené `r render_glossary_term("odezva", display = "odezvy")` nelze spočítat `r render_glossary_term("residuum", display = "residuum")`. Ponecháme proto jen tučňáky se změřenou hmotností. Ostatní chybějící položky (například pohlaví) zatím nevadí, protože je v modelu nepoužíváme. Sloupec `druh` zároveň převedeme na **faktor**, tedy kategoriální proměnnou s pevně daným pořadím úrovní. Toto pořadí bude později důležité pro čtení koeficientů.
+Model hmotnosti nemůže použít řádek, ve kterém hmotnost chybí: bez naměřené odezvy nelze spočítat `r render_glossary_term("residuum", display = "residuum")`. Ponecháme proto jen tučňáky se změřenou hmotností. Ostatní chybějící položky (například pohlaví) zatím nevadí, protože je v modelu nepoužíváme. Sloupec `druh` zároveň převedeme na **faktor**, tedy kategoriální proměnnou s pevně daným pořadím `r render_glossary_term("uroven-faktoru", display = "úrovní")`. Toto pořadí bude později důležité pro čtení koeficientů.
 
 ```{r}
 #| label: odstranit-chybejici-hmotnosti-viditelne
@@ -527,7 +527,7 @@ ggplot2::ggplot(
 
 Po rozdělení vidíme silný posun: body tučňáků oslích leží převážně výše. Zároveň se hodnoty uvnitř každého druhu liší a oba soubory se částečně překrývají. Druh nám tedy pomohl odhalit strukturu, kterou šedý graf skrýval.
 
-### Průměr a `r render_glossary_term("smerodatna-odchylka", display = "směrodatná odchylka")` každého druhu
+### Průměr a směrodatná odchylka každého druhu
 
 ```{r}
 #| label: spocitat-souhrny-dvou-druhu
@@ -655,9 +655,9 @@ ggplot2::ggplot(
 
 Průměr tučňáků oslích je o `r format_cz(difference_gentoo_adelie, 1)` g vyšší než průměr tučňáků kroužkových. To je hlavní věcný rozdíl, který bude náš model popisovat.
 
-## Rozdíl `r render_glossary_term("prumer", display = "průměrů")`
+## Rozdíl průměrů
 
-Dva průměry se mohou lišit o stejnou hodnotu, ale síla informace závisí také na `r render_glossary_term("variabilita", display = "variabilitě")` uvnitř skupin. Následující graf proto skrývá jednotlivé body a ponechává pouze tři součásti: dva průměry, jejich rozdíl a `r render_glossary_term("smerodatna-odchylka", display = "SD")` každé skupiny.
+Dva `r render_glossary_term("prumer", display = "průměry")` se mohou lišit o stejnou hodnotu, ale síla informace závisí také na `r render_glossary_term("variabilita", display = "variabilitě")` uvnitř skupin. Následující graf proto skrývá jednotlivé body a ponechává pouze tři součásti: dva průměry, jejich rozdíl a `r render_glossary_term("smerodatna-odchylka", display = "SD")` každé skupiny.
 
 ```{r}
 #| label: zobrazit-rozdil-prumeru-a-sd
@@ -832,15 +832,15 @@ Rozdíl průměrů je ve všech panelech stejný. Ve kterém panelu bychom nejsn
 Nejsnáze v levém panelu: skupiny se téměř nepřekrývají a rozdíl průměrů je mnohem větší než typická odchylka jedince od průměru jeho skupiny. Nejhůře v pravém panelu: rozdíl průměrů je zde stejně velký jako směrodatná odchylka uvnitř skupin a skupiny se výrazně překrývají. Stejný rozdíl průměrů tak může být přesvědčivý i sotva rozeznatelný.
 :::
 
-**Rozdíl průměrů tedy nečteme izolovaně. Posuzujeme jej vzhledem k variabilitě, která zůstává kolem skupinových průměrů.** Z tohoto porovnání vychází také název metody `r render_glossary_term("anova", display = "analýza rozptylu")`, ke které se v této lekci dostaneme: porovnává variabilitu zachycenou rozdílnými skupinovými průměry s residuální variabilitou uvnitř skupin.
+**Rozdíl průměrů tedy nečteme izolovaně. Posuzujeme jej vzhledem k variabilitě, která zůstává kolem skupinových průměrů.** Z tohoto porovnání vychází také název metody `r render_glossary_term("anova", display = "analýza rozptylu")` (ANOVA), ke které se v této lekci dostaneme: porovnává variabilitu zachycenou rozdílnými skupinovými průměry s residuální variabilitou uvnitř skupin.
 
 Rozdíl hmotností zatím pouze popisujeme. Abychom k němu mohli připojit nejistotu a test, **fitujeme `r render_glossary_term("linearni-model", display = "lineární model")`**: `r render_glossary_term("odezva", display = "odezvou")` bude hmotnost těla a `r render_glossary_term("prediktor", display = "prediktorem")` druh. Před vložením `r render_glossary_term("kategoricka-promenna", display = "kategoriální proměnné")` do známé formule si připomeneme, jak model pracoval s `r render_glossary_term("numericka-promenna", display = "numerickým prediktorem")`.
 
-## Stejný `r render_glossary_term("linearni-model", display = "lineární model")`, jiný `r render_glossary_term("prediktor", display = "prediktor")`
+## Stejný lineární model, jiný prediktor
 
 ### Připomenutí: přímka pro délku ploutve a hmotnost
 
-V lekci o vztazích dvou proměnných jsme u tučňáků kreslili bodový graf délky ploutve a tělesné hmotnosti; v lekci o lineárním modelu jsme podobný vztah popsali přímkou. Přímku si připomeneme právě na tučňácích: délka ploutve (sloupec `delka_kridla_mm`) bude prediktorem a hmotnost těla `r render_glossary_term("odezva", display = "odezvou")`.
+V lekci o vztazích dvou proměnných jsme u tučňáků kreslili bodový graf délky ploutve a tělesné hmotnosti; v lekci o `r render_glossary_term("linearni-model", display = "lineárním modelu")` jsme podobný vztah popsali přímkou. Přímku si připomeneme právě na tučňácích: délka ploutve (sloupec `delka_kridla_mm`) bude `r render_glossary_term("prediktor", display = "prediktorem")` a hmotnost těla `r render_glossary_term("odezva", display = "odezvou")`.
 
 ```{r}
 #| label: pripravit-pripomenuti-ciselneho-modelu
@@ -885,7 +885,7 @@ x_flipper_min <- min(data_flipper_model$delka_kridla_mm)
 x_flipper_max <- max(data_flipper_model$delka_kridla_mm)
 ```
 
-Každý bod je jeden tučňák. Délka ploutve určuje jeho vodorovnou polohu a fialová přímka ukazuje, jakou hmotnost model pro tuto délku `r render_glossary_term("odhadnuta-hodnota", display = "odhaduje")`.
+Každý bod je jeden tučňák. Délka ploutve určuje jeho vodorovnou polohu a fialová přímka ukazuje `r render_glossary_term("odhadnuta-hodnota", display = "odhadnutou hodnotu")` hmotnosti pro tuto délku.
 
 ```{r}
 #| label: zobrazit-ciselny-model-primka
@@ -927,9 +927,9 @@ ggplot2::ggplot(
 
 {{< pagebreak >}}
 
-### Kde je `r render_glossary_term("intercept", display = "intercept")`?
+### Kde je intercept?
 
-V lekci o lineárním modelu jsme intercept a sklon psali jako $a$ a $b$. V lekcích o nejistotě a testování hypotéz jsme pro stejné koeficienty používali řecké písmeno $\beta$ (beta): $\beta_0$ je intercept a $\beta_1$ sklon v širší populaci. Stříška označuje odhad z našich dat, takže $\hat{\beta}_0$ je totéž co dřívější $a$ a $\hat{\beta}_1$ totéž co $b$.
+V lekci o lineárním modelu jsme `r render_glossary_term("intercept", display = "intercept")` a `r render_glossary_term("sklon", display = "sklon")` psali jako $a$ a $b$. V lekcích o nejistotě a testování hypotéz jsme pro stejné koeficienty používali řecké písmeno $\beta$ (beta): $\beta_0$ je intercept a $\beta_1$ sklon v širší populaci. Stříška označuje odhad z našich dat, takže $\hat{\beta}_0$ je totéž co dřívější $a$ a $\hat{\beta}_1$ totéž co $b$.
 
 Intercept $\hat{\beta}_0$ je odhadnutá hmotnost tučňáka s ploutví dlouhou 0 mm. Nula leží daleko mimo pozorované délky ploutví (`r x_flipper_min`–`r x_flipper_max` mm), proto plnou přímku prodloužíme čárkovaně až k nule. Vychází $\hat{\beta}_0 = `r format_cz_math(intercept_flipper, 0)`$ g, tedy záporná hmotnost. Intercept umíme v rovnici vypočítat, ale tady nemá biologický smysl: je to extrapolace daleko za naše data.
 
@@ -1010,7 +1010,7 @@ ggplot2::ggplot(
 
 {{< pagebreak >}}
 
-### Kde je `r render_glossary_term("sklon", display = "sklon")`?
+### Kde je sklon?
 
 Sklon $\hat{\beta}_1$ je změna odhadnuté hmotnosti při prodloužení ploutve o 1 mm. Jeden milimetr by byl v grafu téměř neviditelný, proto zvýrazníme prodloužení o `r x_slope_end - x_slope_start` mm. Odpovídající změna výšky přímky je $10 \cdot \hat{\beta}_1 = `r format_cz_math(10 * slope_flipper, 0)`$ g.
 
@@ -1095,9 +1095,9 @@ ggplot2::ggplot(
 
 {{< pagebreak >}}
 
-### Kde je `r render_glossary_term("residuum", display = "residuum")`?
+### Kde je residuum?
 
-Residuum je svislá vzdálenost naměřené hodnoty od hodnoty na přímce. U zvýrazněného tučňáka s ploutví dlouhou `r data_flipper_residual$delka_kridla_mm` mm porovnáme naměřenou hmotnost `r format_cz(data_flipper_residual$hmotnost_tela_g, 0)` g s odhadem modelu `r format_cz(data_flipper_residual$fitted_flipper, 0)` g. Residuum je jejich rozdíl, `r format_cz(data_flipper_residual$residual_flipper, 0)` g.
+`r render_glossary_term("residuum", display = "Residuum")` je svislá vzdálenost naměřené hodnoty od hodnoty na přímce. U zvýrazněného tučňáka s ploutví dlouhou `r data_flipper_residual$delka_kridla_mm` mm porovnáme naměřenou hmotnost `r format_cz(data_flipper_residual$hmotnost_tela_g, 0)` g s odhadnutou hodnotou `r format_cz(data_flipper_residual$fitted_flipper, 0)` g. Residuum je jejich rozdíl, `r format_cz(data_flipper_residual$residual_flipper, 0)` g.
 
 ```{r}
 #| label: zobrazit-ciselny-model-residuum
@@ -1259,11 +1259,11 @@ $$
 
 Číslo $x_i$ určovalo polohu pozorování na vodorovné ose a výraz $\hat{\beta}_0 + \hat{\beta}_1 x_i$ vybral odpovídající výšku na přímce. Prediktor druh ale obsahuje názvy, ne čísla. Aby mohl vstoupit do stejného výpočtu, model si z něj vytvoří číselnou proměnnou.
 
-## `r render_glossary_term("linearni-model", display = "Lineární model")` s `r render_glossary_term("kategoricka-promenna", display = "kategoriální proměnnou")`
+## Lineární model s kategoriální proměnnou
 
 Vraťme se k hlavní biologické otázce: **liší se `r render_glossary_term("prumer", display = "průměrná hmotnost")` Adélie a Gentoo?** `r render_glossary_term("odezva", display = "Odezvou")` je stále hmotnost těla v gramech. Místo numerické délky ploutve ale modelu předáváme název druhu.
 
-Lineární model potřebuje způsob, jak dvě kategorie vložit do rovnice. Pro dva druhy stačí `r render_glossary_term("binarni-promenna", display = "binární proměnná")` **„je Gentoo?“**: hodnota 0 znamená „ne“, tedy Adélie, a hodnota 1 znamená „ano“, tedy Gentoo. Protože takovou proměnnou zapínáme a vypínáme, budeme jí říkat **přepínač**. Nejde o nové biologické měření ani pořadí druhů. Je to pouze číselný zápis příslušnosti ke skupině. Tabulka jej ukazuje jako nový sloupec vedle dvou skutečných `r render_glossary_term("pozorovani", display = "pozorování")`.
+`r render_glossary_term("linearni-model", display = "Lineární model")` potřebuje způsob, jak dvě kategorie vložit do rovnice. Pro dva druhy stačí `r render_glossary_term("binarni-promenna", display = "binární proměnná")` **„je Gentoo?“**: hodnota 0 znamená „ne“, tedy Adélie, a hodnota 1 znamená „ano“, tedy Gentoo. Protože takovou proměnnou zapínáme a vypínáme, budeme jí říkat **přepínač**. Nejde o nové biologické měření ani pořadí druhů. Je to pouze číselný zápis příslušnosti ke skupině. Tabulka jej ukazuje jako nový sloupec vedle dvou skutečných `r render_glossary_term("pozorovani", display = "pozorování")`.
 
 ```{r}
 #| label: pripravit-prepinac-druhu
@@ -1340,7 +1340,7 @@ data_switch_examples |>
 
 {{< pagebreak >}}
 
-V následujícím grafu tvoří stejná proměnná vodorovnou osu. Model stále dostává přesně hodnotu 0 nebo 1. Jednotlivé body v každé skupině pouze nepatrně posuneme doleva a doprava, aby se navzájem nepřekrývaly; tento zobrazovací posun nevytváří nové hodnoty `r render_glossary_term("prediktor", display = "prediktoru")`. Vodorovné úsečky jsou dvě `r render_glossary_term("odhadnuta-hodnota", display = "odhadnuté hodnoty")` a tečkované svislice jsou vzdálenosti jednotlivých měření od těchto odhadů.
+V následujícím grafu tvoří stejná proměnná vodorovnou osu. Model stále dostává přesně hodnotu 0 nebo 1. Jednotlivé body v každé skupině pouze nepatrně posuneme doleva a doprava, aby se navzájem nepřekrývaly; tento zobrazovací posun nevytváří nové hodnoty `r render_glossary_term("prediktor", display = "prediktoru")`. Vodorovné úsečky jsou dvě `r render_glossary_term("odhadnuta-hodnota", display = "odhadnuté hodnoty")` a tečkované svislice jsou vzdálenosti jednotlivých měření od těchto odhadnutých hodnot.
 
 ```{r}
 #| label: zobrazit-binarni-prediktor
@@ -1486,14 +1486,14 @@ $$
 Zápis se od numerického prediktoru nezměnil. Změnil se význam $x_i$ a tím i význam koeficientu $\hat{\beta}_1$: už nepopisuje změnu při zvýšení prediktoru o jednu měrnou jednotku, ale rozdíl jedné skupiny vůči referenční skupině.
 
 ::: {.box-warning title="Nula a jednička nejsou pořadí druhů"}
-Kdybychom vyměnili referenční druh, změnil by se přepínač, intercept i znaménko koeficientu. Skupinové průměry a biologický obsah dat by však zůstaly stejné. Kódování je jazyk modelu, ne vlastnost tučňáků.
+Kdybychom vyměnili druh, vůči kterému model rozdíl zapisuje, změnil by se přepínač, intercept i znaménko koeficientu. Skupinové průměry a biologický obsah dat by však zůstaly stejné. Kódování je jazyk modelu, ne vlastnost tučňáků.
 :::
 
 ## Dvouskupinový model v R
 
-V R zůstává funkce `lm()` stejná. Do pravé strany formule vložíme `druh`. R ale musí rozhodnout, vůči kterému druhu bude zapisovat rozdíl. Proto zvolí jednu úroveň faktoru jako **referenční skupinu**. <!-- TODO: add slug referencni-skupina to pojmy.yaml -->
+V R zůstává funkce `lm()` stejná. Do pravé strany formule vložíme `druh`. R ale musí rozhodnout, vůči kterému druhu bude zapisovat rozdíl. Proto zvolí jednu `r render_glossary_term("uroven-faktoru", display = "úroveň faktoru")` jako **`r render_glossary_term("referencni-skupina", display = "referenční skupinu")`**.
 
-Ve výchozím kódování používá R jako referenci první úroveň faktoru. Při přípravě dat jsme pořadí nastavili na `Adelie`, `Chinstrap`, `Gentoo`; po ponechání dvou druhů proto zůstane první Adélie. Volba reference je nutná, protože informace „je Adélie?“ a „je Gentoo?“ jsou u dvou druhů navzájem dokonale propojené: známe-li jednu odpověď, druhou už dopočítáme. Model proto použije jeden společný základ – `r render_glossary_term("intercept", display = "intercept")` reference – a jeden rozdíl druhé skupiny vůči němu.
+Ve výchozím kódování používá R jako referenční skupinu první úroveň faktoru. Při přípravě dat jsme pořadí nastavili na `Adelie`, `Chinstrap`, `Gentoo`; po ponechání dvou druhů proto zůstane první Adélie. Volba referenční skupiny je nutná, protože informace „je Adélie?“ a „je Gentoo?“ jsou u dvou druhů navzájem dokonale propojené: známe-li jednu odpověď, druhou už dopočítáme. Model proto použije jeden společný základ – `r render_glossary_term("intercept", display = "intercept")` referenční skupiny – a jeden rozdíl druhé skupiny vůči němu.
 
 ```{r}
 #| label: fitovat-model-dvou-druhu-viditelne
@@ -1690,7 +1690,7 @@ ggplot2::ggplot(
 
 Intercept `r format_cz(intercept_two, 1)` g je průměr referenční skupiny Adélie. Koeficient `druhGentoo` `r format_cz(difference_two, 1)` g je rozdíl **Gentoo minus Adélie**. Součet obou koeficientů dává `r format_cz(intercept_two + difference_two, 1)` g, tedy průměr Gentoo.
 
-::: {.box-data title="Doplňující: co se změní, když zvolíme jinou referenci?" collapse="true"}
+::: {.box-data title="Doplňující: co se změní, když zvolíme jinou referenční skupinu?" collapse="true"}
 Referenci můžeme změnit funkcí `relevel()`. Když jako základ zvolíme Gentoo, intercept se stane průměrem Gentoo a rozdílový koeficient bude Adélie minus Gentoo. `r render_glossary_term("odhadnuta-hodnota", display = "Odhadnuté skupinové průměry")`, `r render_glossary_term("residuum", display = "residua")` i biologický obsah modelu zůstanou stejné; změní se pouze způsob jejich zápisu.
 
 ```{r}
@@ -1715,11 +1715,11 @@ mod_reference_gentoo <-
 coef(mod_reference_gentoo)
 ```
 
-Při referenci Gentoo je intercept `r format_cz(intercept_two + difference_two, 1)` g a koeficient `druhAdelie` je `r format_cz(-difference_two, 1)` g. Součet opět vrátí průměr Adélie `r format_cz(intercept_two, 1)` g.
+Při referenční skupině Gentoo je intercept `r format_cz(intercept_two + difference_two, 1)` g a koeficient `druhAdelie` je `r format_cz(-difference_two, 1)` g. Součet opět vrátí průměr Adélie `r format_cz(intercept_two, 1)` g.
 :::
 
-::: {.box-rule title="Ve studii s kontrolou nastavte referenci záměrně"}
-Pokud má studie skutečnou kontrolní skupinu, je obvykle nejčitelnější nastavit ji jako referenci. Intercept potom vyjadřuje průměr kontroly a každý léčebný koeficient odpovídá přímo otázce **ošetření minus kontrola**.
+::: {.box-rule title="Ve studii s kontrolou nastavte referenční skupinu záměrně"}
+Pokud má studie skutečnou kontrolní skupinu, je obvykle nejčitelnější nastavit ji jako referenční skupinu. Intercept potom vyjadřuje průměr kontroly a každý léčebný koeficient odpovídá přímo otázce **ošetření minus kontrola**.
 
 ```r
 data_studie$skupina <-
@@ -1731,16 +1731,16 @@ data_studie$skupina <-
 levels(data_studie$skupina)
 ```
 
-Tato volba pouze zpřehlední koeficienty. Nevytváří randomizaci, kontrolní podmínku ani kauzální důkaz — ty závisejí na designu studie. Změna reference také nemění odhadnuté skupinové průměry, residua ani celkový test modelu.
+Tato volba pouze zpřehlední koeficienty. Nevytváří randomizaci, kontrolní podmínku ani kauzální důkaz — ty závisejí na designu studie. Změna referenční skupiny také nemění odhadnuté skupinové průměry, residua ani celkový test modelu.
 :::
 
 ::: {.box-warning title="Co netestuje řádek interceptu"}
 `r render_glossary_term("p-hodnota", display = "P-hodnota")` v řádku interceptu porovnává průměr Adélie s nulovou hmotností. Nulová hmotnost není naše biologická otázka. Otázku rozdílu druhů ve dvouskupinovém modelu najdeme v řádku `druhGentoo`.
 :::
 
-## `r render_glossary_term("odhadnuta-hodnota", display = "Odhadnuté hodnoty")` a `r render_glossary_term("residuum", display = "residua")` nezmizely
+## Odhadnuté hodnoty a residua nezmizely
 
-V modelu s číselným `r render_glossary_term("prediktor", display = "prediktorem")` měla každá délka ploutve vlastní hodnotu na přímce. V modelu se dvěma skupinami existují jen dvě odhadnuté hodnoty: `r render_glossary_term("prumer", display = "průměr")` Adélie a průměr Gentoo. Každý jedinec stejného druhu dostane stejnou odhadnutou hmotnost, ale vlastní residuum.
+V modelu s numerickým `r render_glossary_term("prediktor", display = "prediktorem")` měla každá délka ploutve vlastní hodnotu na přímce. V modelu se dvěma skupinami existují jen dvě `r render_glossary_term("odhadnuta-hodnota", display = "odhadnuté hodnoty")`: `r render_glossary_term("prumer", display = "průměr")` Adélie a průměr Gentoo. Každý jedinec stejného druhu dostane stejnou odhadnutou hmotnost, ale vlastní `r render_glossary_term("residuum", display = "residuum")`.
 
 ```{r}
 #| label: spocitat-odhadnute-hodnoty-residua
@@ -1915,7 +1915,7 @@ head(
 ```
 
 ::: {.box-result title="Co zůstalo stejné"}
-`r render_glossary_term("linearni-model", display = "Lineární model")` stále rozděluje každou naměřenou hodnotu na systematickou část a residuum. U číselného prediktoru byla systematickou částí přímka; u `r render_glossary_term("kategoricka-promenna", display = "kategoriálního prediktoru")` jsou jí skupinové průměry.
+`r render_glossary_term("linearni-model", display = "Lineární model")` stále rozděluje každou naměřenou hodnotu na systematickou část a residuum. U numerického prediktoru byla systematickou částí přímka; u `r render_glossary_term("kategoricka-promenna", display = "kategoriálního prediktoru")` jsou jí skupinové průměry.
 :::
 
 {{< pagebreak >}}
@@ -1971,7 +1971,7 @@ $$
 \operatorname{SE}(\hat{\beta}_1).
 $$
 
-Pro 95% interval necháváme 2,5 % `r render_glossary_term("rozdeleni", display = "t-rozdělení")` v každém krajním chvostu. `r render_glossary_term("kriticka-hodnota", display = "Kritická hodnota")` proto závisí na zvolené `r render_glossary_term("hladina-spolehlivosti", display = "hladině 95 %")` a na `r df_two` residuálních `r render_glossary_term("stupne-volnosti", display = "stupních volnosti")`; zde je `r format_cz(qt(0.975, df = df_two), 3)`.
+Pro 95% interval necháváme 2,5 % `r render_glossary_term("t-rozdeleni", display = "t-rozdělení")` v každém krajním chvostu. `r render_glossary_term("kriticka-hodnota", display = "Kritická hodnota")` proto závisí na zvolené `r render_glossary_term("hladina-spolehlivosti", display = "hladině 95 %")` a na `r df_two` residuálních `r render_glossary_term("stupne-volnosti", display = "stupních volnosti")`; zde je `r format_cz(qt(0.975, df = df_two), 3)`.
 
 {{< pagebreak >}}
 
@@ -2063,7 +2063,7 @@ Interval sahá od `r format_cz(confint_two["druhGentoo", 1], 1)` do `r format_cz
 
 ### Je rozdíl slučitelný s nulou?
 
-`r render_glossary_term("nulova-hypoteza", display = "Nulová hypotéza")` a alternativa mluví o rozdílu `r render_glossary_term("prumer", display = "průměrných")` hmotností obou druhů v širší populaci, ze které změření tučňáci pocházejí: <!-- TODO: add slug alternativni-hypoteza to pojmy.yaml -->
+`r render_glossary_term("nulova-hypoteza", display = "Nulová hypotéza")` a `r render_glossary_term("alternativni-hypoteza", display = "alternativa")` mluví o rozdílu `r render_glossary_term("prumer", display = "průměrných")` hmotností obou druhů v širší `r render_glossary_term("populace", display = "populaci")`, ze které změření tučňáci pocházejí:
 
 $$
 H_0:
@@ -2081,7 +2081,7 @@ H_A:
 \neq 0.
 $$
 
-Se symboly jde o tvrzení o populačním koeficientu: $H_0: \beta_1 = 0$ a $H_A: \beta_1 \neq 0$. Pro výpočet si znovu zobrazíme celý výstup modelu. V řádku `druhGentoo` stojí vedle sebe všechny tři hodnoty, které potřebujeme: odhad rozdílu, jeho standardní chyba a vypočtená t-statistika.
+Se symboly jde o tvrzení o populačním koeficientu: $H_0: \beta_1 = 0$ a $H_A: \beta_1 \neq 0$. Pro výpočet si znovu zobrazíme celý výstup modelu. V řádku `druhGentoo` stojí vedle sebe všechny tři hodnoty, které potřebujeme: odhad rozdílu, jeho standardní chyba a vypočtená `r render_glossary_term("t-statistika", display = "t-statistika")`.
 
 {{< pagebreak >}}
 
@@ -2094,7 +2094,7 @@ summary(mod_dva_druhy)
 
 V řádku `druhGentoo` tedy čteme `Estimate` = `r format_cz(difference_two, 2)`, `Std. Error` = `r format_cz(se_difference_two, 2)` a `t value` = `r format_cz(t_difference_two, 2)`. Následující rovnice pouze ukazuje, jak R ze dvou prvních sloupců získalo třetí.
 
-Z předchozí lekce známe vztah mezi odhadem, nulovou hodnotou a jeho `r render_glossary_term("nejistota", display = "nejistotou")`. Slovy: <!-- TODO: add slug t-statistika to pojmy.yaml -->
+Z předchozí lekce známe vztah mezi odhadem, nulovou hodnotou a jeho `r render_glossary_term("nejistota", display = "nejistotou")`. Slovy:
 
 $$
 \text{t-statistika}
@@ -2349,11 +2349,11 @@ ggplot2::ggplot(
 
 Pozorovaný rozdíl leží `r format_cz(t_difference_two, 2)` standardních chyb nad nulou, takže skutečně pozorovaná t-statistika je $+`r format_cz_math(t_difference_two, 2)`$. Záporná hodnota $-`r format_cz_math(abs(t_difference_two), 2)`$ nebyla pozorována; je to zrcadlová hranice potřebná pro oboustrannou otázku. Při `r df_two` residuálních stupních volnosti je součet ploch za oběma hranicemi, tedy p-hodnota, `r format_p_cz(p_difference_two)`. Za předpokladů modelu jsou data velmi obtížně slučitelná s přesně nulovým rozdílem mezi těmito dvěma druhy. Slovo „za předpokladů“ je důležité: residua tohoto modelu kontrolujeme stejně jako u přímky. Jak to vypadá u kategoriálního prediktoru, ukážeme níže na modelu se třemi druhy; stejné grafy platí i pro dva druhy.
 
-### Historická poznámka: `r render_glossary_term("t-test", display = "dvouvýběrový t-test")` v literatuře
+### Historická poznámka: dvouvýběrový t-test v literatuře
 
 Statistické metody se historicky vyučovaly jako soubor samostatně pojmenovaných testů pro různé situace: jeden test pro dva průměry, jiný pro více průměrů, další pro vztah dvou numerických proměnných. Takové názvy byly praktické v době ručních výpočtů a tabulek, a proto zůstávají v učebnicích, článcích i nabídkách statistických programů dodnes.
 
-Mnoho těchto klasických postupů ale můžeme zapsat jako speciální případy jednoho regresního modelu. Dvouskupinový t-test se společným `r render_glossary_term("rozptyl", display = "rozptylem")` používá za stejných předpokladů tentýž odhad rozdílu, standardní chybu, t-statistiku a p-hodnotu jako koeficient `druhGentoo` v našem dvouskupinovém `r render_glossary_term("linearni-model", display = "lineárním modelu")`. Nemusíme se tedy učit nový způsob uvažování: biologickou otázku, odhad, nejistotu i test stále čteme z jednoho modelového rámce.
+Mnoho těchto klasických postupů ale můžeme zapsat jako speciální případy jednoho regresního modelu. `r render_glossary_term("t-test", display = "Dvouvýběrový t-test")` se společným `r render_glossary_term("rozptyl", display = "rozptylem")` používá za stejných předpokladů tentýž odhad rozdílu, standardní chybu, t-statistiku a p-hodnotu jako koeficient `druhGentoo` v našem dvouskupinovém `r render_glossary_term("linearni-model", display = "lineárním modelu")`. Nemusíme se tedy učit nový způsob uvažování: biologickou otázku, odhad, nejistotu i test stále čteme z jednoho modelového rámce.
 
 Název **dvouvýběrový t-test** však budeme potkávat v další literatuře. Následující příklad proto ukazuje, jak známý modelový výsledek přeložit do historického názvu testu a zpět. Nejde o další nesouvisející analýzu. Aby znaménko odpovídalo našemu koeficientu, odečteme Adélie od Gentoo.
 
@@ -2438,7 +2438,7 @@ Bez argumentu `var.equal = TRUE` používá R Welchův t-test, který nevyžaduj
 
 ## Tři druhy, stejná formule
 
-Do dat se vrací tučňák uzdičkový (Chinstrap). Do `lm()` nemusíme přidávat nový druh ručně: faktor `druh` už obsahuje všechny tři úrovně.
+Do dat se vrací tučňák uzdičkový (Chinstrap). Do `lm()` nemusíme přidávat nový druh ručně: faktor `druh` už obsahuje všechny tři `r render_glossary_term("uroven-faktoru", display = "úrovně")`.
 
 ```{r}
 #| label: fitovat-model-tri-druhy-skryte
@@ -2587,7 +2587,7 @@ ggplot2::ggplot(
   ggplot2::theme(legend.position = "none")
 ```
 
-`r render_glossary_term("prumer", display = "Průměry")` Adélie a Chinstrap leží blízko sebe, zatímco průměr Gentoo je mnohem výše. To je přesně situace, ve které potřebujeme odlišit tři otázky: jak se jednotlivé skupiny liší od reference, zda jsou všechny tři průměry celkově stejné a které konkrétní dvojice chceme porovnat.
+`r render_glossary_term("prumer", display = "Průměry")` Adélie a Chinstrap leží blízko sebe, zatímco průměr Gentoo je mnohem výše. To je přesně situace, ve které potřebujeme odlišit tři otázky: jak se jednotlivé skupiny liší od referenční skupiny, zda jsou všechny tři průměry celkově stejné a které konkrétní dvojice chceme porovnat.
 
 {{< pagebreak >}}
 
@@ -2609,7 +2609,7 @@ confint(mod_tri_druhy)
 
 ### Tři skupiny potřebují dva přepínače
 
-Adélie zůstává referencí. Model proto vytvoří přepínač pro Chinstrap a druhý pro Gentoo.
+Adélie zůstává `r render_glossary_term("referencni-skupina", display = "referenční skupinou")`. Model proto vytvoří přepínač pro Chinstrap a druhý pro Gentoo.
 
 ```{r}
 #| label: ukazat-dva-prepinace
@@ -2722,7 +2722,7 @@ data_coef_three |>
   dplyr::transmute(
     `Řádek výstupu` = radek,
     `Odhad (g)` = round(odhad_g, digits = 1),
-    `Význam při referenci Adélie` = vyznam
+    `Význam při referenční skupině Adélie` = vyznam
   ) |>
   knitr::kable(
     caption = "Koeficienty třískupinového modelu."
@@ -2730,7 +2730,7 @@ data_coef_three |>
 ```
 
 ::: {.box-warning title="Koeficienty neobsahují všechny dvojice"}
-Tabulka s referencí Adélie přímo odpovídá na otázky Chinstrap minus Adélie a Gentoo minus Adélie. Rozdíl Gentoo minus Chinstrap v ní není samostatný řádek, i když jej lze ze stejného modelu odvodit.
+Tabulka s referenční skupinou Adélie přímo odpovídá na otázky Chinstrap minus Adélie a Gentoo minus Adélie. Rozdíl Gentoo minus Chinstrap v ní není samostatný řádek, i když jej lze ze stejného modelu odvodit.
 :::
 
 ## Popisuje model data rozumně?
@@ -2743,9 +2743,9 @@ Test předpokládá nezávislá `r render_glossary_term("pozorovani", display = 
 
 ::: {.box-data collapse="true" title="Doplňující: co když se skupiny liší variabilitou?"}
 
-Rozdílný rozptyl residuí neznamená, že rozdíl průměrů zmizel. Znamená, že běžný model se společným residuálním rozptylem nemusí správně vyjádřit nejistotu tohoto rozdílu. Nápovědou může být výrazně širší pás residuí u jednoho druhu nebo skupinové rozdělení s velmi odlišnou šířkou.
+Rozdílný rozptyl residuí ve skupinách (`r render_glossary_term("heteroskedasticita", display = "heteroskedasticita")`) neznamená, že rozdíl průměrů zmizel. Znamená, že běžný model se společným residuálním rozptylem nemusí správně vyjádřit nejistotu tohoto rozdílu. Nápovědou může být výrazně širší pás residuí u jednoho druhu nebo skupinové rozdělení s velmi odlišnou šířkou.
 
-Pro dvě skupiny už jsme viděli Welchův t-test, který společný rozptyl nevyžaduje. Pro více skupin existuje Welchova ANOVA a v modelovém rámci také další způsoby výpočtu odolnější nejistoty. Volba řešení závisí na otázce, velikosti skupin a tvaru dat; diagnostický graf proto nemá sloužit jako automatický příkaz k transformaci nebo mazání pozorování.
+Pro dvě skupiny už jsme viděli `r render_glossary_term("welchuv-t-test", display = "Welchův t-test")`, který společný rozptyl nevyžaduje. Pro více skupin existuje Welchova ANOVA a v modelovém rámci také další způsoby výpočtu odolnější nejistoty. Volba řešení závisí na otázce, velikosti skupin a tvaru dat; diagnostický graf proto nemá sloužit jako automatický příkaz k `r render_glossary_term("transformace", display = "transformaci")` nebo mazání pozorování.
 :::
 
 ```{r}
@@ -2861,7 +2861,7 @@ ggplot2::ggplot(
 
 Q–Q graf porovnává seřazená residua s hodnotami očekávanými při přibližně normálním tvaru. Body většinou sledují přímku. Model proto pro srovnání skupin nevykazuje problém, který by převzal hlavní biologický příběh, a můžeme jej použít k testům. To neznamená, že jsou předpoklady „dokázané“; znamená to, že grafy neukazují zásadní rozpor.
 
-## Jedna celková otázka: `r render_glossary_term("anova", display = "analýza rozptylu")`
+## Jedna celková otázka: analýza rozptylu
 
 U dvou skupin stačil jediný koeficient: Gentoo minus Adélie. U tří skupin už model obsahuje dva rozdílové koeficienty a jejich samostatné řádky neodpovídají přímo na jednu společnou otázku. Celková otázka zní, zda přidání `r render_glossary_term("promenna", display = "proměnné")` `druh` zlepší popis dat jako celek:
 
@@ -2874,7 +2874,7 @@ Alternativa neříká, která dvojice se liší. Říká pouze, že alespoň jed
 
 ### Jeden společný průměr proti třem skupinovým průměrům
 
-`r render_glossary_term("nulova-hypoteza", display = "Nulová hypotéza")` odpovídá jednoduššímu modelu bez `r render_glossary_term("prediktor", display = "prediktoru")`: všem tučňákům přiřadí jeden společný průměr. Model s druhem je složitější a přiřadí každému jedinci průměr jeho druhu. Otázku analýzy rozptylu proto můžeme přeformulovat: **zkrátí tři skupinové průměry `r render_glossary_term("residuum", display = "residua")` natolik, aby přidaná složitost modelu stála za to?**
+`r render_glossary_term("nulova-hypoteza", display = "Nulová hypotéza")` odpovídá jednoduššímu modelu bez `r render_glossary_term("prediktor", display = "prediktoru")`: všem tučňákům přiřadí jeden společný průměr. Model s druhem je složitější a přiřadí každému jedinci průměr jeho druhu. Otázku `r render_glossary_term("anova", display = "analýzy rozptylu")` proto můžeme přeformulovat: **zkrátí tři skupinové průměry `r render_glossary_term("residuum", display = "residua")` natolik, aby přidaná složitost modelu stála za to?**
 
 ```{r}
 #| label: pripravit-porovnani-jednoho-a-tri-prumeru
@@ -2995,12 +2995,12 @@ data_sse_labels <-
 data_ss_parts <-
   tibble::tibble(
     cast = factor(
-      c("zachyceno rozdíly druhů", "zůstává uvnitř druhů"),
-      levels = c("zůstává uvnitř druhů", "zachyceno rozdíly druhů")
+      c("mezi skupinami", "uvnitř skupin (RSS)"),
+      levels = c("uvnitř skupin (RSS)", "mezi skupinami")
     ),
     ss = c(sse_reduction, sse_three_means),
     label = paste0(
-      c("druh: ", "residua: "),
+      c("mezi skupinami: ", "uvnitř skupin: "),
       format(
         round(c(sse_reduction, sse_three_means)),
         big.mark = " ",
@@ -3115,21 +3115,21 @@ ggplot2::ggplot(
   ggplot2::theme(legend.position = "none")
 ```
 
-V levém panelu jsou residua vzdálenosti od jednoho společného průměru. V pravém panelu jsou vzdálenosti od průměru vlastního druhu. `r render_glossary_term("soucet-ctvercu-residui", display = "Součet čtverců residuí")` klesne z `r format_cz(sse_one_mean, 0)` na `r format_cz(sse_three_means, 0)` g². Rozdílné skupinové průměry tedy vysvětlí část `r render_glossary_term("variabilita", display = "variability")`, která v jednodušším modelu zůstávala v residuích.
+V levém panelu jsou residua vzdálenosti od jednoho společného průměru. V pravém panelu jsou vzdálenosti od průměru vlastního druhu. `r render_glossary_term("soucet-ctvercu-residui", display = "Součet čtverců residuí")` klesne z `r format_cz(sse_one_mean, 0)` na `r format_cz(sse_three_means, 0)` g². Rozdílné skupinové průměry tedy zachytí část `r render_glossary_term("variabilita", display = "variability")`, která v jednodušším modelu zůstávala v residuích.
 
 Proč residua umocňujeme? Kdybychom pouze sečetli kladné a záporné vzdálenosti od průměru, navzájem by se vyrušily. Čtverce jsou vždy nezáporné a velkým odchylkám dávají větší váhu. Stejnou myšlenku součtu čtverců residuí už známe z fitování přímky.
 
-Pokles součtu čtverců můžeme zobrazit jako rozdělení původní chyby jednoduššího modelu na dvě části:
+Součet čtverců residuí modelu s jediným společným průměrem má vlastní název: je to `r render_glossary_term("celkovy-soucet-ctvercu", display = "celkový součet čtverců")`, protože měří celkovou variabilitu hmotností kolem společného průměru. Pokles součtu čtverců můžeme zobrazit jako jeho rozdělení na dvě části:
 
 $$
-\underbrace{\text{SSE jednoho průměru}}_{`r format_cz_math(sse_one_mean, 0)`}
+\underbrace{\text{celkový součet čtverců}}_{`r format_cz_math(sse_one_mean, 0)`}
 =
-\underbrace{\text{SS zachycený druhem}}_{`r format_cz_math(sse_reduction, 0)`}
+\underbrace{\text{součet čtverců mezi skupinami}}_{`r format_cz_math(sse_reduction, 0)`}
 +
-\underbrace{\text{SSE tří průměrů}}_{`r format_cz_math(sse_three_means, 0)`}.
+\underbrace{\text{součet čtverců uvnitř skupin (RSS)}}_{`r format_cz_math(sse_three_means, 0)`}.
 $$
 
-Obecně: $\mathrm{SSE}_{\text{jeden průměr}} = \mathrm{SS}_{\text{druh}} + \mathrm{SSE}_{\text{tři průměry}}$, kde SSE je součet čtverců residuí daného modelu a $\mathrm{SS}_{\text{druh}}$ část, kterou zachytily rozdíly průměrů druhů.
+Obecně: $SS_{\mathrm{total}} = SS_{\text{mezi}} + SS_{\text{uvnitř}}$, kde $SS_{\mathrm{total}}$ je celkový součet čtverců, $SS_{\text{mezi}}$ součet čtverců mezi skupinami, tedy část, kterou zachytily rozdíly průměrů druhů, a $SS_{\text{uvnitř}}$ součet čtverců uvnitř skupin. Ten je totéž co součet čtverců residuí (RSS) modelu se třemi průměry.
 
 ```{r}
 #| label: zobrazit-rozklad-souctu-ctvercu
@@ -3138,14 +3138,14 @@ Obecně: $\mathrm{SSE}_{\text{jeden průměr}} = \mathrm{SS}_{\text{druh}} + \ma
 #| message: false
 #| warning: false
 #| error: false
-#| fig-cap: "Původní součet čtverců residuí se po přidání druhu rozdělí na část zachycenou rozdíly skupinových průměrů a část, která stále zůstává uvnitř druhů."
-#| fig-alt: "Vodorovný sloupec součtu čtverců rozdělený na fialovou část zachycenou rozdíly druhů a šedou část, která zůstává uvnitř druhů; fialová část je větší."
+#| fig-cap: "Celkový součet čtverců se po přidání druhu rozdělí na součet čtverců mezi skupinami, zachycený rozdíly skupinových průměrů, a součet čtverců uvnitř skupin (RSS), který stále zůstává uvnitř druhů."
+#| fig-alt: "Vodorovný sloupec celkového součtu čtverců rozdělený na fialovou část mezi skupinami a šedou část uvnitř skupin; fialová část je větší."
 #| fig-width: 9
 #| fig-height: 3.2
 ggplot2::ggplot(
   data = data_ss_parts,
   mapping = ggplot2::aes(
-    x = "jeden společný průměr",
+    x = "celkový součet čtverců",
     y = ss,
     fill = cast
   )
@@ -3166,8 +3166,8 @@ ggplot2::ggplot(
   ) +
   ggplot2::scale_fill_manual(
     values = c(
-      "zůstává uvnitř druhů" = biostat_cols[["grey_olive"]],
-      "zachyceno rozdíly druhů" = biostat_cols[["amethyst"]]
+      "uvnitř skupin (RSS)" = biostat_cols[["grey_olive"]],
+      "mezi skupinami" = biostat_cols[["amethyst"]]
     )
   ) +
   ggplot2::labs(
@@ -3178,14 +3178,14 @@ ggplot2::ggplot(
   ggplot2::theme(legend.position = "bottom")
 ```
 
-### Co porovnává `r render_glossary_term("f-statistika", display = "F-statistika")`
+### Co porovnává F-statistika
 
 Samotný pokles součtu čtverců nestačí. Složitější model téměř vždy residua alespoň trochu zkrátí, protože dostal více koeficientů. Potřebujeme proto porovnat dvě veličiny na férovém měřítku:
 
 1. kolik variability zachytil každý přidaný rozdíl mezi skupinami;
 2. jak velký čtverec residua typicky zůstává uvnitř skupin.
 
-F-statistika je poměr právě těchto dvou množství. Protože porovnává dvě variability, jmenuje se metoda **analýza rozptylu**, i když biologická otázka mluví o průměrech.
+`r render_glossary_term("f-statistika", display = "F-statistika")` je poměr právě těchto dvou množství. Protože porovnává dvě variability, jmenuje se metoda **analýza rozptylu**, i když biologická otázka mluví o průměrech.
 
 Slovy:
 
@@ -3246,10 +3246,9 @@ data_f_observed <-
   )
 ```
 
-Čísla už jsme viděli ve dvou konkrétních grafech. V grafu **jeden společný průměr proti třem skupinovým průměrům** byl součet čtverců residuí jednoho průměru `r format_cz(sse_one_mean, 0)` g² a součet čtverců residuí tří průměrů `r format_cz(sse_three_means, 0)` g². Jejich rozdíl `r format_cz(sse_reduction, 0)` g² tvoří fialovou část grafu rozkladu součtu čtverců – část zachycenou druhem.
+Čísla už jsme viděli ve dvou konkrétních grafech. V grafu **jeden společný průměr proti třem skupinovým průměrům** byl celkový součet čtverců (součet čtverců residuí jednoho průměru) `r format_cz(sse_one_mean, 0)` g² a součet čtverců uvnitř skupin (RSS tří průměrů) `r format_cz(sse_three_means, 0)` g². Jejich rozdíl `r format_cz(sse_reduction, 0)` g² je součet čtverců mezi skupinami – fialová část grafu rozkladu, kterou zachytil druh.
 
-<!-- TODO: add slug prumerny-ctverec to pojmy.yaml -->
-Součty čtverců převedeme na srovnatelné **průměrné čtverce** dělením příslušnými `r render_glossary_term("stupne-volnosti", display = "stupni volnosti")`. Model přidal `r df_group` rozdílové koeficienty; uvnitř skupin zbývá `r df_residual` residuálních stupňů volnosti:
+Součty čtverců převedeme na srovnatelné **`r render_glossary_term("prumerny-ctverec", display = "průměrné čtverce")`** dělením příslušnými `r render_glossary_term("stupne-volnosti", display = "stupni volnosti")`. Model přidal `r df_group` rozdílové koeficienty; uvnitř skupin zbývá `r df_residual` residuálních stupňů volnosti:
 
 $$
 \begin{aligned}
@@ -3303,10 +3302,10 @@ Obecně:
 $$
 F
 =
-\frac{MS_{\text{mezi skupinami}}}{MS_{\text{uvnitř skupin}}}.
+\frac{MS_{\text{mezi}}}{MS_{\text{uvnitř}}}.
 $$
 
-Symbol $MS$ označuje průměrný čtverec (*mean square*): součet čtverců dělený příslušnými stupni volnosti. F-statistika tak spojuje všechny předchozí kroky: rozdíly průměrů mění `r render_glossary_term("odhadnuta-hodnota", display = "odhadnuté hodnoty")`, tím zkracují residua, z residuí počítáme součty čtverců a jejich férově přepočtený poměr testuje společnou nulovou hypotézu.
+Symbol $MS$ označuje průměrný čtverec (*mean square*): součet čtverců dělený příslušnými stupni volnosti; $MS_{\text{mezi}} = SS_{\text{mezi}}/df_{\text{mezi}}$ a $MS_{\text{uvnitř}} = SS_{\text{uvnitř}}/df_{\text{uvnitř}}$. F-statistika tak spojuje všechny předchozí kroky: rozdíly průměrů mění `r render_glossary_term("odhadnuta-hodnota", display = "odhadnuté hodnoty")`, tím zkracují residua, z residuí počítáme součty čtverců a jejich férově přepočtený poměr testuje společnou nulovou hypotézu.
 
 ```{r}
 #| label: zobrazit-anova-vysledek
@@ -3324,7 +3323,7 @@ Tabulka je kompaktní, ale každý údaj odpovídá kroku, který jsme už vidě
 
 1. **Řádek `druh`** popisuje část variability zachycenou přidáním tří skupinových průměrů místo jednoho společného průměru. **Řádek `Residuals`** popisuje variabilitu, která zůstává kolem skupinových průměrů.
 2. **`Df` pro `druh` je `r df_group`.** Tři skupinové průměry vyjádříme jedním referenčním průměrem a dvěma rozdíly, takže druh přidává $`r nlevels(data_penguins$druh)`-1=`r df_group`$ stupně volnosti. **`Df` pro residua je `r df_residual`.** Máme `r nobs(mod_three_species)` `r render_glossary_term("pozorovani", display = "pozorování")` a odhadujeme tři skupinové průměry, proto zbývá $`r nobs(mod_three_species)`-`r nlevels(data_penguins$druh)`=`r df_residual`$ residuálních stupňů volnosti.
-3. **`Sum Sq` pro `druh` je `r format_cz(sse_reduction, 0)` g².** Je to přesně rozdíl mezi SSE jednoho a tří průměrů a fialová část předchozího rozkladového grafu. **`Sum Sq` pro `Residuals` je `r format_cz(sse_three_means, 0)` g²**, tedy šedá část, která zůstává uvnitř druhů.
+3. **`Sum Sq` pro `druh` je `r format_cz(sse_reduction, 0)` g².** Je to součet čtverců mezi skupinami, tedy rozdíl celkového součtu čtverců a RSS tří průměrů, a fialová část předchozího rozkladového grafu. **`Sum Sq` pro `Residuals` je `r format_cz(sse_three_means, 0)` g²**, tedy součet čtverců uvnitř skupin (RSS) – šedá část, která zůstává uvnitř druhů.
 4. **`Mean Sq`** vznikne vydělením každého `Sum Sq` jeho `Df`: `r format_cz(ms_group, 0)` g² mezi skupinami a `r format_cz(ms_residual, 0)` g² uvnitř skupin.
 5. **`F value` je `r format_cz(f_anova, 2)`.** Je to poměr těchto dvou průměrných čtverců. Hodnota mnohem větší než 1 znamená, že rozdíly skupinových průměrů jsou velké vůči běžné variabilitě jedinců kolem těchto průměrů.
 6. **`Pr(>F)` je `r render_glossary_term("p-hodnota", display = "p-hodnota")`.** Nejde o další nezávislý výpočet z dat; vzniká umístěním pozorovaného $F$ do nulového `r render_glossary_term("rozdeleni", display = "F-rozdělení")` s `r df_group` stupni volnosti pro čitatele a `r df_residual` pro jmenovatele.
@@ -3429,11 +3428,11 @@ Pro tučňáky tedy vychází $F(`r df_group`, `r df_residual`)=`r format_cz_mat
 Malá p-hodnota analýzy rozptylu podporuje tvrzení, že alespoň jeden průměr se liší. Neurčuje však, které dvojice se liší, ani zda jsou všechny rozdíly biologicky důležité.
 :::
 
-## `r render_glossary_term("post-hoc-test", display = "Post-hoc")`: které dvojice se liší?
+## Post-hoc: které dvojice se liší?
 
 F-test odpověděl na celkovou otázku: data jsou obtížně slučitelná s hypotézou tří stejných `r render_glossary_term("prumer", display = "průměrů")`. Neříká ale, které druhy se liší. Na to se ptají navazující otázky o konkrétních dvojicích. U tří druhů existují tři páry: Chinstrap minus Adélie, Gentoo minus Adélie a Gentoo minus Chinstrap.
 
-Kdybychom každý pár testovali jako izolovanou novou studii, s rostoucím počtem testů by rostla šance na alespoň jeden náhodně extrémní výsledek. Tukeyho post-hoc metoda proto vyhodnotí celou rodinu párových otázek společně. Získáme `r render_glossary_term("interval-spolehlivosti", display = "simultánní intervaly")` a `r render_glossary_term("p-hodnota", display = "p-hodnoty")` upravené pro všechna tři porovnání. <!-- TODO: add slug simultanni-interval to pojmy.yaml -->
+Kdybychom každý pár testovali jako izolovanou novou studii, s rostoucím počtem testů by rostla šance na alespoň jeden náhodně extrémní výsledek. Tukeyho `r render_glossary_term("post-hoc-test", display = "post-hoc metoda")` proto vyhodnotí celou rodinu párových otázek společně. Získáme `r render_glossary_term("simultanni-interval", display = "simultánní intervaly")` a `r render_glossary_term("p-hodnota", display = "p-hodnoty")` upravené pro všechna tři porovnání.
 
 ::: {.box-rule title="Dvě různé otázky položené stejnému modelu"}
 - **Celkový F-test** se ptá, zda jsou **všechny skupinové průměry stejné**. Odpovídá jedním číslem pro všechny skupiny.
@@ -3497,7 +3496,7 @@ summary(
 )
 ```
 
-Ve výstupu sledujeme řádky jednotlivých dvojic. Sloupec `estimate` je odhadnutý rozdíl průměrů, `lower.CL` a `upper.CL` jsou meze simultánního intervalu a `p.value` je p-hodnota upravená pro společnou rodinu porovnání. Poznámky pod výstupem potvrzují, že Tukeyho korekce byla použita pro intervaly i p-hodnoty. Přehledněji si stejné hodnoty uspořádáme do tabulky.
+Ve výstupu sledujeme řádky jednotlivých dvojic. Sloupec `estimate` je odhadnutý rozdíl průměrů, `lower.CL` a `upper.CL` jsou dolní a horní hranice simultánního intervalu a `p.value` je p-hodnota upravená pro společnou rodinu porovnání. Poznámky pod výstupem potvrzují, že Tukeyho úprava byla použita pro intervaly i p-hodnoty. Přehledněji si stejné hodnoty uspořádáme do tabulky.
 
 ```{r}
 #| label: spocitat-post-hoc-porovnani
@@ -3545,8 +3544,8 @@ data_tukey |>
   dplyr::transmute(
     Porovnání = porovnani,
     `Rozdíl (g)` = round(odhad, digits = 1),
-    `Dolní mez (g)` = round(dolni, digits = 1),
-    `Horní mez (g)` = round(horni, digits = 1),
+    `Dolní hranice (g)` = round(dolni, digits = 1),
+    `Horní hranice (g)` = round(horni, digits = 1),
     `Upravená p-hodnota` = format_p_cz(p_adjusted)
   ) |>
   knitr::kable(
@@ -3700,17 +3699,17 @@ Napište krátký odstavec v pořadí: biologická otázka → rozdíly v gramec
 :::
 
 ::: {.box-result collapse="true" title="Příklad opatrného závěru"}
-Ptali jsme se, zda se liší průměrná hmotnost tří druhů tučňáků. V souboru `r count_complete` dospělých tučňáků z Palmerova souostroví byli tučňáci oslí (Gentoo) v průměru přibližně o `r format_cz(data_tukey$odhad[2], 0)` g těžší než tučňáci kroužkoví (Adélie) a o `r format_cz(data_tukey$odhad[3], 0)` g těžší než tučňáci uzdičkoví (Chinstrap); simultánní 95% intervaly obou rozdílů ležely celé nad nulou (od `r format_cz(data_tukey$dolni[2], 0)` do `r format_cz(data_tukey$horni[2], 0)` g a od `r format_cz(data_tukey$dolni[3], 0)` do `r format_cz(data_tukey$horni[3], 0)` g). Průměry Adélie a Chinstrap se lišily jen o `r format_cz(data_tukey$odhad[1], 0)` g a jejich interval od `r format_cz(data_tukey$dolni[1], 0)` do `r format_cz(data_tukey$horni[1], 0)` g zahrnoval nulu, takže data tento malý rozdíl neodlišují od nuly. Celková analýza rozptylu byla s hypotézou tří stejných průměrů obtížně slučitelná ($F(`r df_group`, `r df_residual`) = `r format_cz_math(f_anova, 2)`$; p-hodnota `r format_p_cz(p_anova)`). Jde o observační data: druh je v souboru propojený s ostrovem a hmotnost souvisí také s pohlavím, proto rozdíly nelze vykládat jako přímý účinek druhu a závěr platí pro sledované kolonie.
+Ptali jsme se, zda se liší průměrná hmotnost tří druhů tučňáků. V souboru `r count_complete` dospělých tučňáků z Palmerova souostroví byli tučňáci oslí (Gentoo) v průměru přibližně o `r format_cz(data_tukey$odhad[2], 0)` g těžší než tučňáci kroužkoví (Adélie) a o `r format_cz(data_tukey$odhad[3], 0)` g těžší než tučňáci uzdičkoví (Chinstrap); `r render_glossary_term("simultanni-interval", display = "simultánní 95% intervaly")` obou rozdílů ležely celé nad nulou (od `r format_cz(data_tukey$dolni[2], 0)` do `r format_cz(data_tukey$horni[2], 0)` g a od `r format_cz(data_tukey$dolni[3], 0)` do `r format_cz(data_tukey$horni[3], 0)` g). `r render_glossary_term("prumer", display = "Průměry")` Adélie a Chinstrap se lišily jen o `r format_cz(data_tukey$odhad[1], 0)` g a jejich interval od `r format_cz(data_tukey$dolni[1], 0)` do `r format_cz(data_tukey$horni[1], 0)` g zahrnoval nulu, takže data tento malý rozdíl neodlišují od nuly. Celková `r render_glossary_term("anova", display = "analýza rozptylu")` byla s hypotézou tří stejných průměrů obtížně slučitelná ($F(`r df_group`, `r df_residual`) = `r format_cz_math(f_anova, 2)`$; p-hodnota `r format_p_cz(p_anova)`). Jde o observační data: druh je v souboru propojený s ostrovem a hmotnost souvisí také s pohlavím, proto rozdíly nelze vykládat jako přímý účinek druhu a závěr platí pro sledované kolonie.
 :::
 
 ## Co bude následovat dál
 
-Model s jediným kategoriálním prediktorem odpovídá na jednu otázku: jak se liší průměry druhů. Neumí ale oddělit druh od ostrova nebo pohlaví. Změnil by se odhad rozdílu mezi druhy, kdybychom porovnávali jedince stejného pohlaví nebo současně zohlednili ostrov? Na to potřebujeme model s více `r render_glossary_term("prediktor", display = "prediktory")`, kterým se zabývá následující lekce.
+Model s jediným kategoriálním prediktorem odpovídá na jednu otázku: jak se liší `r render_glossary_term("prumer", display = "průměry")` druhů. Neumí ale oddělit druh od ostrova nebo pohlaví. Změnil by se `r render_glossary_term("odhad", display = "odhad")` rozdílu mezi druhy, kdybychom porovnávali jedince stejného pohlaví nebo současně zohlednili ostrov? Na to potřebujeme model s více `r render_glossary_term("prediktor", display = "prediktory")`, kterým se zabývá následující lekce.
 
 ## Shrnutí
 
 - `r render_glossary_term("kategoricka-promenna", display = "Kategoriální prediktor")` nemění `r render_glossary_term("linearni-model", display = "lineární model")` v úplně jinou metodu; mění způsob, jakým model vytváří `r render_glossary_term("odhadnuta-hodnota", display = "odhadnuté hodnoty")`.
-- Ve dvouskupinovém modelu je `r render_glossary_term("intercept", display = "intercept")` `r render_glossary_term("prumer", display = "průměr")` referenční skupiny a druhý koeficient rozdíl druhé skupiny vůči referenci.
+- Ve dvouskupinovém modelu je `r render_glossary_term("intercept", display = "intercept")` `r render_glossary_term("prumer", display = "průměr")` `r render_glossary_term("referencni-skupina", display = "referenční skupiny")` a druhý koeficient rozdíl druhé skupiny vůči referenční skupině.
 - Odhadnuté hodnoty jsou skupinové průměry a `r render_glossary_term("residuum", display = "residua")` jsou vzdálenosti jednotlivých `r render_glossary_term("pozorovani", display = "pozorování")` od jejich skupinového průměru.
 - `r render_glossary_term("t-test", display = "Dvouvýběrový t-test")` se společným `r render_glossary_term("rozptyl", display = "rozptylem")` je test koeficientu dvouskupinového lineárního modelu.
 - Rozdíl mezi průměry posuzujeme vzhledem k `r render_glossary_term("variabilita", display = "variabilitě")` uvnitř skupin. Na tomto porovnání stojí `r render_glossary_term("anova", display = "analýza rozptylu")`: celkový F-test říká, zda jsou všechny průměry slučitelné se stejnou hodnotou, ale ne, která dvojice se liší.
@@ -3723,7 +3722,7 @@ Model s jediným kategoriálním prediktorem odpovídá na jednu otázku: jak se
 |---|---|
 | Typ proměnné určuje vhodný popis | Numerickou hmotnost jsme vysvětlovali kategoriálním druhem. |
 | Graf předchází modelu | Jednotlivci, překryv a variabilita byli vidět dříve než průměry a koeficienty. |
-| $y_i=\hat{y}_i+e_i$ | Odhadnuté hodnoty se změnily z bodů na přímce na skupinové průměry; residua zůstala vzdálenostmi od odhadu. |
+| $y_i=\hat{y}_i+e_i$ | Odhadnuté hodnoty se změnily z bodů na přímce na skupinové průměry; residua zůstala vzdálenostmi od odhadnuté hodnoty. |
 | Efekt a jeho nejistota jsou dvě informace | Rozdíly v gramech jsme doplnili intervaly spolehlivosti. |
 | Test je otázka o parametru | Dvouvýběrový t-test se stal testem koeficientu a analýza rozptylu celkovou otázkou o všech skupinových průměrech. |
 | Závěr není jen p-hodnota | Výsledek spojil velikost rozdílů, intervaly, testy, diagnostiku a omezení studie. |
@@ -3731,7 +3730,7 @@ Model s jediným kategoriálním prediktorem odpovídá na jednu otázku: jak se
 ### Závěrečná otázka
 
 ::: {.box-question title="Co potřebujete vědět, než napíšete „druh určuje hmotnost tučňáka“?"}
-Představte si, že vám někdo ukáže jen tuto větu a malou p-hodnotu analýzy rozptylu. Jaké tři otázky mu položíte?
+Představte si, že vám někdo ukáže jen tuto větu a malou `r render_glossary_term("p-hodnota", display = "p-hodnotu")` analýzy rozptylu. Jaké tři otázky mu položíte?
 :::
 
 ::: {.box-result collapse="true" title="Možná odpověď"}
