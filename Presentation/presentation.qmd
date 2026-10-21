@@ -135,7 +135,7 @@ Po absolvování této přednášky budete schopni:
 
 - fitovat `lm(y ~ skupina)` pro dvě i více skupin a přečíst jeho koeficienty;
 - interpretovat [intercept jako průměr referenční skupiny]{.text-hgl-indigo_velvet} a další koeficienty jako rozdíly vůči ní;
-- vysvětlit dvouvýběrový t-test a ANOVA jako otázky položené lineárnímu modelu;
+- vysvětlit dvouvýběrový t-test a analýzu rozptylu (ANOVA) jako otázky položené lineárnímu modelu;
 - rozlišit [celkový F-test]{.text-hgl-indigo_velvet} od [post-hoc porovnání dvojic]{.text-hgl-orange} a rozhodnout, kdy párová porovnání dávají smysl;
 - napsat závěr v biologicky smysluplných jednotkách: rozdíl, nejistota, test a omezení studie.
 
@@ -527,16 +527,16 @@ Myšlenkový pokus, ne data tučňáků. Správně je levý panel: stejný rozd�
 ::: {.text-size-larger .text-center}
 $$
 \begin{aligned}
-\text{odhadnutá hodnota }(\widehat{y}_i)
-={}& \text{intercept }(\widehat{\beta}_0) \\
-&+ \text{sklon }(\widehat{\beta}_1)
+\text{odhadnutá hodnota }(\hat{y}_i)
+={}& \text{intercept }(\hat{\beta}_0) \\
+&+ \text{sklon }(\hat{\beta}_1)
 \times \text{numerický prediktor }(x_i)
 \end{aligned}
 $$
 :::
 
 ::: {.text-size-smaller .text-color-grey_olive .text-center}
-V lekci o lineárním modelu jsme stejné koeficienty psali jako $a$ a $b$: $\widehat{\beta}_0 = a$, $\widehat{\beta}_1 = b$.
+V lekci o lineárním modelu jsme stejné koeficienty psali jako $a$ a $b$: $\hat{\beta}_0 = a$, $\hat{\beta}_1 = b$.
 :::
 
 <br>
@@ -546,14 +546,14 @@ V lekci o lineárním modelu jsme stejné koeficienty psali jako $a$ a $b$: $\wi
 ::: {.panel-result}
 [Když $x=0$]{.panel-title}
 
-$\widehat{y}=\widehat{\beta}_0$
+$\hat{y}=\hat{\beta}_0$
 :::
 :::
 ::: {.column width="48%" .fragment}
 ::: {.panel-question}
 [Když $x=1$]{.panel-title}
 
-$\widehat{y}=\widehat{\beta}_0+\widehat{\beta}_1$
+$\hat{y}=\hat{\beta}_0+\hat{\beta}_1$
 :::
 :::
 :::
@@ -667,7 +667,7 @@ Slovní rovnice, pak dosazení skutečných průměrů. Obě karty jsou fialové
 
 ::: {.text-size-larger .text-center}
 $$
-\widehat{y}_i = \widehat{\beta}_0 + \widehat{\beta}_1 x_i
+\hat{y}_i = \hat{\beta}_0 + \hat{\beta}_1 x_i
 $$
 :::
 
@@ -675,9 +675,9 @@ $$
 
 | Symbol | Význam v našich datech |
 |---|---|
-| $\widehat{y}_i$ | odhadnutá hmotnost tučňáka $i$ |
-| $\widehat{\beta}_0$ | průměr referenčního druhu Adélie |
-| $\widehat{\beta}_1$ | rozdíl Gentoo minus Adélie |
+| $\hat{y}_i$ | odhadnutá hmotnost tučňáka $i$ |
+| $\hat{\beta}_0$ | průměr referenčního druhu Adélie |
+| $\hat{\beta}_1$ | rozdíl Gentoo minus Adélie |
 | $x_i$ | přepínač: 0 pro Adélie, 1 pro Gentoo |
 
 
@@ -911,9 +911,9 @@ Hlasování rukou, pak přesvědčit souseda. Správně B: intercept se stane pr
 
 | Skupina | Koeficient | Význam |
 |---|:---:|---|
-| **kontrola** | $\widehat{\beta}_0$ | průměr kontroly |
-| **lék A** | $\widehat{\beta}_1$ | A − kontrola |
-| **lék B** | $\widehat{\beta}_2$ | B − kontrola |
+| **kontrola** | $\hat{\beta}_0$ | průměr kontroly |
+| **lék A** | $\hat{\beta}_1$ | A − kontrola |
+| **lék B** | $\hat{\beta}_2$ | B − kontrola |
 
 <br>
 
@@ -958,7 +958,7 @@ Kontrolní skupinu vytváří design studie. Reference pouze zpřehlední otázk
 :::
 
 ::: {.notes}
-Kód je jen ukázka na vymyšlené tabulce; relevel() zvolí referenční úroveň. Kauzální závěr dává randomizace, ne volba reference.
+Kód je jen ukázka na vymyšlené tabulce; relevel() zvolí referenční skupinu. Kauzální závěr dává randomizace, ne volba referenční skupiny.
 :::
 
 ## Každý tučňák dostane průměr svého druhu
@@ -1022,7 +1022,7 @@ Odhadnutá hodnota každého tučňáka je průměr jeho druhu.
 U přímky měl každý tučňák vlastní bod na přímce. Tady existují jen dvě odhadnuté hodnoty: průměr Adélie a průměr Gentoo.
 :::
 
-## Residuum je stále vzdálenost od odhadu
+## Residuum je stále vzdálenost od odhadnuté hodnoty
 
 ```{r}
 #| label: vytvorit-graf-residui
@@ -1242,7 +1242,7 @@ t_distribution <-
       "p-hodnota",
       "střed"
     ),
-    strana_ocasu = ifelse(t < 0, "levý ocas", "pravý ocas")
+    strana_ocasu = ifelse(t < 0, "levý chvost", "pravý chvost")
   )
 
 t_lines <- data.frame(
@@ -1323,7 +1323,7 @@ include_local_figure("t_distribution_showcase.png")
 ```
 
 ::: {.takeaway-strip}
-$p$-hodnota `r p_label_t` je plocha v obou ocasech ještě dál od nuly než pozorované $t$.
+p-hodnota `r p_label_t` je plocha v obou ocasech ještě dál od nuly než pozorované $t$.
 :::
 
 ::: {.notes}
@@ -1651,22 +1651,22 @@ $$
 
 ::: {.text-size-larger .text-center .fragment}
 $$
-\widehat y_i = \widehat\beta_0
-+ \widehat\beta_1 x_{\mathrm{Chinstrap},i}
-+ \widehat\beta_2 x_{\mathrm{Gentoo},i}
+\hat y_i = \hat\beta_0
++ \hat\beta_1 x_{\mathrm{Chinstrap},i}
++ \hat\beta_2 x_{\mathrm{Gentoo},i}
 $$
 :::
 
 <br>
 
 ::: {.panel-note .fragment}
-$x_{\mathrm{Chinstrap},i}$ a $x_{\mathrm{Gentoo},i}$ jsou přepínače 0/1 pro tučňáka $i$. $\widehat\beta_0$ je průměr Adélie; $\widehat\beta_1$ a $\widehat\beta_2$ jsou rozdíly vůči Adélie.
+$x_{\mathrm{Chinstrap},i}$ a $x_{\mathrm{Gentoo},i}$ jsou přepínače 0/1 pro tučňáka $i$. $\hat\beta_0$ je průměr Adélie; $\hat\beta_1$ a $\hat\beta_2$ jsou rozdíly vůči Adélie.
 :::
 
 <br>
 
 ::: {.takeaway-strip .fragment}
-Pro tři skupiny potřebujeme jeden referenční průměr a dva rozdílové přepínače.
+Pro tři skupiny potřebujeme jeden referenční průměr a dva rozdílové koeficienty.
 :::
 
 ::: {.notes}
@@ -1742,7 +1742,7 @@ include_local_figure("model_diagnostics.png")
 ```
 
 ::: {.panel-question}
-Vidíme systematický vzorec, extrémní bod nebo výrazně odlišný rozptyl skupin?
+Vidíme systematický vzorec, odlehlé pozorování nebo výrazně odlišný rozptyl skupin?
 :::
 
 ::: {.takeaway-strip .fragment}
@@ -1965,7 +1965,7 @@ ggview::save_ggplot(
 ::: {.text-size-larger .text-center}
 $$
 \begin{aligned}
-\text{součet uvnitř skupin}
+\text{součet čtverců uvnitř skupin}
 &= \text{čtverce vzdáleností jedinců} \\
 &\quad \text{od vlastního skupinového průměru}
 \end{aligned}
@@ -2067,7 +2067,7 @@ ggview::save_ggplot(
 ::: {.text-size-larger .text-center}
 $$
 \begin{aligned}
-\text{součet mezi skupinami}
+\text{součet čtverců mezi skupinami}
 &= \text{velikosti skupin} \times \text{čtverce vzdáleností} \\
 &\quad \text{skupinových průměrů od společného průměru}
 \end{aligned}
@@ -2158,8 +2158,11 @@ ggview::save_ggplot(
 
 ::: {.text-size-larger .text-center}
 $$
+\begin{aligned}
 \text{celkový součet čtverců}
-= \text{součet mezi skupinami} + \text{součet uvnitř skupin}
+&= \text{součet čtverců mezi skupinami} \\
+&\quad + \text{součet čtverců uvnitř skupin (RSS)}
+\end{aligned}
 $$
 :::
 
@@ -2174,7 +2177,7 @@ include_local_figure("ss_two_decomposition.png")
 ```
 
 ::: {.notes}
-Celková variabilita kolem společného průměru se rozdělí na dvě části: část vysvětlenou rozdíly průměrů a část, která zůstává uvnitř skupin.
+Celková variabilita kolem společného průměru se rozdělí na dvě části: část zachycenou rozdíly průměrů a část, která zůstává uvnitř skupin. Součet čtverců uvnitř skupin je právě součet čtverců residuí (RSS) modelu se třemi průměry; celkový součet čtverců je RSS modelu s jediným společným průměrem.
 :::
 
 ## Dělením stupni volnosti získáme průměrné čtverce
@@ -2392,7 +2395,7 @@ df_residual <- unname(tab_anova["Residuals", "Df"])
 ```
 
 ::: {.takeaway-strip .fragment}
-$F(`r df_anova`, `r df_residual`) = `r format_cz_math(f_anova, 1)`$, $p$-hodnota `r format_p_cz(p_anova)`: data jsou obtížně slučitelná se shodou všech tří průměrů.
+$F(`r df_anova`, `r df_residual`) = `r format_cz_math(f_anova, 1)`$, p-hodnota `r format_p_cz(p_anova)`: data jsou obtížně slučitelná se shodou všech tří průměrů.
 :::
 
 ::: {.notes}
@@ -2445,7 +2448,7 @@ f_annotations <- data.frame(
   x = c(3.6, f_anova * 0.55),
   y = c(0.72, 0.72),
   label = c(
-    "velké hodnoty F\nleží v pravém ocasu",
+    "velké hodnoty F\nleží v pravém chvostu",
     paste0(
       "pozorované F = ",
       format_cz(f_anova, 1),
@@ -2500,14 +2503,14 @@ include_local_figure("f_distribution_showcase.png")
 ```
 
 ::: {.takeaway-strip}
-$p$-hodnota je plocha napravo od pozorovaného $F$; zde je tak malá, že ji v grafu téměř nevidíme.
+p-hodnota je plocha napravo od pozorovaného $F$; zde je tak malá, že ji v grafu téměř nevidíme.
 :::
 
 ::: {.notes}
 F je vždy kladné a velké hodnoty leží vpravo, proto jen pravý chvost. Nulové F-rozdělení má dva stupně volnosti pro čitatel a residuální stupně volnosti pro jmenovatel.
 :::
 
-## Co nám malá $p$-hodnota říká?
+## Co nám malá p-hodnota říká?
 
 <br>
 
@@ -2638,7 +2641,7 @@ Všechny panely mají $F = `r format_cz_math(f_same[[1]], 0)`$. Jsou biologické
 Diskuse ve dvojicích. Poměr rozdílu k šumu je stejný, proto stejné F i p. Rozdíl v gramech je ale třikrát větší vpravo než vlevo; biologická důležitost se liší.
 :::
 
-## Síla důkazu není velikost efektu
+## Malá p-hodnota neznamená velký efekt
 
 <br>
 
@@ -2649,7 +2652,7 @@ Diskuse ve dvojicích. Poměr rozdílu k šumu je stejný, proto stejné F i p. 
 
 - poměr rozdílu k šumu;
 - $F$-statistika;
-- $p$-hodnota.
+- p-hodnota.
 :::
 :::
 ::: {.column width="48%" .fragment}
@@ -2670,7 +2673,7 @@ Vždy uvádějte odhad efektu a jeho interval — ne pouze $p$-hodnotu.
 :::
 
 ::: {.notes}
-Návaznost na předchozí lekci: síla důkazu a velikost efektu jsou dvě různé informace.
+Návaznost na předchozí lekci: p-hodnota a velikost efektu jsou dvě různé informace.
 :::
 
 # Které dvojice se liší?
@@ -2790,7 +2793,7 @@ post_hoc_tri <-
 Balíček emmeans voláme přes emmeans:: bez library(). Metoda revpairwise dává směr Chinstrap minus Adélie, Gentoo minus Adélie a Gentoo minus Chinstrap.
 :::
 
-## Výsledek post-hoc testu
+## Výsledek post-hoc porovnání
 
 ```{r}
 #| label: emmeans-post-hoc-viditelne-vysledek
@@ -2897,7 +2900,7 @@ Odhad rozdílu je jen asi **`r format_whole_number(abs(post_hoc_plot$estimate[po
 <br>
 
 ::: {.takeaway-strip .fragment}
-Významná (signifikantní) ANOVA neznamená, že se liší každá dvojice.
+Statisticky významná ANOVA neznamená, že se liší každá dvojice.
 :::
 
 ::: {.notes}
