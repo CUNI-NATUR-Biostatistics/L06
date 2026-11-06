@@ -27,7 +27,8 @@
 # 3. Soubor palmer_penguins.csv uložte do podsložky data. Jeho jméno
 #    neměňte.
 # Pokud prohlížeč uloží soubory rovnou do složky Stažené soubory,
-# přesuňte je odtud na uvedená místa.
+# přesuňte je odtud na uvedená místa. Pokud se soubor v prohlížeči zobrazí
+# jako text, uložte ho klávesami Ctrl + S.
 #
 # Jak otevřít projekt v RStudiu:
 # RStudio Project je obyčejná složka, ve které pracujete. RStudio do ní
@@ -38,6 +39,8 @@
 # 3. V panelu Files otevřete cviceni.R.
 # 4. Přes File > Save As si uložte vlastní kopii, například
 #    cviceni_L06_prijmeni.R.
+# Příště projekt otevřete dvojklikem na soubor L06_praktikum.Rproj nebo
+# v RStudiu přes File > Open Project.
 #
 # Výsledná složka vypadá takto:
 # L06_praktikum/
@@ -52,7 +55,7 @@
 # Hlavní úlohy U01–U10 řešte v uvedeném pořadí, protože na sebe navazují.
 # Pozdější úlohy používají tabulku data_tucnaci z vaší úlohy U01,
 # model mod_dva_druhy z úlohy U03 a model mod_tri_druhy z úlohy U06.
-# Úlohy navíc N01–N13 jsou dobrovolné. Slouží k dalšímu procvičování,
+# Úlohy navíc N01–N13 (bez N05) jsou dobrovolné. Slouží k dalšímu procvičování,
 # klidně i po praktiku, a nemusíte je stihnout.
 #
 # Spouštění kódu:
@@ -92,9 +95,10 @@
 # - napsat závěr v pořadí rozdíl v gramech, nejistota, test a omezení.
 #
 # Navazujeme na předchozí lekce: read.csv(), str(), summary(), is.na(),
-# table(), lm(), coef(), summary(), confint(), fitted(), resid(), plot()
-# a abline(). Nové funkce vysvětlujeme vždy u úlohy, kde je poprvé
-# potřebujete.
+# table(), boxplot(), lm(), coef(), summary(), confint(), fitted(),
+# resid(), plot(), abline(), hist(), qqnorm(), qqline()
+# a cooks.distance(). Nové funkce
+# vysvětlujeme vždy u úlohy, kde je poprvé potřebujete.
 #
 # Krátké připomenutí z minulých lekcí (pokud ho znáte, přeskočte ho):
 # - odhad efektu říká, jak velký rozdíl ukazují data v původních
@@ -106,7 +110,7 @@
 # - residuum je naměřená hodnota minus hodnota odhadnutá modelem.
 
 #--------------------------------------------------#
-## Technická kontrola souboru -----
+## Technická kontrola souboru a balíčku -----
 #--------------------------------------------------#
 # Následující kód zkontroluje, zda je datový soubor na správném místě.
 # Označte ho celý a spusťte Ctrl + Enter. Cesta k souboru začíná ve složce
@@ -118,12 +122,32 @@ if (
   stop(
     paste0(
       "Soubor data/palmer_penguins.csv nebyl nalezen. ",
-      "Otevřete projekt L06_praktikum a zkontrolujte jméno ",
-      "a umístění CSV v podsložce data."
+      "Otevřete projekt L06_praktikum (File > Open Project) a zkontrolujte ",
+      "jméno a umístění CSV v podsložce data."
     ),
     call. = FALSE
   )
 }
+
+# Balíček emmeans budete potřebovat v úloze U09. Následující kód označte
+# celý a spusťte Ctrl + Enter. Pokud balíček chybí, R se zastaví. Potom
+# zkopírujte řádek s install.packages() do panelu Console, smažte úvodní #,
+# stiskněte Enter a kontrolu spusťte znovu.
+# install.packages("emmeans")
+if (
+  !requireNamespace(
+    package = "emmeans",
+    quietly = TRUE
+  )) {
+  stop(
+    paste0(
+      "Chybí balíček emmeans. Spusťte v panelu Console ",
+      "install.packages(\"emmeans\") a kontrolu spusťte znovu."
+    ),
+    call. = FALSE
+  )
+}
+
 # Data pocházejí z měření dospělých tučňáků rodu Pygoscelis na Palmerově
 # souostroví v Antarktidě v letech 2007–2009. Jeden řádek tabulky
 # představuje jednoho změřeného tučňáka. Proměnné a jednotky:
@@ -208,10 +232,9 @@ levels(x = vec_ukazka)
 #--------------------------------------------------#
 ## Jak se druhy liší na první pohled? -----
 #--------------------------------------------------#
-# Funkce stripchart() nakreslí jednotlivé hodnoty pro každou skupinu.
-# Formule hmotnost_tela_g ~ druh dá hmotnost na jednu osu a druhy vedle
-# sebe. Argument method = "jitter" posune překrývající se body mírně do
-# stran a vertical = TRUE dá hmotnost na svislou osu.
+# Krabicový graf (boxplot) znáte z lekce o vztazích dvou proměnných.
+# Formule hmotnost_tela_g ~ druh v boxplot() znamená „hmotnost po
+# skupinách druhu“: každý druh dostane vlastní krabici vedle ostatních.
 #
 # Funkce tapply() spočítá jednu funkci zvlášť pro každou skupinu:
 #   tapply(X = hodnoty, INDEX = skupiny, FUN = funkce)
@@ -219,12 +242,9 @@ levels(x = vec_ukazka)
 # skupiny.
 #
 # Ukázka grafu je zakomentovaná, protože potřebuje data_tucnaci z U01.
-# stripchart(
-#   x = hmotnost_tela_g ~ druh,
+# boxplot(
+#   formula = hmotnost_tela_g ~ druh,
 #   data = data_tucnaci,
-#   method = "jitter",
-#   vertical = TRUE,
-#   pch = 16,
 #   xlab = "Druh",
 #   ylab = "Hmotnost těla (g)"
 # )
@@ -253,7 +273,8 @@ levels(x = vec_ukazka)
 # Očekávaný výsledek:
 # Průměry jsou asi 3 701 g (Adelie), 3 733 g (Chinstrap) a 5 076 g
 # (Gentoo). Směrodatné odchylky jsou asi 459, 384 a 504 g. V grafu leží
-# body Gentoo zřetelně výše, Adelie a Chinstrap se téměř překrývají.
+# krabice Gentoo zřetelně výše, krabice Adelie a Chinstrap se téměř
+# překrývají.
 #
 # Interpretace:
 # Je rozdíl průměrů Gentoo a ostatních druhů velký vzhledem k tomu, jak
@@ -372,20 +393,12 @@ coef(object = mod_ukazka)
 # Je i nejmenší z nich biologicky výrazný?
 
 #--------------------------------------------------#
-## Jak souvisí model s dvouvýběrovým t-testem? -----
+## Je rozdíl slučitelný s nulou? -----
 #--------------------------------------------------#
-# Nulová hypotéza H0 tvrdí, že rozdíl průměrů Gentoo minus Adelie je
-# v širší populaci 0 g. Řádek druhGentoo v summary() obsahuje odhad,
-# standardní chybu, t-statistiku a p-hodnotu tohoto testu.
-#
-# Klasický dvouvýběrový t-test se společným rozptylem obou skupin položí
-# tutéž otázku. Funkce t.test() porovná hmotnosti dvou skupin:
-#   t.test(x = hmotnosti_prvni_skupiny, y = hmotnosti_druhe_skupiny,
-#          var.equal = TRUE)
-# Argument var.equal = TRUE nastaví společný rozptyl jako v lm(). Rozdíl
-# počítá jako x minus y, proto pro Gentoo minus Adelie patří Gentoo do x.
-# Hmotnosti jednoho druhu vyberete takto:
-#   data_dva_druhy$hmotnost_tela_g[data_dva_druhy$druh == "Gentoo"]
+# Řádek druhGentoo v summary() obsahuje odhad, standardní chybu,
+# t-statistiku a p-hodnotu testu rozdílu Gentoo minus Adelie.
+# t-statistika je odhad vydělený jeho standardní chybou: říká, kolik
+# standardních chyb leží odhad od nuly.
 #
 # Velmi malé p-hodnoty R zkracuje: <2e-16 znamená menší než 2 · 10^(−16).
 
@@ -397,28 +410,25 @@ coef(object = mod_ukazka)
 # 1. Zobrazte summary(object = mod_dva_druhy) a v řádku druhGentoo
 #    najděte odhad, standardní chybu, t-statistiku a p-hodnotu.
 #    Residuální stupně volnosti jsou uvedeny pod tabulkou.
-# 2. Funkcí t.test() porovnejte hmotnosti Gentoo (x) a Adelie (y)
-#    z data_dva_druhy se společným rozptylem.
-# 3. Porovnejte rozdíl, t, stupně volnosti, p-hodnotu a 95% interval
-#    obou výstupů.
+# 2. Z odhadu a standardní chyby spočítejte t-statistiku a porovnejte ji
+#    se sloupcem t value.
+# 3. Vlastními slovy a v gramech zapište nulovou hypotézu tohoto testu.
 
 # Vaše řešení:
 
 
 # Nápověda 1:
-# Obě funkce porovnávají stejný rozdíl, ve stejném směru a se stejným
-# předpokladem o rozptylu skupin.
+# Test v řádku druhGentoo se ptá, zda je rozdíl Gentoo minus Adelie
+# slučitelný s nulou. Řádek (Intercept) testuje něco jiného.
 #
 # Nápověda 2:
-# Do x dejte hmotnosti s podmínkou druh == "Gentoo", do y hmotnosti
-# s podmínkou druh == "Adelie". V summary() čtěte řádek druhGentoo, ne
-# řádek (Intercept).
+# Číslo ze sloupce Estimate vydělte číslem ze sloupce Std. Error.
 #
 # Očekávaný výsledek:
-# Oba postupy dávají t = 23,61 při 272 stupních volnosti a interval
-# 1 260,7 až 1 490,0 g. P-hodnota je v obou výstupech zkrácená:
-# <2e-16 v summary() a < 2.2e-16 v t.test(). Rozdíl průměrů je
-# asi 1 375,4 g, stejně jako koeficient druhGentoo.
+# Odhad rozdílu je asi 1 375,4 g a standardní chyba asi 58,2 g, takže
+# t = 1 375,4 / 58,2 ≈ 23,6, stejně jako ve sloupci t value (23,61) při
+# 272 residuálních stupních volnosti. P-hodnota je zkrácená na <2e-16.
+# H0: rozdíl průměrné hmotnosti Gentoo minus Adelie je v populaci 0 g.
 #
 # Interpretace:
 # Znamená velmi malá p-hodnota sama o sobě velký biologický rozdíl? Co
@@ -446,7 +456,7 @@ coef(object = mod_ukazka)
 
 # Nápověda 1:
 # Formule se nemění, mění se jen data. Každý další druh přidá jeden
-# rozdílový koeficient vůči referenci.
+# rozdílový koeficient vůči referenční skupině.
 #
 # Nápověda 2:
 # V lm() použijte data = data_tucnaci. K interceptu přičtěte zvlášť
@@ -464,13 +474,25 @@ coef(object = mod_ukazka)
 #--------------------------------------------------#
 ## Sedí model k datům? -----
 #--------------------------------------------------#
-# Než model použijete k testům, zkontrolujte residua jako u přímky.
+# Než model použijete k testům, zkontrolujte ho stejně jako v minulé lekci.
 # - plot() s fitted() na ose x a resid() na ose y nakreslí residua proti
 #   odhadnutým hodnotám; abline(h = 0, lty = 2) přidá přerušovanou čáru
 #   v nule.
+# - hist() nakreslí histogram residuí.
 # - qqnorm() nakreslí Q–Q graf residuí a qqline() do něj přidá
 #   referenční přímku. Body blízko přímky odpovídají přibližně
 #   normálnímu tvaru residuí.
+# - cooks.distance(model = ...) vrátí Cookovu vzdálenost každého tučňáka:
+#   jak moc by se změnily odhady modelu, kdybychom ho vynechali. Hodnota
+#   4/n (n je počet tučňáků v modelu) jen označuje jedince, na které se
+#   vyplatí podívat blíž; není to pravidlo pro mazání dat. S rostoucím n
+#   klesá, takže ve velkém výběru ji několik jedinců překročí běžně.
+# - plot() s jediným vektorem a argumentem type = "h" nakreslí každou
+#   hodnotu jako svislou čáru v pořadí řádků.
+# - Porovnání jako x > 0.3 vrátí pro každou hodnotu TRUE nebo FALSE
+#   a funkce sum() z nich spočítá, kolikrát vyšlo TRUE.
+# - Panel Plots ukazuje vždy poslední graf; starší grafy najdete šipkami
+#   v jeho horní liště.
 # U kategoriálního prediktoru tvoří residua svislé pásy, jeden pro každý
 # odhadnutý průměr. To je vlastnost modelu, ne chyba. Sledujte, zda je
 # některý pás výrazně širší nebo zda leží některý bod velmi daleko.
@@ -486,31 +508,44 @@ coef(object = mod_ukazka)
 # 1. Nakreslete residua mod_tri_druhy (osa y) proti hodnotám odhadnutým
 #    modelem (osa x). Obě osy popište včetně jednotky g a přidejte
 #    přerušovanou čáru v nule.
-# 2. V samostatném grafu nakreslete Q–Q graf residuí s referenční
-#    přímkou.
+# 2. V samostatných grafech nakreslete histogram residuí a jejich Q–Q graf
+#    s referenční přímkou.
+# 3. Spočítejte Cookovu vzdálenost tučňáků v mod_tri_druhy, nakreslete ji
+#    jako svislé čáry a přidejte vodorovnou čáru ve výšce 4/n, kde n je
+#    počet řádků data_tucnaci. Zjistěte, kolik tučňáků hodnotu 4/n
+#    přesahuje a jak velká je největší Cookova vzdálenost.
 
 # Vaše řešení:
 
 
 # Nápověda 1:
 # Graf proti odhadnutým hodnotám ukazuje, zda se rozptýlení residuí liší
-# mezi skupinami. Q–Q graf ukazuje tvar rozdělení residuí.
+# mezi skupinami. Histogram a Q–Q graf ukazují tvar rozdělení residuí.
+# Cookova vzdálenost se ptá na něco jiného: zda by odhady vypadaly jinak
+# bez jediného tučňáka.
 #
 # Nápověda 2:
 # V plot() zadejte x = fitted(object = mod_tri_druhy) a y jako residua
-# stejného modelu; popisky os nastaví xlab a ylab. Do qqnorm() i qqline()
-# dejte argument y s residui.
+# stejného modelu; popisky os nastaví xlab a ylab. Do hist() dejte argument
+# x s residui, do qqnorm() i qqline() argument y s residui. Cookovu
+# vzdálenost vložte do plot() jako x s type = "h" a 4/n spočítejte jako
+# 4 / nrow(x = data_tucnaci). Porovnání s touto hodnotou vložte do sum(),
+# největší hodnotu vrátí max().
 #
 # Očekávaný výsledek:
 # Residua tvoří svislé pásy kolem nuly, přibližně od −1 100 do +1 200 g;
 # žádný pás není výrazně širší než ostatní. Pásy Adelie a Chinstrap leží
 # vlevo těsně vedle sebe, protože se jejich průměry liší jen o 32 g;
-# pás Gentoo leží daleko vpravo. Body Q–Q grafu sledují přímku, jen na
-# koncích se mírně odchylují.
+# pás Gentoo leží daleko vpravo. Histogram má jeden vrchol mírně pod
+# nulou a o něco delší pravý chvost. Body Q–Q grafu sledují přímku, jen
+# na koncích se mírně odchylují.
+# Hodnota 4/n je asi 0,012; přesahuje ji 11 z 342 tučňáků a největší
+# Cookova vzdálenost je asi 0,027.
 #
 # Interpretace:
-# Je některý pás výrazně širší než ostatní? Co z těchto grafů nepoznáte
-# o nezávislosti tučňáků z téhož ostrova?
+# Je některý pás výrazně širší než ostatní? Znamená překročení 4/n, že
+# máte tučňáka z dat odstranit? Co z těchto grafů nepoznáte o nezávislosti
+# tučňáků z téhož ostrova?
 
 #--------------------------------------------------#
 ## Jedna celková otázka o třech druzích -----
@@ -520,11 +555,10 @@ coef(object = mod_ukazka)
 # - model s jedním společným průměrem: lm(formula = hmotnost_tela_g ~ 1),
 #   kde 1 znamená „jen intercept“;
 # - model se třemi průměry druhů: mod_tri_druhy.
-# Součet čtverců residuí (RSS) je součet umocněných residuí,
-# sum(resid(object = model)^2). RSS modelu s jediným průměrem je
-# celkový součet čtverců. RSS modelu se třemi průměry je součet čtverců
-# uvnitř skupin. Jejich rozdíl je součet čtverců mezi skupinami, tedy
-# část variability zachycená druhem.
+# Součet čtverců residuí (RSS) modelu s jediným průměrem je celkový součet
+# čtverců. RSS modelu se třemi průměry je součet čtverců uvnitř skupin.
+# Jejich rozdíl je součet čtverců mezi skupinami, tedy část variability
+# zachycená druhem.
 # Funkce anova(object = mod_tri_druhy) celý výpočet zobrazí v jedné
 # tabulce. Sloupec Sum Sq obsahuje součty čtverců: řádek druh součet
 # čtverců mezi skupinami, řádek Residuals součet čtverců uvnitř skupin
@@ -538,12 +572,12 @@ coef(object = mod_ukazka)
 
 # Zadání:
 # 1. Fitujte model mod_jeden_prumer s jediným společným průměrem
-#    (formule hmotnost_tela_g ~ 1, data data_tucnaci).
-# 2. Spočítejte součet čtverců residuí tohoto modelu a modelu
-#    mod_tri_druhy a jejich rozdíl.
-# 3. Zobrazte anova(object = mod_tri_druhy), najděte svá čísla ve sloupci
-#    Sum Sq a opište F, oba stupně volnosti a p-hodnotu.
-# 4. Zapište nulovou hypotézu celkového testu.
+#    (formule hmotnost_tela_g ~ 1, data data_tucnaci) a přečtěte jeho
+#    koeficient.
+# 2. Zobrazte anova(object = mod_tri_druhy). Ze sloupce Sum Sq opište
+#    součet čtverců mezi skupinami a uvnitř skupin a dále opište F, oba
+#    stupně volnosti a p-hodnotu.
+# 3. Zapište nulovou hypotézu celkového testu.
 
 # Vaše řešení:
 
@@ -553,15 +587,15 @@ coef(object = mod_ukazka)
 # zkrátily, s typickým čtvercem residua, který zůstává uvnitř druhů.
 #
 # Nápověda 2:
-# Součet čtverců získáte jako sum() z umocněných resid(), zvlášť pro
-# každý model. Rozdíl odpovídá řádku druh v tabulce anova().
+# Koeficient modelu s jediným průměrem vrátí coef(). V tabulce anova()
+# patří řádek druh k části zachycené druhem a řádek Residuals k části,
+# která zůstává uvnitř druhů.
 #
 # Očekávaný výsledek:
-# Společný průměr je asi 4 201,8 g. Celkový součet čtverců (RSS jednoho
-# průměru) je asi 219 307 697 g², součet čtverců uvnitř skupin (RSS tří
-# průměrů) asi 72 443 483 g² a jejich rozdíl, součet čtverců mezi
-# skupinami, asi 146 864 214 g²; stejná čísla jsou ve sloupci Sum Sq.
-# F je asi 343,63 při 2 a 339 stupních volnosti a p-hodnota < 2.2e-16.
+# Společný průměr je asi 4 201,8 g. Ve sloupci Sum Sq je součet čtverců
+# mezi skupinami asi 146 864 214 g² a uvnitř skupin (RSS tří průměrů) asi
+# 72 443 483 g². F je asi 343,63 při 2 a 339 stupních volnosti
+# a p-hodnota < 2.2e-16.
 # H0: všechny tři průměrné hmotnosti jsou v širší populaci stejné.
 #
 # Interpretace:
@@ -584,25 +618,7 @@ coef(object = mod_ukazka)
 # - summary(object = ..., infer = c(TRUE, TRUE)) vypíše intervaly
 #   (sloupce lower.CL a upper.CL) i upravené p-hodnoty (p.value).
 # Tukeyho úprava sama zohlední počet dvojic; nepotřebuje předchozí
-# „významný“ F-test.
-#
-# Balíček emmeans je potřeba pouze pro tuto úlohu. Pokud chybí, spusťte
-# následující zakomentovaný příkaz samostatně v Console (bez #) a potom
-# pokračujte odtud:
-# install.packages("emmeans")
-if (
-  !requireNamespace(
-    package = "emmeans",
-    quietly = TRUE
-  )) {
-  stop(
-    paste0(
-      "Chybí balíček emmeans. Spusťte v Console ",
-      "install.packages(\"emmeans\") a potom pokračujte v tomto oddílu."
-    ),
-    call. = FALSE
-  )
-}
+# statisticky významný F-test.
 
 #----------------------------------------#
 ### Úloha | L06-U09 -----
@@ -691,10 +707,10 @@ if (
 # uvádí zadání, abyste nepřepsali objekty z hlavních úloh.
 
 #--------------------------------------------------#
-## Reference a kódování -----
+## Referenční skupina a kódování -----
 #--------------------------------------------------#
 # Funkce relevel() nastaví zvolenou úroveň faktoru jako první, tedy jako
-# referenci: relevel(x = faktor, ref = "úroveň").
+# referenční skupinu: relevel(x = faktor, ref = "úroveň").
 
 #----------------------------------------#
 ### Úloha navíc | L06-N01 -----
@@ -702,7 +718,7 @@ if (
 
 # Zadání:
 # 1. Vytvořte kopii data_tucnaci s názvem data_jina_reference.
-# 2. Ve sloupci druh v této kopii nastavte Gentoo jako referenci.
+# 2. Ve sloupci druh v této kopii nastavte Gentoo jako referenční skupinu.
 # 3. Fitujte mod_jina_reference se stejnou formulí jako v U06 a porovnejte
 #    jeho koeficienty s U06.
 # 4. Funkcí all.equal() ověřte, že se odhadnuté hodnoty obou modelů
@@ -713,13 +729,12 @@ if (
 
 
 # Nápověda 1:
-# Reference určuje, od čeho se koeficienty měří, ale nemění data ani
-# průměry druhů.
+# Referenční skupina určuje, od čeho se koeficienty měří, ale nemění data
+# ani průměry druhů.
 #
 # Nápověda 2:
 # Kopii vytvoříte přiřazením data_jina_reference <- data_tucnaci.
-# Odhadnuté hodnoty porovnejte funkcí all.equal(), u obou vektorů
-# odstraňte jména pomocí unname().
+# Do all.equal() vložte fitted() obou modelů.
 #
 # Očekávaný výsledek:
 # Intercept je asi 5 076,0 g (Gentoo); druhAdelie asi −1 375,4 g
@@ -806,33 +821,8 @@ if (
 # a 4 Gentoo. Druh nelze v těchto datech oddělit od ostrova.
 
 #--------------------------------------------------#
-## Testy a jejich varianty -----
+## Ověření výpočtů -----
 #--------------------------------------------------#
-
-#----------------------------------------#
-### Úloha navíc | L06-N05 -----
-#----------------------------------------#
-
-# Zadání:
-# Zopakujte t.test() z U05 bez argumentu var.equal. R pak použije
-# Welchův t-test, který nepředpokládá stejný rozptyl obou druhů.
-# Porovnejte t, stupně volnosti a interval s U05.
-
-# Vaše řešení:
-
-
-# Nápověda 1:
-# Stejná otázka, jiný předpoklad o rozptylu skupin: každý druh má vlastní
-# rozptyl, a proto se mění i stupně volnosti.
-#
-# Nápověda 2:
-# Výchozí nastavení var.equal je FALSE, takže Welchův test spočítá
-# t.test() s hmotnostmi Gentoo a Adelie bez dalších argumentů.
-#
-# Očekávaný výsledek:
-# Welchův test: t asi 23,39, asi 249,6 stupně volnosti a interval asi
-# 1 259,5 až 1 491,2 g. Čísla se mírně liší od lm(), protože test už
-# nepředpokládá společný rozptyl.
 
 #----------------------------------------#
 ### Úloha navíc | L06-N06 -----
@@ -967,7 +957,7 @@ if (
 # Zadání:
 # Celý postup zopakujte pro jiný kategoriální prediktor, ostrov:
 # 1. fitujte mod_ostrov s formulí hmotnost_tela_g ~ ostrov;
-# 2. zjistěte, který ostrov je referencí, a vyložte koeficienty;
+# 2. zjistěte, který ostrov je referenční skupinou, a vyložte koeficienty;
 # 3. zobrazte anova(object = mod_ostrov).
 
 # Vaše řešení:
@@ -980,7 +970,8 @@ if (
 # Úrovně zjistíte pomocí levels(x = factor(x = data_tucnaci$ostrov)).
 #
 # Očekávaný výsledek:
-# Referencí je Biscoe (abecedně první), jeho průměr je asi 4 716,0 g.
+# Referenční skupinou je Biscoe (abecedně první), jeho průměr je asi
+# 4 716,0 g.
 # Dream je asi o 1 003,1 g a Torgersen asi o 1 009,6 g lehčí. F je asi
 # 110,0 při 2 a 339 stupních volnosti.
 #
@@ -1008,47 +999,58 @@ if (
 # Druhou mocninu spočítáte operátorem ^, například 23.61^2.
 #
 # Očekávaný výsledek:
-# F je asi 557,6 a t² = 23,61² je také asi 557,6. U dvou skupin dává
+# F je asi 557,6. Zaokrouhlené t² = 23,61² vyjde asi 557,4; s přesnou
+# t-statistikou z výstupu vyjde také 557,6. U dvou skupin dává
 # celkový F-test stejnou odpověď jako t-test koeficientu.
+
+# Tabulku anova() z U08 můžete sestavit i ručně:
+# - součet čtverců residuí (RSS) je součet umocněných residuí,
+#   sum(resid(object = model)^2);
+# - průměrný čtverec (MS) je součet čtverců dělený stupni volnosti. Mezi
+#   skupinami dělíme 2, protože tři průměry popisuje jeden referenční
+#   průměr a dva rozdíly. Uvnitř skupin dělíme residuálními stupni
+#   volnosti, které vrátí df.residual(object = mod_tri_druhy);
+# - F-statistika je podíl průměrného čtverce mezi skupinami a uvnitř nich.
 
 #----------------------------------------#
 ### Úloha navíc | L06-N13 -----
 #----------------------------------------#
 
-# Průměrný čtverec (MS) je součet čtverců dělený stupni volnosti:
-# - mezi skupinami dělíme 2, protože tři průměry popisuje jeden
-#   referenční průměr a dva rozdíly;
-# - uvnitř skupin dělíme residuálními stupni volnosti, které vrátí
-#   df.residual(object = mod_tri_druhy).
-# F-statistika je podíl průměrného čtverce mezi skupinami a uvnitř nich.
-#
 # Zadání:
-# Ze součtů čtverců z U08 spočítejte oba průměrné čtverce a jejich podíl
-# F. Výsledek porovnejte se sloupci Mean Sq a F value tabulky anova().
+# Pracujte s mod_jeden_prumer a mod_tri_druhy z U08.
+# 1. Spočítejte RSS obou modelů a jejich rozdíl. Najděte svá čísla ve
+#    sloupci Sum Sq tabulky anova().
+# 2. Spočítejte oba průměrné čtverce a jejich podíl F. Výsledek porovnejte
+#    se sloupci Mean Sq a F value tabulky anova().
 
 # Vaše řešení:
 
 
 # Nápověda 1:
-# Kdyby druh nepomáhal, byl by průměrný čtverec mezi skupinami podobně
-# velký jako uvnitř nich a F by bylo kolem 1.
+# RSS jednoho průměru je celkový součet čtverců. Kdyby druh nepomáhal, byl
+# by průměrný čtverec mezi skupinami podobně velký jako uvnitř nich a F by
+# bylo kolem 1.
 #
 # Nápověda 2:
-# Součet čtverců mezi skupinami dělte dvěma, součet čtverců uvnitř
-# skupin (RSS tří průměrů) dělte výsledkem df.residual(); potom oba
-# výsledky podělte.
+# RSS získáte jako sum() z umocněných resid(), zvlášť pro každý model.
+# Součet čtverců mezi skupinami dělte dvěma, součet čtverců uvnitř skupin
+# (RSS tří průměrů) dělte výsledkem df.residual(); potom oba výsledky
+# podělte.
 #
 # Očekávaný výsledek:
-# Průměrné čtverce jsou asi 73 432 107 a 213 698 g², takže F je asi
-# 343,63, stejně jako v tabulce anova().
+# Celkový součet čtverců (RSS jednoho průměru) je asi 219 307 697 g²,
+# součet čtverců uvnitř skupin (RSS tří průměrů) asi 72 443 483 g² a jejich
+# rozdíl, součet čtverců mezi skupinami, asi 146 864 214 g². Průměrné
+# čtverce jsou asi 73 432 107 a 213 698 g², takže F je asi 343,63, stejně
+# jako v tabulce anova().
 
 #----------------------------------------------------------#
 # Ohlédnutí a vlastní kontrola -----
 #----------------------------------------------------------#
 # Zkuste bez kódu odpovědět na tyto otázky:
-# 1. Co znamená intercept, když je referencí Adelie?
-# 2. Proč se model se dvěma druhy a dvouvýběrový t-test se společným
-#    rozptylem shodují?
+# 1. Co znamená intercept, když je referenční skupinou Adelie?
+# 2. Na jakou otázku odpovídá test v řádku druhGentoo a jaká je jeho
+#    nulová hypotéza?
 # 3. Na jakou otázku odpovídá celkový F-test a na jakou párová
 #    porovnání?
 # 4. Co znamená Tukeyho interval, který obsahuje nulu?

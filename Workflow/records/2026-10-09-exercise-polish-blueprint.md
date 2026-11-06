@@ -60,3 +60,35 @@ After the fixes the script sourced again from a clean session.
 
 - Human approval: given by Ondřej Mottl on 2026-10-10 („I approve learning materials, presentation and R script“). Approval does not authorize staging, commits, pushes, a pull request or a release.
 - Beginner GUI pacing trial: author estimate about 91 minutes, independent reviewer estimate 105–115 minutes. If a dry run confirms the higher figure, candidates to move to Úlohy navíc are the U07 Q–Q plot or U04 step 2.
+
+## Revision 2026-11-04 (pre-teaching review)
+
+Decisions by Ondřej Mottl (2026-11-04): add the residual histogram and Cook's distance to the exercise; move the hand-computed RSS from U08 to N13. See [2026-11-04-pre-teaching-review.md](2026-11-04-pre-teaching-review.md).
+
+- L06-U07: histogram and Cook's distance added, with `hist()`, `cooks.distance()`, `type = "h"`, `sum()` on a logical and Plots-panel navigation explained before the task. Expected values: 4/n about 0,012; 11 of 342 penguins above it; largest distance about 0,027. Planned time 8 → 15 min.
+- L06-U08: fits the one-mean model, reads `Sum Sq`, F, df and p from `anova()`, and states H0. Planned time 8 → 6 min, because `anova()` shows the same sums.
+- L06-N13: now computes RSS of both models and their difference before the mean squares and F. Its explanation moved above the task heading.
+- Příprava: the `emmeans` check moved here from before U09, so a missing package is installed at the start, with explicit run and recovery steps; the project reopening route and the save-link step were added; the missing-file message names File > Open Project.
+- L06-N01: `unname()` removed; `all.equal(fitted(), fitted())` returns TRUE with names kept.
+- Terminology: bare „reference“ replaced by „referenční skupina“.
+
+Direct-work estimate after these changes: about 96 minutes (author estimate), just above the 85–95 minute budget. The independent reviewer estimates 105–118 minutes for a beginner GUI group, and the reviewer's easiest cuts were U04 step 2 or the U07 Q–Q plot. Pacing decision: Ondřej Mottl accepted this timing on 2026-11-05 („The timing is fine“), so nothing was cut. Human approval: see the end of the 2026-11-06 revision below.
+
+## Revision 2026-11-06 (instructor notes)
+
+Requested by Ondřej Mottl: „stripchart is maybe not needed. It can be replaced with boxplot“ and „remove t.test(), I do not want to teach that to students“.
+
+- L06-U02: `boxplot()` with the formula `hmotnost_tela_g ~ druh` replaces `stripchart()`; `boxplot()` is known from L02 and added to the list of known functions.
+- L06-U05: rebuilt as „Je rozdíl slučitelný s nulou?“ without `t.test()`. Students read the `druhGentoo` row of `summary()`, compute t as Estimate / Std. Error and state H0. Expected values: t = 23,61 at 272 residual degrees of freedom.
+- L06-N05 (Welch t-test) deleted. The ID stays unused, as published IDs are not renumbered.
+- „Ohlédnutí“ question 2 now asks what the `druhGentoo` test answers and its H0.
+- A line over 80 characters in the U07 expected result was rewrapped.
+- Moodle: no question shows or uses `t.test()`. In `_internal/moodle/knowledge/L06.yaml` the exercise was removed from the `t.test` sources.
+
+Validation: the script parses and sources from a clean session in a temporary project copy; U02 and U05 were solved in a reference harness and match the expected results; no line exceeds 80 characters; no BOM.
+
+Independent review (`exercise-reviewer.md`, Sonnet, because it needs judgement on beginner task design): no high or medium finding in the script; the reviewer reproduced every reference value. Applied: U05 no longer states H0 before asking for it; N12's expected result separates the rounded t² (557,4) from the exact one (557,6); the list of optional tasks notes that N05 is unused; the section of N06 and N07 renamed „Ověření výpočtů“. U05 now takes about 3–4 minutes instead of 7, so the core route is a few minutes shorter. The fixes were not re-reviewed.
+
+Scope of the `t.test()` removal, decided by Ondřej Mottl on 2026-11-06: it applies to the exercise only. The skripta keeps the historical note with `t.test()` code and the Welch box („it is good to have it here but we do not press students to learn it“), and the deck speaker note mentioning `t.test(var.equal = TRUE)` stays. The credit-test start script `_internal/moodle/questions/Zapocet/zapocet_start.R` keeps `t.test()` and `pairwise.t.test()` in its function list as distractors („I would keep it as red herring“).
+
+Human approval: Ondřej Mottl approved the exercise on 2026-11-06 („I approve the r script“), after the revision and its reviewer fixes. Approval does not authorize staging, commits, pushes, a pull request or a release.
