@@ -181,9 +181,9 @@ These changes were requested by name, so no separate story-map proposal was made
 ## Open items
 
 - Ondřej Mottl approved the exercise on 2026-11-06 („I approve the r script“), after the 2026-11-06 revision; its timing was accepted on 2026-11-05. He approved the Moodle question changes on 2026-11-05 („I approve the Moodle questions change“), after seeing the 38 substantively changed questions as built. The skripta and the presentation were approved by Ondřej Mottl on 2026-11-05; the independent reviewers did not re-check the fixes and notes applied after their review, including the F-distribution box.
-- Deck: Ondřej Mottl reviews it separately. The `quarto.md` rule on bold terms was not applied to other lessons.
-- Commit, push and the synchronized PollsLive render: the deck is currently the offline variant, so it has no live QR. A synchronized render needs a pushed branch. The cached client at `pollslive/.client-cache/` fails Git's ownership check since the Windows reinstall (new user SID), so it needs a `safe.directory` entry or a fresh download; the offline render used `BIOSTAT_POLLSLIVE_CLIENT_SOURCE` pointed at that cache after comparing `local.mjs` with the pinned revision.
+- The `quarto.md` rule on bold terms was not applied to other lessons.
+- Commit, push and the synchronized PollsLive render: done on 2026-11-06 with Ondřej Mottl's authorization. The branch was pushed, and the deck was rendered in `sync` mode (77 slides, QR on „Co si pamatujete z minulé lekce?“ and a live results slide); `docs/index.html` is identical to `Presentation/presentation.html` and `node pollslive/validate.mjs` passes. As for the offline render, `BIOSTAT_POLLSLIVE_CLIENT_SOURCE` pointed at the cached client at `pollslive/.client-cache/`, so no `safe.directory` entry was needed. The QR code was not checked on a phone.
 - New release before teaching: the latest release `L06-v0.5.0-20261015` predates all of this and the 2026-10-19 and 2026-10-21 changes.
 - Moodle: stamp `built_from` after the lesson is committed; import needs a test import and Moodle preview; ablation was not rerun.
 - `_brand`: a general class for larger code output on slides would resolve the remaining small code slides.
-- Not verified: fragment states in HTML, live PollsLive, RStudio GUI steps with beginners.
+- Not verified: fragment states in HTML, the PollsLive QR code and results on a physical device, RStudio GUI steps with beginners.
